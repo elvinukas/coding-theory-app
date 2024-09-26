@@ -46,6 +46,11 @@ public class FieldElement
     // overloading - (subtraction) operator
     public static FieldElement operator -(FieldElement firstElement, FieldElement secondElement)
     {
+        if (firstElement.field.q != secondElement.field.q)
+        {
+            throw new InvalidOperationException("Field elements must have the same field size q.");
+        }
+        
         // division by modulo is not required, since the element value cannot exceed the group size bounds already
         // if this was any other number, then modulo division would be required
         return new FieldElement((firstElement.value - secondElement.value + firstElement.field.q), firstElement.field);
