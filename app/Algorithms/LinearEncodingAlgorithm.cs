@@ -8,7 +8,7 @@ public class LinearEncodingAlgorithm
     public Matrix encodedMessage { get; private set; }
     public Matrix generatorMatrix { get; private set; }
     public Field field { get; private set; }
-    public int k; // dimensija (po kiek suskaidom)
+    public int k; // dimensija (how long each divided up part should be)
 
     public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension)
     {
@@ -21,7 +21,7 @@ public class LinearEncodingAlgorithm
         this.generatorMatrix = generatorMatrix;
         this.field = originalMessage[0, 0].field;
 
-        if (k <= 0)
+        if (dimension <= 0)
         {
             throw new ArgumentException("The dimension count k cannot be less or equal than 0.");
         }
@@ -72,10 +72,13 @@ public class LinearEncodingAlgorithm
         }
         
         // adding zeroes (if required)
-        for (int i = length; i < totalMessageLength; ++i)
-        {
-            totalMessage[0, i] = 0;
-        }
+        // through testing found that this part is not required, since all values when creating a vector
+        // (or a 2d matrix) are initialized to 0 automatically
+        
+        // for (int i = length; i < totalMessageLength; ++i)
+        // {
+        //     totalMessage[0, i] = 0;
+        // }
 
         return totalMessage;
     }
@@ -84,13 +87,46 @@ public class LinearEncodingAlgorithm
     {
         // the entire message with a correct size for encoding
         // check GetCorrectSizeMessageForEncoding() for more info about message length
-        Matrix totalMessage = new Matrix(GetCorrectSizeMessageForEncoding(), field.q);
-        Matrix encodedMessage = totalMessage * generatorMatrix;
-        int length = originalMessage.columns;
+
+        int[,] totalMessage = GetCorrectSizeMessageForEncoding();
+        int totalMessageLength = totalMessage.GetLength(1); // number of columns
+                                                                    // (length of the message with possibly added 0'es)
+                                                            
+        int numberOfParts = totalMessageLength / k;
+
+        int encodedMessageRows = generatorMatrix.rows; // the encoded message will have the same amount of rows
+                                                       // as the generator matrix
+
+        int encodedMessageLengthPerPart = generatorMatrix.columns; // length of the encoded message per part
+        int totalEncodedMessageLength = numberOfParts * encodedMessageLengthPerPart;
+        int[,] encodedMessageVector = new int[1, totalEncodedMessageLength]; // 1 row, totalEncodedMessageLength columns
+                                                                             // of a matrix (meaning a vector in this case)
+                                                                             
+        // encoding each part of the divided up message
+        for (int part = 0; part < numberOfParts; ++part)
+        {
+            int[,] messagePart = new int[1, k]; // 1 row, k columns, since each encodedMessage is k chars long
+            for (int column = 0; column < k; ++column)
+            {
+                messagePart[0, column] = totalMessage[0, part * k + column];
+            }
+
+
+            Matrix partMatrix = new Matrix(messagePart, field.q);
+            Matrix encodedPartMatrix = partMatrix * generatorMatrix;
+
+            for (int column = 0; column < encodedMessageLengthPerPart; ++column)
+            {
+                encodedMessageVector[0, part * encodedMessageLengthPerPart + column] =
+                    encodedPartMatrix[0, column].value;
+            }
+
+        }
         
-        return (encodedMessage, length);
-        
-        
+        // returning the encoded vector fully merged
+        Matrix resultMatrix = new Matrix(encodedMessageVector, field.q);
+        return (resultMatrix, originalMessage.columns);
+
     }
     
     
