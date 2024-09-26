@@ -5,7 +5,8 @@ namespace app.Math;
 
 public class GroupElement
 {
-    public static int q { get; private set; } // the size of the group, is static (global) for all group elements
+    public static int q { get; private set; } = 2; // the size of the group, is static (global) for all group elements.
+                                                   // default value 2
     public int value { get; private set; } // the value of a group element
 
     public static void SetGroupSize(int value)
