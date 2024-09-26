@@ -38,16 +38,35 @@ app.Run();
 /// ------------------------------------------------------
 /// ------------------------------------------------------
 
-GroupElement.SetGroupSize(5);
-GroupElement a = new GroupElement(0);
-GroupElement b = new GroupElement(5);
-GroupElement c = new GroupElement(2);
-GroupElement d = new GroupElement(10);
-GroupElement e = new GroupElement(3);
+//GroupElement.SetGroupSize(5);
+Field field = new Field(2);
+FieldElement a = new FieldElement(0, field);
+FieldElement b = new FieldElement(5, field);
+FieldElement c = new FieldElement(2, field);
+FieldElement d = new FieldElement(10, field);
+FieldElement e = new FieldElement(3, field);
 
-GroupElement sumResult = c + e;
-GroupElement subResult = new GroupElement(10) - new GroupElement(2);
+FieldElement sumResult = c + e;
+FieldElement subResult = new FieldElement(10, field) - new FieldElement(2, field);
 Console.WriteLine(sumResult.value);
 Console.WriteLine(subResult.value);
-Console.WriteLine((new GroupElement(1) - new GroupElement(2)).value);
+Console.WriteLine((new FieldElement(1, field) - new FieldElement(2, field)).value);
+
+Console.WriteLine("Multiply result:");
+FieldElement vienetas = new FieldElement(1, field);
+FieldElement antrasVienetas = new FieldElement(1, field);
+Console.WriteLine((vienetas * antrasVienetas).value);
+
+Console.WriteLine();
+// int[,] elements = { { 1, 2 }, {3, 4} };
+// Matrix matrix = new Matrix(elements);
+int[,] moreElements = { { 1, 2, 3, 884, 9095 }, { 8, 7, 8, 9, 10 } };
+Matrix biggerMatrix = new Matrix(moreElements);
+
+//Console.WriteLine(matrix.ToString());
+Console.Write(biggerMatrix.ToString());
+
+int[,] newElements = { { 1, 2, 3, 4, 5}, { 3, 4, 5, 6, 6 } };
+Matrix newMatrix = new Matrix(newElements);
+Console.Write(newMatrix.ToString());
 
