@@ -5,10 +5,10 @@ namespace app.Math;
 
 public class GroupElement
 {
-    private static int q { get; set; } // the size of the group, is static (global) for all group elements
-    private int value { get; set; } // the value of a group element
+    public static int q { get; private set; } // the size of the group, is static (global) for all group elements
+    public int value { get; private set; } // the value of a group element
 
-    public void SetGroupSize(int value)
+    public static void SetGroupSize(int value)
     {
         if (value < 2 && !IsPrime(value))
         {
