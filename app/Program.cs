@@ -64,9 +64,18 @@ int[,] moreElements = { { 1, 2, 3, 884, 9095 }, { 8, 7, 8, 9, 10 } };
 Matrix biggerMatrix = new Matrix(moreElements);
 
 //Console.WriteLine(matrix.ToString());
-Console.Write(biggerMatrix.ToString());
+//Console.Write(biggerMatrix.ToString());
 
 int[,] newElements = { { 1, 2, 3, 4, 5}, { 3, 4, 5, 6, 6 } };
 Matrix newMatrix = new Matrix(newElements);
-Console.Write(newMatrix.ToString());
+//Console.Write(newMatrix.ToString());
+
+
+int[,] example = { { 1, 1, 0 } };
+int[,] generuojantysElementai = { { 1, 1, 0, 0 }, { 0, 1, 1, 1 }, { 1, 0, 1, 0 } };
+Matrix generuojantiMatrica = new Matrix(generuojantysElementai);
+Matrix zinute = new Matrix(example);
+
+Console.Write((zinute * generuojantiMatrica).ToString());
+
 

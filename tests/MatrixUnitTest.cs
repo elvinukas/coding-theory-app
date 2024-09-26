@@ -1,5 +1,3 @@
-using System;
-using Xunit;
 using app.Math;
 
 namespace tests
