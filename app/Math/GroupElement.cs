@@ -10,7 +10,7 @@ public class GroupElement
 
     public static void SetGroupSize(int value)
     {
-        if (value < 2 && !IsPrime(value))
+        if (value < 2 || !IsPrime(value))
         {
             throw new ArgumentException("The group size must be a prime number.");
         }
