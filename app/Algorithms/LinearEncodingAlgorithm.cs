@@ -108,9 +108,6 @@ public class LinearEncodingAlgorithm
                                                             
         int numberOfParts = totalMessageLength / k;
 
-        int encodedMessageRows = GeneratorMatrix.Rows; // the encoded message will have the same amount of rows
-                                                       // as the generator matrix
-
         int encodedMessageLengthPerPart = GeneratorMatrix.Columns; // length of the encoded message per part
         int totalEncodedMessageLength = numberOfParts * encodedMessageLengthPerPart;
         int[,] encodedMessageVector = new int[1, totalEncodedMessageLength]; // 1 row, totalEncodedMessageLength columns
