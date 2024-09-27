@@ -6,7 +6,7 @@ namespace app.Math;
 public class FieldElement
 {
     public Field field;
-    public int value { get; private set; } // the value of a group element
+    public int Value { get; private set; } // the value of a group element
     
     
     // checking if the group element is correct, and if not fixing it according to the group size
@@ -14,7 +14,7 @@ public class FieldElement
     public FieldElement(int value, Field field)
     {
         this.field = field;
-        this.value = ((value % field.q) + field.q) % field.q;
+        this.Value = ((value % field.q) + field.q) % field.q;
     }
 
     
@@ -26,7 +26,7 @@ public class FieldElement
             throw new InvalidOperationException("Field elements must have the same field size q.");
         }
         
-        int result = (firstElement.value + secondElement.value) % firstElement.field.q;
+        int result = (firstElement.Value + secondElement.Value) % firstElement.field.q;
         return new FieldElement(result, firstElement.field);
     }
 
@@ -38,7 +38,7 @@ public class FieldElement
             throw new InvalidOperationException("Field elements must have the same field size q.");
         }
 
-        int result = (firstElement.value * secondElement.value) % firstElement.field.q;
+        int result = (firstElement.Value * secondElement.Value) % firstElement.field.q;
         return new FieldElement(result, firstElement.field);
     }
     
@@ -53,7 +53,7 @@ public class FieldElement
         
         // division by modulo is not required, since the element value cannot exceed the group size bounds already
         // if this was any other number, then modulo division would be required
-        return new FieldElement((firstElement.value - secondElement.value + firstElement.field.q), firstElement.field);
+        return new FieldElement((firstElement.Value - secondElement.Value + firstElement.field.q), firstElement.field);
     }
 
     // i'm not sure whether division is required, so we will stick with these operators

@@ -3,22 +3,22 @@ using app.Math;
 
 public class LinearEncodingAlgorithm
 {
-    public Matrix originalMessage { get; private set; }
-    public int originalMessageLength { get; private set; }
-    public Matrix encodedMessage { get; private set; }
-    public Matrix generatorMatrix { get; private set; }
+    public Matrix OriginalMessage { get; private set; }
+    public int OriginalMessageLength { get; private set; }
+    public Matrix EncodedMessage { get; private set; }
+    public Matrix GeneratorMatrix { get; private set; }
     public Field field { get; private set; }
     public int k; // dimensija (how long each divided up part should be)
 
     public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension)
     {
-        if (originalMessage.rows != 1)
+        if (originalMessage.Rows != 1)
         {
             throw new ArgumentException("The original message must be sent as a vector (matrix with one row).");
         }
         
-        this.originalMessage = originalMessage;
-        this.generatorMatrix = generatorMatrix;
+        this.OriginalMessage = originalMessage;
+        this.GeneratorMatrix = generatorMatrix;
         this.field = originalMessage[0, 0].field;
 
         if (dimension <= 0)
@@ -28,13 +28,13 @@ public class LinearEncodingAlgorithm
         this.k = dimension;
         
         // call encoding algorithm
-        (this.encodedMessage, originalMessageLength) = EncodeMessage();
+        (this.EncodedMessage, OriginalMessageLength) = EncodeMessage();
         
     }
 
     public int[,] GetCorrectSizeMessageForEncoding()
     {
-        int length = originalMessage.columns; // columns represent the lenght of the vector
+        int length = OriginalMessage.Columns; // columns represent the lenght of the vector
         if (k > length)
         {
             throw new ArgumentException("The dimension count k cannot be larger than the vector length.");
@@ -68,7 +68,7 @@ public class LinearEncodingAlgorithm
         // inserting originalMessage into the totalMessage
         for (int i = 0; i < length; ++i)
         {
-            totalMessage[0, i] = originalMessage[0, i].value;
+            totalMessage[0, i] = OriginalMessage[0, i].Value;
         }
         
         // adding zeroes (if required)
@@ -94,10 +94,10 @@ public class LinearEncodingAlgorithm
                                                             
         int numberOfParts = totalMessageLength / k;
 
-        int encodedMessageRows = generatorMatrix.rows; // the encoded message will have the same amount of rows
+        int encodedMessageRows = GeneratorMatrix.Rows; // the encoded message will have the same amount of rows
                                                        // as the generator matrix
 
-        int encodedMessageLengthPerPart = generatorMatrix.columns; // length of the encoded message per part
+        int encodedMessageLengthPerPart = GeneratorMatrix.Columns; // length of the encoded message per part
         int totalEncodedMessageLength = numberOfParts * encodedMessageLengthPerPart;
         int[,] encodedMessageVector = new int[1, totalEncodedMessageLength]; // 1 row, totalEncodedMessageLength columns
                                                                              // of a matrix (meaning a vector in this case)
@@ -113,19 +113,19 @@ public class LinearEncodingAlgorithm
 
 
             Matrix partMatrix = new Matrix(messagePart, field.q);
-            Matrix encodedPartMatrix = partMatrix * generatorMatrix;
+            Matrix encodedPartMatrix = partMatrix * GeneratorMatrix;
 
             for (int column = 0; column < encodedMessageLengthPerPart; ++column)
             {
                 encodedMessageVector[0, part * encodedMessageLengthPerPart + column] =
-                    encodedPartMatrix[0, column].value;
+                    encodedPartMatrix[0, column].Value;
             }
 
         }
         
         // returning the encoded vector fully merged
         Matrix resultMatrix = new Matrix(encodedMessageVector, field.q);
-        return (resultMatrix, originalMessage.columns);
+        return (resultMatrix, OriginalMessage.Columns);
 
     }
     

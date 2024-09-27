@@ -48,14 +48,14 @@ FieldElement e = new FieldElement(3, field);
 
 FieldElement sumResult = c + e;
 FieldElement subResult = new FieldElement(10, field) - new FieldElement(2, field);
-Console.WriteLine(sumResult.value);
-Console.WriteLine(subResult.value);
-Console.WriteLine((new FieldElement(1, field) - new FieldElement(2, field)).value);
+Console.WriteLine(sumResult.Value);
+Console.WriteLine(subResult.Value);
+Console.WriteLine((new FieldElement(1, field) - new FieldElement(2, field)).Value);
 
 Console.WriteLine("Multiply result:");
 FieldElement vienetas = new FieldElement(1, field);
 FieldElement antrasVienetas = new FieldElement(1, field);
-Console.WriteLine((vienetas * antrasVienetas).value);
+Console.WriteLine((vienetas * antrasVienetas).Value);
 
 Console.WriteLine();
 // int[,] elements = { { 1, 2 }, {3, 4} };

@@ -33,13 +33,13 @@ namespace tests
             Field field5 = new Field(5);
             
             FieldElement a = new FieldElement(5, field5);
-            Assert.Equal(0, a.value);
+            Assert.Equal(0, a.Value);
 
             FieldElement b = new FieldElement(4, field5);
-            Assert.Equal(4, b.value);
+            Assert.Equal(4, b.Value);
 
             FieldElement c = new FieldElement(-2, field5);
-            Assert.Equal(3, c.value);
+            Assert.Equal(3, c.Value);
         }
 
         [Fact]
@@ -52,14 +52,14 @@ namespace tests
             FieldElement sum = a + b;
             
             // 2 + 3 => 5 % 5 = 0
-            Assert.Equal(0, sum.value);
+            Assert.Equal(0, sum.Value);
             
-            Assert.Equal(4, (new FieldElement(1, field5) + new FieldElement(3, field5)).value);
-            Assert.Equal(2, (new FieldElement(8, field5) + new FieldElement(14, field5)).value);
+            Assert.Equal(4, (new FieldElement(1, field5) + new FieldElement(3, field5)).Value);
+            Assert.Equal(2, (new FieldElement(8, field5) + new FieldElement(14, field5)).Value);
             
             Field field2 = new Field(2);
-            Assert.Equal(0, (new FieldElement(8, field2) + new FieldElement(14, field2)).value);
-            Assert.Equal(1, (new FieldElement(2, field2) + new FieldElement(15, field2)).value);
+            Assert.Equal(0, (new FieldElement(8, field2) + new FieldElement(14, field2)).Value);
+            Assert.Equal(1, (new FieldElement(2, field2) + new FieldElement(15, field2)).Value);
             
             // checking exception
             Assert.Throws<InvalidOperationException>(() => new FieldElement(5, field2) + new FieldElement(3, field5));
@@ -70,13 +70,13 @@ namespace tests
         public void OperatorMultiplication_CheckIfMultiplicationIsCorrect()
         {
             Field field2 = new Field(2);
-            Assert.Equal(1, (new FieldElement(1, field2) * new FieldElement(1, field2)).value);
-            Assert.Equal(0, (new FieldElement(1, field2) * new FieldElement(0, field2)).value);
-            Assert.Equal(0, (new FieldElement(0, field2) * new FieldElement(0, field2)).value);
+            Assert.Equal(1, (new FieldElement(1, field2) * new FieldElement(1, field2)).Value);
+            Assert.Equal(0, (new FieldElement(1, field2) * new FieldElement(0, field2)).Value);
+            Assert.Equal(0, (new FieldElement(0, field2) * new FieldElement(0, field2)).Value);
             
             Field field7 = new Field(7);
-            Assert.Equal(5, (new FieldElement(18, field7) * new FieldElement(10, field7)).value);
-            Assert.Equal(3, (new FieldElement(5, field7) * new FieldElement(2, field7)).value); 
+            Assert.Equal(5, (new FieldElement(18, field7) * new FieldElement(10, field7)).Value);
+            Assert.Equal(3, (new FieldElement(5, field7) * new FieldElement(2, field7)).Value); 
             
             // checking exception
             Assert.Throws<InvalidOperationException>(() => new FieldElement(1, field2) * new FieldElement(5, field7));
@@ -86,14 +86,14 @@ namespace tests
         public void OperatorSubtraction_CheckIfSubtractionIsCorrect()
         {
             Field field2 = new Field(2);
-            Assert.Equal(0, (new FieldElement(1, field2) - new FieldElement(1, field2)).value);
-            Assert.Equal(1, (new FieldElement(1, field2) - new FieldElement(0, field2)).value);
-            Assert.Equal(1, (new FieldElement(0, field2) - new FieldElement(1, field2)).value);
-            Assert.Equal(0, (new FieldElement(0, field2) - new FieldElement(0, field2)).value);
+            Assert.Equal(0, (new FieldElement(1, field2) - new FieldElement(1, field2)).Value);
+            Assert.Equal(1, (new FieldElement(1, field2) - new FieldElement(0, field2)).Value);
+            Assert.Equal(1, (new FieldElement(0, field2) - new FieldElement(1, field2)).Value);
+            Assert.Equal(0, (new FieldElement(0, field2) - new FieldElement(0, field2)).Value);
             
             Field field7 = new Field(7);
-            Assert.Equal(6, (new FieldElement(5, field7) - new FieldElement(6, field7)).value);
-            Assert.Equal(1, (new FieldElement(18, field7) - new FieldElement(3, field7)).value);
+            Assert.Equal(6, (new FieldElement(5, field7) - new FieldElement(6, field7)).Value);
+            Assert.Equal(1, (new FieldElement(18, field7) - new FieldElement(3, field7)).Value);
             
             // checking exception
             Assert.Throws<InvalidOperationException>(() => new FieldElement(0, field2) - new FieldElement(4, field7));

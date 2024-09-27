@@ -60,7 +60,7 @@ public class LinearEncodingAlgorithmUnitTest
         int dimension = 3;
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension);
-        Assert.Equal("1 0 1 1 \n", algorithm.encodedMessage.ToString());
+        Assert.Equal("1 0 1 1 \n", algorithm.EncodedMessage.ToString());
         
         
     }
@@ -78,7 +78,7 @@ public class LinearEncodingAlgorithmUnitTest
         int dimension = 1;
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension);
-        Assert.Equal("1 1 0 0 1 1 0 0 0 0 0 0 \n", algorithm.encodedMessage.ToString());
+        Assert.Equal("1 1 0 0 1 1 0 0 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
     }
@@ -100,7 +100,7 @@ public class LinearEncodingAlgorithmUnitTest
         // 1 1 0 0
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension);
-        Assert.Equal("1 0 1 1 0 0 0 0 \n", algorithm.encodedMessage.ToString());
+        Assert.Equal("1 0 1 1 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
     }

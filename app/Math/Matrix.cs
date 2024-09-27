@@ -4,21 +4,21 @@ namespace app.Math;
 public class Matrix
 {
     private FieldElement[,] matrix; // holds a two dimensional array [,]
-    public int rows { get; private set; }
-    public int columns { get; private set; }
+    public int Rows { get; private set; }
+    public int Columns { get; private set; }
     
     // creating an empty matrix
     // standard
     public Matrix(int rows, int columns, int q = 2)
     {
-        this.rows = rows;
-        this.columns = columns;
-        matrix = new FieldElement[this.rows, this.columns]; // this makes all elements in the matrix group groupelements
+        this.Rows = rows;
+        this.Columns = columns;
+        matrix = new FieldElement[this.Rows, this.Columns]; // this makes all elements in the matrix group groupelements
         
         
-        for (int i = 0; i < this.rows; ++i)
+        for (int i = 0; i < this.Rows; ++i)
         {
-            for (int j = 0; j < this.columns; ++j)
+            for (int j = 0; j < this.Columns; ++j)
             {
                 matrix[i, j] = new FieldElement(0, new Field(q));
             }
@@ -30,14 +30,14 @@ public class Matrix
     public Matrix(int[,] elements, int q = 2)
     {
         // creating an empty matrix with measurements taken from elements 2d array
-        this.rows = elements.GetLength(0);
-        this.columns = elements.GetLength(1);
-        matrix = new FieldElement[rows, columns];
+        this.Rows = elements.GetLength(0);
+        this.Columns = elements.GetLength(1);
+        matrix = new FieldElement[Rows, Columns];
 
         // assigning each matrix element with a specified element from the elements 2d array
-        for (int row = 0; row < rows; ++row)
+        for (int row = 0; row < Rows; ++row)
         {
-            for (int column = 0; column < columns; ++column)
+            for (int column = 0; column < Columns; ++column)
             {
                 matrix[row, column] = new FieldElement(elements[row, column], new Field(q));
             }
@@ -59,7 +59,7 @@ public class Matrix
     public static Matrix operator +(Matrix a, Matrix b)
     {
         // checking if the matrixes can be added together
-        if (a.rows != b.rows || a.columns != b.columns)
+        if (a.Rows != b.Rows || a.Columns != b.Columns)
         {
             throw new ArithmeticException(
                 "Matrixes must have the same number of rows and columns in order to be added.");
@@ -73,11 +73,11 @@ public class Matrix
         }
         
         // creating a matrix to store a result
-        Matrix result = new Matrix(a.rows, a.columns);
+        Matrix result = new Matrix(a.Rows, a.Columns);
 
-        for (int row = 0; row < a.rows; ++row)
+        for (int row = 0; row < a.Rows; ++row)
         {
-            for (int column = 0; column < a.columns; ++column)
+            for (int column = 0; column < a.Columns; ++column)
             {
                 result[row, column] = a[row, column] + b[row, column]; // this uses the GroupElement
                                                                        // addition with operator overloading
@@ -93,7 +93,7 @@ public class Matrix
     public static Matrix operator -(Matrix a, Matrix b)
     {
         // checking if matrixes can be subtracted
-        if (a.rows != b.rows || a.columns != b.columns)
+        if (a.Rows != b.Rows || a.Columns != b.Columns)
         {
             throw new ArithmeticException(
                 "Matrixes must have the same number of rows and columns in order to be subtracted.");
@@ -107,11 +107,11 @@ public class Matrix
         }
         
         // creating a matrix to store the result
-        Matrix result = new Matrix(a.rows, a.columns);
+        Matrix result = new Matrix(a.Rows, a.Columns);
 
-        for (int row = 0; row < a.rows; ++row)
+        for (int row = 0; row < a.Rows; ++row)
         {
-            for (int column = 0; column < a.columns; ++column)
+            for (int column = 0; column < a.Columns; ++column)
             {
                 result[row, column] = a[row, column] - b[row, column]; // this uses the GroupElement
                                                                        // subtraction with operator overloading
@@ -129,7 +129,7 @@ public class Matrix
     public static Matrix operator *(Matrix a, Matrix b)
     {
         // checking if matrix multiplication is possible
-        if (a.columns != b.rows)
+        if (a.Columns != b.Rows)
         {
             throw new ArithmeticException(
                 "Matrix multiplication is not possible. The number of First Matrix columns must equal the number of rows in the Second Matrix");
@@ -144,11 +144,11 @@ public class Matrix
         
         // storing the result
         // the matrix multiplication result will be in a shape of a.rows and b.columns
-        Matrix result = new Matrix(a.rows, b.columns);
+        Matrix result = new Matrix(a.Rows, b.Columns);
         int q = a.matrix[0, 0].field.q;
-        for (int row = 0; row < a.rows; ++row)
+        for (int row = 0; row < a.Rows; ++row)
         {
-            for (int column = 0; column < b.columns; ++column)
+            for (int column = 0; column < b.Columns; ++column)
             {
                 // multiplication uses the sum as the final result
                 FieldElement sumResult = new FieldElement(0, new Field(q));
@@ -157,7 +157,7 @@ public class Matrix
                 // we start from the first matrix and second matrix top left corner and multiply
                 // then increase first matrix column by one, and second matrix row by one and multiply
                 // continue until every element is multiplied
-                for (int i = 0; i < a.columns; ++i)
+                for (int i = 0; i < a.Columns; ++i)
                 {
                     sumResult += a[row, i] * b[i, column]; // using GroupElement multiplication
                 }
@@ -175,11 +175,11 @@ public class Matrix
     public override string ToString()
     {
         StringBuilder result = new StringBuilder();
-        for (int row = 0; row < rows; ++row)
+        for (int row = 0; row < Rows; ++row)
         {
-            for (int column = 0; column < columns; ++column)
+            for (int column = 0; column < Columns; ++column)
             {
-                result.Append(matrix[row, column].value.ToString()).Append(" ");
+                result.Append(matrix[row, column].Value.ToString()).Append(" ");
             }
             result.AppendLine();
         }

@@ -11,11 +11,11 @@ namespace tests
             Matrix a = new Matrix(2, 2, field.q); 
             FieldElement zero = new FieldElement(0, field);
 
-            for (int row = 0; row < a.rows; ++row)
+            for (int row = 0; row < a.Rows; ++row)
             {
-                for (int column = 0; column < a.columns; ++column)
+                for (int column = 0; column < a.Columns; ++column)
                 {
-                    Assert.Equal(a[row, column].value, zero.value);
+                    Assert.Equal(a[row, column].Value, zero.Value);
                 }
             }
         }
@@ -27,11 +27,11 @@ namespace tests
             int[,] elements = { { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 10 } };
             Matrix a = new Matrix(elements, field.q); 
 
-            for (int row = 0; row < a.rows; ++row)
+            for (int row = 0; row < a.Rows; ++row)
             {
-                for (int column = 0; column < a.columns; ++column)
+                for (int column = 0; column < a.Columns; ++column)
                 {
-                    Assert.Equal(a[row, column].value, new FieldElement(elements[row, column], field).value);
+                    Assert.Equal(a[row, column].Value, new FieldElement(elements[row, column], field).Value);
                 }
             }
         }
@@ -47,7 +47,7 @@ namespace tests
             
             FieldElement actualElement = matrix[2, 4];
         
-            Assert.Equal(expectedElement.value, actualElement.value);
+            Assert.Equal(expectedElement.Value, actualElement.Value);
         }
     
         [Fact]
