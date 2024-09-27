@@ -2,19 +2,18 @@ namespace app.Math;
 
 public class RandomNumberGenerator
 {
-    public double RandomNumber { get; private set;}
+    private double RandomNumber;
     private Random random;
 
     public RandomNumberGenerator()
     {
         this.random = new Random();
-        this.RandomNumber = GetNewRandomNumber();
     }
 
-    public double GetNewRandomNumber()
+    // this method is virtual, so that later on in the mock tests it is able to be overriden
+    public virtual double GetNewRandomNumber()
     {
-        this.RandomNumber = random.NextDouble();
-        return RandomNumber;
+        return random.NextDouble();
     }
     
 }
