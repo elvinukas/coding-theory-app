@@ -9,23 +9,37 @@ public class LinearEncodingAlgorithm
     public Matrix GeneratorMatrix { get; private set; }
     public Field field { get; private set; }
     public int k; // dimensija (how long each divided up part should be)
-
-    public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension)
+    
+    public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension,
+        GeneratorMatrixGenerator matrixGenerator = null)
+    // a custom matrix generator can be assigned, mostly for mock unit testing
     {
         if (originalMessage.Rows != 1)
         {
             throw new ArgumentException("The original message must be sent as a vector (matrix with one row).");
         }
         
-        this.OriginalMessage = originalMessage;
-        this.GeneratorMatrix = generatorMatrix;
-        this.field = originalMessage[0, 0].field;
-
         if (dimension <= 0)
         {
             throw new ArgumentException("The dimension count k cannot be less or equal than 0.");
         }
         this.k = dimension;
+        this.OriginalMessage = originalMessage;
+
+        if (generatorMatrix == null)
+        {
+            if (matrixGenerator == null)
+            {
+                matrixGenerator = new GeneratorMatrixGenerator(new RandomNumberGenerator());
+            }
+            this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, OriginalMessage.Columns);
+        }
+        else
+        {
+            this.GeneratorMatrix = generatorMatrix;
+        }
+        
+        this.field = originalMessage[0, 0].field;
         
         // call encoding algorithm
         (this.EncodedMessage, OriginalMessageLength) = EncodeMessage();

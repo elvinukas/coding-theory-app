@@ -40,11 +40,9 @@ public class Channel
             double randomChanceOfErrorForElement = RandomNumberGenerator.GetNewRandomNumber();
             if (randomChanceOfErrorForElement < ProbabilityOfError)
             {
-                var test = OriginalMessage[0, value];
                 error2DArray[0, value] = 1;
             }
             
-
         }
         
         Matrix errorVector = new Matrix(error2DArray); // e

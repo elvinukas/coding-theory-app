@@ -1,6 +1,7 @@
 namespace tests;
 using app.Algorithms;
 using app.Math;
+using Moq;
 
 public class LinearEncodingAlgorithmUnitTest
 {
@@ -104,6 +105,46 @@ public class LinearEncodingAlgorithmUnitTest
         
         
     }
+
+    [Fact]
+    public void Constructor_CheckIfEncodedMessageIsCorrectWhenRandomGeneratorMatrixIsUsed()
+    {
+        Field field = new Field(2);
+        int[,] elements1 = { { 1, 1, 0, 0, 1 } };
+        Matrix originalMessage = new Matrix(elements1, field.q);
+        int dimension = 3;
+
+        // these are the values that will also be used to generate a GeneratorMatrix
+        var queueOfRandomValues = new Queue<double>(new[]
+        {
+            0.4, 0.6, 0.2, 0.9, 0.6, 0.7, 0.1
+        });
+        var mock = new Mock<RandomNumberGenerator>();
+        mock.Setup(random => random.GetNewRandomNumber())
+            .Returns(() => queueOfRandomValues.Dequeue());
+        
+        // injecting "mock" RandomNumberGenerator into GeneratorMatrixGenerator
+        var matrixGenerator = new GeneratorMatrixGenerator(mock.Object);
+
+        // ---------------------------------------------------------------------------------------------------
+        // basically the encodingAlgorithm when it is created has no generatorMatrix specified
+        // this means that the algorithm must generate a generatorMatrix
+        // using a GeneratorMatrixGenerator (a generator which generates generator matrices)
+        //
+        // however, since this is a unit test, we can specify what type of GeneratorMatrixGenerator is provided
+        // to manipulate the randomness of the results
+        // meaning the entire "randomly" generated generatorMatrix is actually known beforehand
+        // ---------------------------------------------------------------------------------------------------
+
+        LinearEncodingAlgorithm encodingAlgorithm =
+            new LinearEncodingAlgorithm(originalMessage, null, dimension, matrixGenerator);
+        
+        // checking if the correct random generator matrix was created
+        Assert.Equal("1 0 0 0 1 \n0 1 0 0 1 \n0 0 1 1 1 \n", encodingAlgorithm.GeneratorMatrix.ToString());
+        Assert.Equal("1 1 0 0 0 0 1 0 0 1 \n",encodingAlgorithm.EncodedMessage.ToString());
+
+
+    }
     
     
 
@@ -122,18 +163,10 @@ public class LinearEncodingAlgorithmUnitTest
         Assert.Equal("The dimension count k cannot be larger than the vector length.", exception.Message);
         
     }
-
-    [Fact]
-    public void GetCorrectSizeMessageForEncoding_CheckIfLengthCorrectIfDivisible()
-    {
-        
-    }
-
-    [Fact]
-    public void GetCorrectSizeMessegeForEncoding_CheckIfLengthCorrectIfNotDivisible()
-    {
-        
-    }
+    
+    
+    
+    
     
     
 }
