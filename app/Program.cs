@@ -78,4 +78,10 @@ Matrix zinute = new Matrix(example);
 
 Console.Write((zinute * generuojantiMatrica).ToString());
 
+int[,] exampleGenMatricos = { { 1, 0, 0, 0, 1 }, { 0, 1, 0, 0, 1 }, { 0, 0, 1, 1, 1 } };
+Matrix genMatrica = new Matrix(exampleGenMatricos);
+
+StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(genMatrica);
+
+
 

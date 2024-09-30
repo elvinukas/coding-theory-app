@@ -15,8 +15,28 @@ using app.Math;
 public class StepByStepDecodingAlgorithm
 {
     public readonly Matrix GeneratorMatrix;
+    public int CodewordLength { get; set; } // n - the length of each codeword
+    public int OriginalWordLength { get; set; } // k - original word length of a message (dimension)
     
+    
+    // firstly, all valid codewords need to be generated and listed
+    // for them to be generated, it is crutial that n and k is known
+    // the amount of valid messages is 2^k
 
-    // firstly, a standard array needs to be generated
+    public StepByStepDecodingAlgorithm(Matrix generatorMatrix, int n, int k)
+    {
+        if (generatorMatrix == null || n == null || k == null)
+        {
+            throw new ArgumentException("No arguments for the step-by-step decoding algorithm can be null.");
+        }
+
+        this.GeneratorMatrix = generatorMatrix;
+        this.CodewordLength = n;
+        this.OriginalWordLength = k;
+        
+        
+
+    }
+
 
 }
