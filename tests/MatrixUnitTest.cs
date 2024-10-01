@@ -212,6 +212,18 @@ namespace tests
             
             
         }
+
+        [Fact]
+        public void MergeVectors_CheckIfMergingIsCorrect()
+        {
+            Matrix firstVector = new Matrix(new int[,] { { 0, 1, 2, 3, 4 } }, 5);
+            Matrix secondVector = new Matrix(new int[,] { { 1, 2, 3 } }, 5);
+
+            Matrix mergedVector = Matrix.MergeVectors(firstVector, secondVector);
+            
+
+
+        }
         
         
         

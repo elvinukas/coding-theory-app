@@ -17,6 +17,33 @@ public class FieldElement
         this.Value = ((value % field.q) + field.q) % field.q;
     }
 
+
+    public static bool operator ==(FieldElement firstElement, FieldElement secondElement)
+    {
+        if (!(firstElement != secondElement))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool operator !=(FieldElement firstElement, FieldElement secondElement)
+    {
+        if (firstElement.field != secondElement.field)
+        {
+            return true;
+        }
+
+        if (firstElement.Value != secondElement.Value)
+        {
+            return true;
+        }
+
+        return false;
+
+    }
+
     
     // overloading + (addition) operator
     public static FieldElement operator +(FieldElement firstElement, FieldElement secondElement)

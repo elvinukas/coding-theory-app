@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 namespace app.Math;
 
@@ -55,6 +56,76 @@ public class Matrix
 
     /// matrix operations
 
+    public static bool operator ==(Matrix a, Matrix b)
+    {
+        if (!(a != b))
+        {
+            return true;
+        }
+
+        return false;
+        
+    }
+
+
+    public static bool operator !=(Matrix a, Matrix b)
+    {
+        if (a.Rows != b.Rows || a.Columns != b.Columns)
+        {
+            return true;
+        }
+
+        for (int row = 0; row < a.Rows; ++row)
+        {
+            for (int column = 0; column < a.Columns; ++column)
+            {
+                if (a[row, column] != b[row, column])
+                {
+                    return true;
+                }
+                
+            }
+        }
+
+        return false;
+        
+
+    }
+    
+    
+    // merging two vectors into one matrix
+    public static Matrix MergeVectors(Matrix a, Matrix b)
+    {
+        if (a.Rows > 1 || b.Rows > 1)
+        {
+            throw new ArgumentException("Only vectors (matrices with 1 row) can be merged.");
+        }
+
+        if (a[0, 0].field != b[0, 0].field)
+        {
+            throw new ArgumentException("Only vectors (matrices with 1 row) with the same field size q can be merged.");
+        }
+
+        int length = a.Columns + b.Columns;
+        int[,] newMergedMessageArray = new int[1, length];
+        
+        // first matrix copy
+        for (int column = 0; column < a.Columns; ++column)
+        {
+            newMergedMessageArray[0, column] = a[0, column].Value;
+        }
+        
+        // second matrix copy
+        for (int column = 0; column < b.Columns; ++column)
+        {
+            newMergedMessageArray[0, a.Columns + column] = b[0, column].Value;
+        }
+
+        return new Matrix(newMergedMessageArray);
+        
+    }
+    
+    
     // matrix addition
     public static Matrix operator +(Matrix a, Matrix b)
     {
