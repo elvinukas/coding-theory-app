@@ -232,10 +232,35 @@ namespace tests
             Matrix firstVector = new Matrix(new int[,] { { 0, 1, 2, 3, 4 } }, 5);
             Matrix secondVector = new Matrix(new int[,] { { 1, 2, 3 } }, 5);
 
-            Matrix mergedVector = Matrix.MergeVectors(firstVector, secondVector);
+            Matrix mergedVector = Matrix.MergeMatrices(firstVector, secondVector);
             Matrix expectedMergedVector = new Matrix(new int[,] { { 0, 1, 2, 3, 4, 1, 2, 3 } }, 5);
 
             Assert.True(mergedVector == expectedMergedVector);
+            
+            // second test try
+
+            Matrix thirdMatrix = new Matrix(new int[,]
+            {
+                {1, 0, 1},
+                {1, 1, 1},
+                {1, 0, 0}
+            });
+            Matrix fourthMatrix = new Matrix(new int[,]
+            {
+                {0, 1},
+                {1, 1},
+                {0, 0}
+                
+            });
+
+            Matrix expectedMergedMatrix = new Matrix(new int[,]
+            {
+                {1, 0, 1, 0, 1},
+                {1, 1, 1, 1, 1},
+                {1, 0, 0, 0, 0}
+            });
+
+            Assert.True(Matrix.MergeMatrices(thirdMatrix, fourthMatrix) == expectedMergedMatrix);
             
         }
 

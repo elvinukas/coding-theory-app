@@ -80,7 +80,7 @@ public static class StandardArrayDecodingAlgorithm
                         }
                         else
                         {
-                            originalEncodedMessage = Matrix.MergeVectors(originalEncodedMessage, result);
+                            originalEncodedMessage = Matrix.MergeMatrices(originalEncodedMessage, result);
                         }
                         
                         // no point in continuing the search if the vector is already found

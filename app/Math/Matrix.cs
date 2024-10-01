@@ -128,32 +128,43 @@ public class Matrix
     
     
     // merging two vectors into one matrix
-    public static Matrix MergeVectors(Matrix a, Matrix b)
+    public static Matrix MergeMatrices(Matrix a, Matrix b)
     {
-        if (a.Rows > 1 || b.Rows > 1)
+        if (a.Rows != b.Rows)
         {
-            throw new ArgumentException("Only vectors (matrices with 1 row) can be merged.");
+            throw new ArgumentException("Only matrices with the same amount of rows can be merged.");
         }
 
         if (a[0, 0].field != b[0, 0].field)
         {
-            throw new ArgumentException("Only vectors (matrices with 1 row) with the same field size q can be merged.");
+            throw new ArgumentException("Only matrices with the same field size q can be merged.");
         }
 
         int length = a.Columns + b.Columns;
-        int[,] newMergedMessageArray = new int[1, length];
+        int[,] newMergedMessageArray = new int[a.Rows, length];
         
         // first matrix copy
-        for (int column = 0; column < a.Columns; ++column)
+        for (int row = 0; row < a.Rows; ++row)
         {
-            newMergedMessageArray[0, column] = a[0, column].Value;
+            for (int column = 0; column < a.Columns; ++column)
+            {
+                newMergedMessageArray[row, column] = a[row, column].Value; 
+            }
         }
         
+        
+        
+        
         // second matrix copy
-        for (int column = 0; column < b.Columns; ++column)
+
+        for (int row = 0; row < b.Rows; ++row)
         {
-            newMergedMessageArray[0, a.Columns + column] = b[0, column].Value;
+           for (int column = 0; column < b.Columns; ++column) 
+           {
+               newMergedMessageArray[row, a.Columns + column] = b[row, column].Value;
+           } 
         }
+        
 
         return new Matrix(newMergedMessageArray, a[0,0].field.q);
         
