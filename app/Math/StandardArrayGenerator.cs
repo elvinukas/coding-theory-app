@@ -23,14 +23,16 @@ public class StandardArrayGenerator
 
     public StandardArrayGenerator(Matrix generatorMatrix)
     {
+        if (generatorMatrix == null)
+        {
+            throw new ArgumentException("The generator matrix cannot be null");
+        }
         this.GeneratorMatrix = generatorMatrix;
         this.n = GeneratorMatrix.Columns;
         this.k = GeneratorMatrix.Rows;
         this.Codewords = new List<Matrix>();
         this.CosetLeaders = new List<Matrix>();
         this.StandardArray = GenerateStandardArray();
-        
-        Console.WriteLine("cool");
     }
 
     public List<List<Matrix>> GenerateStandardArray()

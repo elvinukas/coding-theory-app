@@ -18,6 +18,8 @@ public class StepByStepDecodingAlgorithm
     public int CodewordLength { get; set; } // n - the length of each codeword
     public int OriginalWordLength { get; set; } // k - original word length of a message (dimension)
     
+    public List<List<Matrix>> StandardArray { get; private set; } // the standard array
+    
     
     // firstly, all valid codewords need to be generated and listed
     // for them to be generated, it is crutial that n and k is known
@@ -25,7 +27,7 @@ public class StepByStepDecodingAlgorithm
 
     public StepByStepDecodingAlgorithm(Matrix generatorMatrix, int n, int k)
     {
-        if (generatorMatrix == null || n == null || k == null)
+        if (generatorMatrix == null)
         {
             throw new ArgumentException("No arguments for the step-by-step decoding algorithm can be null.");
         }
@@ -33,8 +35,12 @@ public class StepByStepDecodingAlgorithm
         this.GeneratorMatrix = generatorMatrix;
         this.CodewordLength = n;
         this.OriginalWordLength = k;
-        
-        
+        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        this.StandardArray = standardArrayGenerator.StandardArray;
+
+
+
+
 
     }
 
