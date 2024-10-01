@@ -288,7 +288,7 @@ public class Matrix
         
     }
     
-    // transpose method is required for the step by step decoding algorithm
+    // Transpose() method is required for the step by step decoding algorithm
     public Matrix Transpose()
     {
         // a transposed matrix has reversed number of columns and rows, thats why the order is different

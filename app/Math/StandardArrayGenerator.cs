@@ -41,7 +41,7 @@ public class StandardArrayGenerator
     public List<List<Matrix>> GenerateStandardArray()
     {
         Codewords = GenerateAllCodewords();
-        CosetLeaders = GenerateCosetLeaders();
+        CosetLeaders = GenerateCosetLeaders(0);
         StandardArray = new List<List<Matrix>>();
         int columns = Codewords[0].Columns;
 
@@ -63,24 +63,76 @@ public class StandardArrayGenerator
     }
 
 
-    private List<Matrix> GenerateCosetLeaders()
+    public List<Matrix> GenerateCosetLeaders(int weight)
     {
         int lengthOfEncodedMessage = Codewords[0].Columns;
         List<Matrix> cosetLeaders = new List<Matrix>();
 
-        int[,] zeroVector = new int[1, lengthOfEncodedMessage];
-        Matrix zeroCosetLeader = new Matrix(zeroVector);
-        cosetLeaders.Add(zeroCosetLeader);
-        
-        for (int i = 0; i < lengthOfEncodedMessage; ++i)
+        int[] currentLeader = new int[lengthOfEncodedMessage];
+        if (weight == 0)
         {
-            int[,] vector = new int[1, lengthOfEncodedMessage];
-            vector[0, i] = 1;
-            Matrix cosetLeader = new Matrix(vector);
-            cosetLeaders.Add(cosetLeader);
+            int[,] zeroVector = new int[1, lengthOfEncodedMessage];
+            Matrix zeroCosetLeader = new Matrix(zeroVector);
+            cosetLeaders.Add(zeroCosetLeader);
+            
+            // this is for the standard array creation, later on probably will need to delete
+            GenerateCosetLeadersRecursive(cosetLeaders, currentLeader, 0, 0, weight + 1);
+            return cosetLeaders;
         }
 
+        // if weight is not 0, coset leaders need to be generated recursively using the given weight
+
+        
+
+        GenerateCosetLeadersRecursive(cosetLeaders, currentLeader, 0, 0, weight);
         return cosetLeaders;
+        
+    }
+
+    
+    // depth - "how many 1's have been set so far". must equal weight to add cosetLeader to the list
+    private void GenerateCosetLeadersRecursive(List<Matrix> cosetLeaders, int[] currentLeader, int start, int depth,
+        int weight)
+    {
+
+        if (depth == weight)
+        {
+            int[,] cosetLeaderArray = new int[1, currentLeader.Length];
+            for (int i = 0; i < currentLeader.Length; ++i)
+            {
+                cosetLeaderArray[0, i] = currentLeader[i];
+            }
+
+            Matrix cosetLeader = new Matrix(cosetLeaderArray);
+            cosetLeaders.Add(cosetLeader);
+            return;
+        }
+
+
+        for (int i = start; i < currentLeader.Length; ++i)
+        {
+            currentLeader[i] = 1;
+            
+            // recursively calling to set the next error position
+            GenerateCosetLeadersRecursive(cosetLeaders, currentLeader, i + 1, depth + 1, weight);
+            
+            // set the current position back to one
+            // so that the method can also check other possibilities (we backtrack)
+            
+            
+            // example
+            // weight 2 length 5
+            // [0, 0, 0, 0, 0]
+            // i = 0, [1, 0, 0, 0, 0]
+            // then i = 1, [1, 1, 0, 0, 0]
+            // since weight == depth, we add it to the list, but this is not the only option!!!!
+            // currentLeader[1] = 0;
+            // [1, 0, 0, 0, 0]
+            // then i increments and currentLeader[2] = 1 -> [1, 0, 1, 0, 0]
+            currentLeader[i] = 0;
+        }
+        
+        
         
     }
 

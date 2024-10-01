@@ -75,7 +75,6 @@ public static class StandardArrayDecodingAlgorithm
                         Matrix result = receivedMessagePart - cosetLeader;
                         if (originalEncodedMessage == null)
                         {
-                            // avoiding copy operator
                             originalEncodedMessage = result.Clone();
                         }
                         else

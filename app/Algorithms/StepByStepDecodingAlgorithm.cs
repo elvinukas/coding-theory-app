@@ -13,7 +13,7 @@ using app.Math;
 
 public static class StepByStepDecodingAlgorithm
 {
-    public static Matrix GetDecodedMessage(Matrix generatorMatrix, Matrix receivedMessage)
+    public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage)
     {
         
         // H = [P^T I_{n-k}]
@@ -30,11 +30,122 @@ public static class StepByStepDecodingAlgorithm
         // then, parity-check matrix H needs to be constructed
         Matrix parityCheckMatrix = RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
         
+        // now syndrome needs to be calculated and the weight of each coset leader (as is in the provided literature)
         
-        // temporary return so no compilation errors
-        return generatorMatrix;
+        // firstly, the message needs to be split into parts
+        int encodedMessageLength = receivedMessage.Columns;
+        int numberOfParts = encodedMessageLength / n;
+        Matrix decodedMessage = null;
+
+        for (int part = 0; part < numberOfParts; ++part)
+        {
+            int[,] receivedMessagePartArray = new int[1, n];
+
+            for (int column = 0; column < n; ++column)
+            {
+                // receivedMessage[0, part * n + column] is a FieldElement object
+                // therefore .Value needs to be received so that the int[,] array can be filled
+                // matrix object can be created using the int[,] argument, not the FieldElement[,] argument,
+                // so that is why its easier just to use ints, later on when the matrix is created
+                // they are automatically turned to field elements
+                receivedMessagePartArray[0, column] = receivedMessage[0, part * n + column].Value;
+            }
+
+            Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
+            
+            // now that the receivedMessagePart is converted to a matrix (vector)
+            // decoding process using the standard array can begin
+
+            // if errors do not exist (meaning syndrome is zero)
+            // then we can certainly say that the decoded message is the first k elements of the n-length encoded message
+            if (!DoErrorsExistWithSyndrome(receivedMessagePart, parityCheckMatrix))
+            {
+                decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
+
+            }
+            // now if errors do exist (meaning the syndrome is not zero)
+            // we need to create a coset leader
+            // then with that coset leader (error vector) we need to subtract it from the receivedMessage
+            // then we check that result if DoErrorsExistWithSyndrome, and if its zero
+            // then we know our original message = receivedMessage - cosetLeader
+            // we add it to the decodedMessage
+            else
+            {
+                int weight = 1;
+
+                while (true)
+                {
+                    StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+                    List<Matrix> cosetLeaders = standardArrayGenerator.GenerateCosetLeaders(weight);
+
+                    bool foundLeader = false;
+                    
+                    foreach (Matrix cosetLeader in cosetLeaders)
+                    {
+                        Matrix possibleOriginalMessagePart = receivedMessagePart - cosetLeader;
+                        // if syndrome is 0, then its ok! we add the received message part to the decoded messages
+                        if (!DoErrorsExistWithSyndrome(possibleOriginalMessagePart, parityCheckMatrix))
+                        {
+                            decodedMessage = AppendDecodedMessage(decodedMessage, possibleOriginalMessagePart, k);
+                            foundLeader = true;
+                            break;
+                    
+                        }
+                    
+                    }
+
+                    if (foundLeader)
+                    {
+                        break;
+                    }
+
+                    // if the decoding process fails, throw exception
+                    if (weight >= n)
+                    {
+                        throw new InvalidOperationException(
+                            "Something went wrong. Message cannot be decoded (syndrome weight is too large!).");
+                    }
+
+                    ++weight;
+                }
+                
+            }
+            
+            
+        }
+
+        return decodedMessage;
+
+
 
     }
+
+    private static Matrix AppendDecodedMessage(Matrix decodedMessage, Matrix receivedMessagePart, int k)
+    {
+        int[,] originalMessagePartElements = new int[1, k];
+        Matrix originalMessagePart = new Matrix(originalMessagePartElements);
+                
+        // only first k elements will be the original message content
+        for (int column = 0; column < k; ++column)
+        {
+            originalMessagePart[0, column] = new FieldElement(receivedMessagePart[0, column].Value,
+                receivedMessagePart[0, column].field);
+        }
+                
+        if (decodedMessage == null)
+        {
+            decodedMessage = originalMessagePart.Clone();
+        }
+        else
+        {
+            decodedMessage = Matrix.MergeMatrices(decodedMessage, originalMessagePart);
+        }
+
+        return decodedMessage;
+
+    }
+    
+    
 
 
     public static Matrix RetrieveParityMatrix(Matrix generatorMatrix)
@@ -90,6 +201,28 @@ public static class StepByStepDecodingAlgorithm
 
         return Matrix.MergeMatrices(transposedParityMatrix, identityMatrix);
         
+    }
+
+
+    
+    public static bool DoErrorsExistWithSyndrome(Matrix receivedMessage, Matrix parityCheckMatrix)
+    {
+        Matrix syndrome = receivedMessage * parityCheckMatrix.Transpose();
+        FieldElement zero = new FieldElement(0, new Field(2));
+        
+        for (int row = 0; row < syndrome.Rows; ++row)
+        {
+            for (int column = 0; column < syndrome.Columns; ++column)
+            {
+                if (syndrome[row, column] != zero)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
     }
     
     
