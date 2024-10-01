@@ -15,7 +15,7 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 4;
 
-        var exception = Assert.Throws<ArgumentException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension));
+        var exception = Assert.Throws<ArgumentException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns));
         Assert.Equal("The original message must be sent as a vector (matrix with one row).", exception.Message);
 
     }
@@ -30,7 +30,7 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 0;
 
-        var exception = Assert.Throws<ArgumentException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension));
+        var exception = Assert.Throws<ArgumentException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns));
         Assert.Equal("The dimension count k cannot be less or equal than 0.", exception.Message);
     }
 
@@ -44,7 +44,7 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 1;
 
-        var exception = Assert.Throws<ArithmeticException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension));
+        var exception = Assert.Throws<ArithmeticException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns));
         Assert.Equal("Matrix multiplication is not possible. The number of First Matrix columns must equal the number of rows in the Second Matrix", exception.Message);
         
     }
@@ -60,7 +60,7 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 3;
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension);
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns);
         Assert.Equal("1 0 1 1 \n", algorithm.EncodedMessage.ToString());
         
         
@@ -78,7 +78,7 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 1;
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension);
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns);
         Assert.Equal("1 1 0 0 1 1 0 0 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
@@ -100,7 +100,7 @@ public class LinearEncodingAlgorithmUnitTest
         // the algorithm will encode a message with a bigger length than the originalMessage
         // 1 1 0 0
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension);
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns);
         Assert.Equal("1 0 1 1 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
@@ -137,7 +137,7 @@ public class LinearEncodingAlgorithmUnitTest
         // ---------------------------------------------------------------------------------------------------
 
         LinearEncodingAlgorithm encodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, null, dimension, matrixGenerator);
+            new LinearEncodingAlgorithm(originalMessage, null, dimension, originalMessage.Columns, matrixGenerator);
         
         // checking if the correct random generator matrix was created
         Assert.Equal("1 0 0 0 1 \n0 1 0 0 1 \n0 0 1 1 1 \n", encodingAlgorithm.GeneratorMatrix.ToString());
@@ -159,7 +159,8 @@ public class LinearEncodingAlgorithmUnitTest
         int dimension = 100;
         
         // GetCorrectSizeMessageForEncoding throws the exception, which gets passed on to the constructor
-        var exception = Assert.Throws<ArgumentException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension));
+        var exception = Assert.Throws<ArgumentException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix,
+            dimension, generatorMatrix.Columns));
         Assert.Equal("The dimension count k cannot be larger than the vector length.", exception.Message);
         
     }

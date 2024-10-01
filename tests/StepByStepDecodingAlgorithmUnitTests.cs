@@ -92,13 +92,59 @@ public class StepByStepDecodingAlgorithmUnitTests
         });
 
         LinearEncodingAlgorithm linearEncodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k);
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         
         // simulating without a channel, manually inputting a mistake
         Matrix errorVector = new Matrix(new int[,]
         {
             {0, 0, 0, 1, 0, 0, 0, 0, 0, 0}
+        });
+
+        Matrix receivedMessage = encodedMessage + errorVector;
+        
+        // decoding process
+        Matrix expectedDecodedMessage = new Matrix(new int[,]
+        {
+            {1, 1, 0, 0, 1, 0}
+        });
+
+        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage);
+        
+        Assert.True(expectedDecodedMessage == actuallyDecodedMessage);
+        
+    }
+    
+    
+    // at its current form as presented in the unit test the algorithm can correct 1 mistake per each part
+    // if n were bigger, more mistakes could be made and still be corrected
+    [Fact]
+    public void Decode_CheckIfDecodingIsCorrectWhenThereAreMistakes()
+    {
+        int k = 3;
+        
+        Matrix originalMessage = new Matrix(new int[,]
+        {
+            {1, 1, 0, 0, 1}
+        });
+
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+            {1, 0, 0, 0, 1},
+            {0, 1, 0, 0, 1},
+            {0, 0, 1, 1, 1,}
+        });
+
+        // n does not matter if generator matrix is provided!
+        // it will assign n itself
+        LinearEncodingAlgorithm linearEncodingAlgorithm =
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns);
+        Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
+        
+        
+        Matrix errorVector = new Matrix(new int[,]
+        {
+            {0, 0, 0, 1, 0, 0, 0, 1, 0, 0}
         });
 
         Matrix receivedMessage = encodedMessage + errorVector;

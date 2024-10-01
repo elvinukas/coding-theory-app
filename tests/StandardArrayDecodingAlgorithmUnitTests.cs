@@ -19,7 +19,7 @@ public class StandardArrayDecodingAlgorithmUnitTests
         });
 
         LinearEncodingAlgorithm linearEncodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, 3);
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, 3, generatorMatrix.Columns);
 
         // this is the message that will be checked if it is error-fixed
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;

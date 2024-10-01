@@ -10,7 +10,7 @@ public class LinearEncodingAlgorithm
     public Field field { get; private set; }
     public int k; // dimensija (how long each divided up part should be)
     
-    public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension,
+    public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension, int n,
         GeneratorMatrixGenerator matrixGenerator = null)
     // a custom matrix generator can be assigned, mostly for mock unit testing
     {
@@ -31,8 +31,14 @@ public class LinearEncodingAlgorithm
             if (matrixGenerator == null)
             {
                 matrixGenerator = new GeneratorMatrixGenerator(new RandomNumberGenerator());
+                this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, n);
+                
             }
-            this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, OriginalMessage.Columns);
+            else
+            {
+                this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, n);
+            }
+            
         }
         else
         {
@@ -45,6 +51,7 @@ public class LinearEncodingAlgorithm
         (this.EncodedMessage, OriginalMessageLength) = EncodeMessage();
         
     }
+    
 
     public int[,] GetCorrectSizeMessageForEncoding()
     {
@@ -107,7 +114,7 @@ public class LinearEncodingAlgorithm
                                                                     // (length of the message with possibly added 0'es)
                                                             
         int numberOfParts = totalMessageLength / k;
-
+        
         int encodedMessageLengthPerPart = GeneratorMatrix.Columns; // length of the encoded message per part
         int totalEncodedMessageLength = numberOfParts * encodedMessageLengthPerPart;
         int[,] encodedMessageVector = new int[1, totalEncodedMessageLength]; // 1 row, totalEncodedMessageLength columns
