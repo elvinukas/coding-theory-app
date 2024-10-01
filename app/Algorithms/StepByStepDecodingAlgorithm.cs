@@ -32,7 +32,7 @@ public static class StepByStepDecodingAlgorithm
 
         int[,] decodedMessageArray = new int[1, k * numberOfParts]; // this is where the original message gets stored
 
-        Matrix originalEncodedMessage = new Matrix(1, encodedMessageLength);
+        Matrix originalEncodedMessage = null;
         
         for (int part = 0; part < numberOfParts; ++part)
         {
@@ -62,6 +62,7 @@ public static class StepByStepDecodingAlgorithm
             // and the encoded message with possible errors needs to be subtracted by the coset leader
             // and this is how the original encoded message is found
 
+            bool found = false;
             foreach (var row in standardArray)
             {
                 foreach (var cosetElement in row)
@@ -72,11 +73,29 @@ public static class StepByStepDecodingAlgorithm
                         // y = c + e
                         // c = y - e
                         Matrix result = receivedMessagePart - cosetLeader;
-                        originalEncodedMessage = Matrix.MergeVectors(originalEncodedMessage, result);
+                        if (originalEncodedMessage == null)
+                        {
+                            // avoiding copy operator
+                            originalEncodedMessage = result.Clone();
+                        }
+                        else
+                        {
+                            originalEncodedMessage = Matrix.MergeVectors(originalEncodedMessage, result);
+                        }
+                        
+                        // no point in continuing the search if the vector is already found
+                        found = true;
+                        break;
+                        
                     }
                     
                 }
-                
+                // no point in continuing the search if the vector is already found
+                // completely breaking out of the loop
+                if (found)
+                {
+                    break;
+                }
                 
             }
             

@@ -43,10 +43,10 @@ public class StandardArrayGenerator
         int columns = Codewords[0].Columns;
 
         // creating the standard array
-        foreach (var codeword in Codewords)
+        foreach (var cosetLeader in CosetLeaders)
         {
             List<Matrix> rowOfCosets = new List<Matrix>();
-            foreach (var cosetLeader in CosetLeaders)
+            foreach (var codeword in Codewords)
             {
                 Matrix standardArrayElement = codeword + cosetLeader;
                 rowOfCosets.Add(standardArrayElement);

@@ -8,7 +8,7 @@ public class Matrix
     public int Rows { get; private set; }
     public int Columns { get; private set; }
     
-    // creating an empty matrix
+    // creating a matrix filled with zeroes
     // standard
     public Matrix(int rows, int columns, int q = 2)
     {
@@ -44,6 +44,29 @@ public class Matrix
             }
         }
 
+    }
+
+    // copy constructor for the .Clone()
+    public Matrix(Matrix originalMatrix, int q = 2)
+    {
+        this.Rows = originalMatrix.Rows;
+        this.Columns = originalMatrix.Columns;
+        this.matrix = new FieldElement[Rows, Columns];
+
+        for (int row = 0; row < Rows; ++row)
+        {
+            for (int column = 0; column < Columns; ++column)
+            {
+                matrix[row, column] = new FieldElement(originalMatrix.matrix[row, column].Value, new Field(q));
+            }
+        }
+
+    }
+
+    // Clone() method for cloning a matrix
+    public Matrix Clone()
+    {
+        return new Matrix(this);
     }
     
     
@@ -253,6 +276,8 @@ public class Matrix
         return result;
         
     }
+    
+    
 
     public override string ToString()
     {
