@@ -70,7 +70,18 @@ public class Matrix
 
     public static bool operator !=(Matrix a, Matrix b)
     {
-        if (a.Rows != b.Rows || a.Columns != b.Columns)
+        if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
+        {
+            return false;
+        }
+        
+        if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+        {
+            return true;
+        }
+        
+        
+        if ((a.Rows != b.Rows) || (a.Columns != b.Columns))
         {
             return true;
         }
@@ -121,7 +132,7 @@ public class Matrix
             newMergedMessageArray[0, a.Columns + column] = b[0, column].Value;
         }
 
-        return new Matrix(newMergedMessageArray);
+        return new Matrix(newMergedMessageArray, a[0,0].field.q);
         
     }
     

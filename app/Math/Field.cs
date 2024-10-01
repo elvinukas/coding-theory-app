@@ -34,6 +34,41 @@ public class Field
 
 
     }
+
+
+    public static bool operator ==(Field a, Field b)
+    {
+        if (!(a != b))
+        {
+            return true;
+        }
+
+        return false;
+
+    }
+
+
+    public static bool operator !=(Field a, Field b)
+    {
+        if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
+        {
+            return false;
+        }
+        
+        if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+        {
+            return true;
+        }
+        
+        if (a.q != b.q)
+        {
+            return true;
+        }
+
+        return false;
+
+
+    }
     
     
     

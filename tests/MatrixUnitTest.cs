@@ -71,6 +71,19 @@ namespace tests
         // checking operations
 
         [Fact]
+        public void OperatorEqualAndNotEqual_CheckIfOperatorsAreCorrect()
+        {
+            int[,] elements = new int[,] { { 0, 1, 0, 1, 1, 2, 3, 4 } };
+            Matrix firstMatrix = new Matrix(elements, 5);
+            Matrix secondMatrix = new Matrix(elements, 5);
+            
+            // == operator calls the != operator, so everything is tested
+            Assert.True(firstMatrix == secondMatrix);
+        }
+        
+        
+
+        [Fact]
         public void OperatorPlus_CheckIfMatricesAreAddedCorrectly()
         {
             Field field2 = new Field(2);
@@ -220,10 +233,12 @@ namespace tests
             Matrix secondVector = new Matrix(new int[,] { { 1, 2, 3 } }, 5);
 
             Matrix mergedVector = Matrix.MergeVectors(firstVector, secondVector);
+            Matrix expectedMergedVector = new Matrix(new int[,] { { 0, 1, 2, 3, 4, 1, 2, 3 } }, 5);
+
+            Assert.True(mergedVector == expectedMergedVector);
             
-
-
         }
+        
         
         
         

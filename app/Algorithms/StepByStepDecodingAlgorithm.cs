@@ -69,6 +69,8 @@ public static class StepByStepDecodingAlgorithm
                     if (receivedMessagePart == cosetElement)
                     {
                         Matrix cosetLeader = row[0];
+                        // y = c + e
+                        // c = y - e
                         Matrix result = receivedMessagePart - cosetLeader;
                         originalEncodedMessage = Matrix.MergeVectors(originalEncodedMessage, result);
                     }

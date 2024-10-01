@@ -30,6 +30,16 @@ public class FieldElement
 
     public static bool operator !=(FieldElement firstElement, FieldElement secondElement)
     {
+        if (ReferenceEquals(firstElement, null) && ReferenceEquals(firstElement, null))
+        {
+            return false;
+        }
+        
+        if (ReferenceEquals(firstElement, null) || ReferenceEquals(firstElement, null))
+        {
+            return true;
+        }
+        
         if (firstElement.field != secondElement.field)
         {
             return true;
