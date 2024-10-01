@@ -277,6 +277,23 @@ public class Matrix
         
     }
     
+    // transpose method is required for the step by step decoding algorithm
+    public Matrix Transpose()
+    {
+        // a transposed matrix has reversed number of columns and rows, thats why the order is different
+        Matrix transposedMatrix = new Matrix(this.Columns, this.Rows);
+
+        for (int row = 0; row < Rows; ++row)
+        {
+            for (int column = 0; column < Columns; ++column)
+            {
+                transposedMatrix[column, row] = this[row, column];
+            }
+        }
+
+        return transposedMatrix;
+
+    }
     
 
     public override string ToString()

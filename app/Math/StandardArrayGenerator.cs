@@ -10,6 +10,9 @@ namespace app.Math;
 /// then it is likely that the message belongs to a coset leader + error vector </b>
 /// 
 /// </summary>
+///
+
+// wasted much time, this is not the decoding method that I need :)
 
 public class StandardArrayGenerator
 {

@@ -238,6 +238,31 @@ namespace tests
             Assert.True(mergedVector == expectedMergedVector);
             
         }
+
+
+        [Fact]
+        public void Transpose_CheckIfTranspositionIsCorrect()
+        {
+            int[,] elements =
+            {
+                { 1, 2, 3 },
+                { 3, 4, 4 },
+                { 3, 3, 3 }
+            };
+
+            Matrix originalMatrix = new Matrix(elements);
+
+            int[,] transposedMatrixElements =
+            {
+                { 1, 3, 3 },
+                { 2, 4, 3 },
+                { 3, 4, 3 }
+            };
+            Matrix expectedTransposedMatrix = new Matrix(transposedMatrixElements);
+            
+            Assert.True(originalMatrix.Transpose() == expectedTransposedMatrix);
+            
+        }
         
         
         

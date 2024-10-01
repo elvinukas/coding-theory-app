@@ -2,7 +2,7 @@ namespace tests;
 using app.Math;
 using app.Algorithms;
 
-public class StepByStepDecodingAlgorithmUnitTests
+public class StandardArrayDecodingAlgorithmUnitTests
 {
 
     [Fact]
@@ -37,7 +37,7 @@ public class StepByStepDecodingAlgorithmUnitTests
         Matrix encodedMessageWithErrors = encodedMessage + errorVector;
         
         Assert.True(
-            StepByStepDecodingAlgorithm
+            StandardArrayDecodingAlgorithm
                 .GetOriginalEncodedMessage(generatorMatrix, encodedMessageWithErrors) == encodedMessage);
         
         
