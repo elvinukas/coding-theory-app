@@ -72,6 +72,127 @@ public class StepByStepDecodingAlgorithmUnitTests
 
 
     }
+    
+    
+    [Fact]
+    public void RetrieveParityCheckMatrix_CheckIfCorrectMatrixIsRetrieved2()
+    {
+        int[,] generatorMatrixElements = new int[,]
+        {
+            {1, 0, 0, 1},
+            {1, 1, 0, 0},
+            {0, 0, 1, 1}
+        };
+        Matrix generatorMatrix = new Matrix(generatorMatrixElements);
+        Matrix transposedParityMatrix = StepByStepDecodingAlgorithm.RetrieveParityMatrix(generatorMatrix).Transpose();
+
+        Matrix generatedParityCheckMatrix =
+            StepByStepDecodingAlgorithm.RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
+
+        int[,] expectedParityCheckMatrixElements = new int[,]
+        {
+            {1, 0, 1, 1}
+        };
+
+        Matrix expectedParityCheckMatrix = new Matrix(expectedParityCheckMatrixElements);
+        
+        Assert.True(generatedParityCheckMatrix == expectedParityCheckMatrix);
+        
+        // // then a check can happen if G * H^T = 0;
+        //
+        // Matrix transposedParityCheckMatrix = generatedParityCheckMatrix.Transpose();
+        // Matrix result = generatorMatrix * transposedParityCheckMatrix;
+        //
+        // FieldElement zero = new FieldElement(0, new Field(2));
+        // for (int row = 0; row < result.Rows; ++row)
+        // {
+        //     for (int column = 0; column < result.Columns; ++column)
+        //     {
+        //         Assert.True(result[row, column] == zero);
+        //     }
+        // }
+
+
+
+    }
+
+    [Fact]
+    public void DoErrorsExistWithSyndrome_CheckIfErrorDetectedCorrectly()
+    {
+        // this generator matrix is taken from the test RetrieveParityCheckMatrix_CheckIfCorrectMatrixIsRetrieved()
+        // the generator matrix must be G = [I_k | P], where I_k is the identity matrix part of k length, and P is the parity matrix (does not matter what numbers
+        Matrix originalMessage = new Matrix(new int[,]
+        {
+            { 1, 1, 0 }
+
+        });
+        
+        
+        int[,] generatorMatrixElements =
+        {
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 1 },
+            { 0, 0, 1, 0 }
+        };
+        Matrix generatorMatrix = new Matrix(generatorMatrixElements);
+        LinearEncodingAlgorithm linearEncodingAlgorithm =
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, 3, 4, numberBitLength: 8);
+        Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
+        
+        // that means that the parityCheckMatrix is actually verified to be correct
+        
+        Matrix transposedParityMatrix = StepByStepDecodingAlgorithm.RetrieveParityMatrix(generatorMatrix).Transpose();
+
+        Matrix parityCheckMatrix =
+            StepByStepDecodingAlgorithm.RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
+
+        Matrix expectedParityCheckMatrix = new Matrix(new int[,]
+        {
+            {0, 1, 0, 1}
+        });
+        
+        Assert.True(expectedParityCheckMatrix == parityCheckMatrix);
+        
+        Matrix multiplicationResult = generatorMatrix * parityCheckMatrix.Transpose();
+
+        for (int column = 0; column < multiplicationResult.Columns; ++column)
+        {
+            Assert.True(multiplicationResult[0, column].Value == 0);
+        }
+        
+        
+
+        // there are no errors at all in any parts given the generator matrix
+        Matrix firstPart = new Matrix(new int[,]
+        {
+            { 0, 0, 0, 0 }
+        });
+        
+        Matrix secondPart = new Matrix(new int[,]
+        {
+            { 0, 0, 0, 0 }
+        });
+        
+        Matrix thirdPart = new Matrix(new int[,]
+        {
+            { 1, 1, 1, 1 }
+        });
+        
+        Matrix fourthPart = new Matrix(new int[,]
+        {
+            { 1, 0, 0, 0 }
+        });
+        
+        
+        
+        // now we must check 
+        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(firstPart, parityCheckMatrix));
+        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(secondPart, parityCheckMatrix));
+        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(thirdPart, parityCheckMatrix));
+        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(fourthPart, parityCheckMatrix));
+    }
+    
+    
 
 
     [Fact]
@@ -92,27 +213,53 @@ public class StepByStepDecodingAlgorithmUnitTests
         });
 
         LinearEncodingAlgorithm linearEncodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns);
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns, numberBitLength: 8);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         
         // simulating without a channel, manually inputting a mistake
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 0, 0, 1, 0, 0, 0, 0, 0, 0}
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         });
 
         Matrix receivedMessage = encodedMessage + errorVector;
         
         // decoding process
-        Matrix expectedDecodedMessage = new Matrix(new int[,]
-        {
-            {1, 1, 0, 0, 1, 0}
-        });
 
-        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage);
+        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, numberBitLength: 8);
         
-        Assert.True(expectedDecodedMessage == actuallyDecodedMessage);
+        // 0 0 0 0 0 1 0 1 1 1 0 0 1 0 0 - without trimming
+        // with trimming it is
+        // 1 1 0 0 1 0 0, then after calculations that account padding
+        // 1 1 0 0 1
+        // ITS correct, the mes
         
+        Assert.True(originalMessage == actuallyDecodedMessage);
+        
+    }
+
+
+    [Fact]
+    public void Decode_CheckIfDecodingIsCorrectWhenThereIsAMistake2()
+    {
+        Field field = new Field(2);
+        int[,] elements1 = { { 1, 1, 0 }};
+        int[,] elements2 = { { 1, 0, 0, 0 }, { 0, 1, 0, 1 }, { 0, 0, 1, 0 } };
+        Matrix originalMessage = new Matrix(elements1, field.q);
+        Matrix generatorMatrix = new Matrix(elements2, field.q);
+        int dimension = 3;
+
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix,
+            dimension, generatorMatrix.Columns, numberBitLength: 8);
+        // n assigning value here does not matter, it can be zero
+        // since a generator matrix is provided it does not matter
+
+        Matrix encodedMessage = algorithm.EncodedMessage;
+
+        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, encodedMessage, numberBitLength: 8);
+
+        Assert.True(originalMessage == decodedMessage);
+
     }
     
     
@@ -135,29 +282,29 @@ public class StepByStepDecodingAlgorithmUnitTests
             {0, 0, 1, 1, 1,}
         });
 
-        // n does not matter if generator matrix is provided!
-        // it will assign n itself
         LinearEncodingAlgorithm linearEncodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns);
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns, numberBitLength: 8);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         
-        
+        // simulating without a channel, manually inputting a mistake
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 0, 0, 1, 0, 0, 0, 1, 0, 0}
+            {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1}
         });
 
         Matrix receivedMessage = encodedMessage + errorVector;
         
         // decoding process
-        Matrix expectedDecodedMessage = new Matrix(new int[,]
-        {
-            {1, 1, 0, 0, 1, 0}
-        });
 
-        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage);
+        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, numberBitLength: 8);
         
-        Assert.True(expectedDecodedMessage == actuallyDecodedMessage);
+        // 0 0 0 0 0 1 0 1 1 1 0 0 1 0 0 - without trimming
+        // with trimming it is
+        // 1 1 0 0 1 0 0, then after calculations that account padding
+        // 1 1 0 0 1
+        // ITS correct, the mes
+        
+        Assert.True(originalMessage == actuallyDecodedMessage);
         
     }
     

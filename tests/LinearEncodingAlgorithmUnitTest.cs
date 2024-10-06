@@ -60,8 +60,8 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 3;
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns);
-        Assert.Equal("1 0 1 1 \n", algorithm.EncodedMessage.ToString());
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns, numberBitLength: 8);
+        Assert.Equal("0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
     }
@@ -78,8 +78,8 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 1;
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns);
-        Assert.Equal("1 1 0 0 1 1 0 0 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns, numberBitLength: 8);
+        Assert.Equal("0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 0 0 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
     }
@@ -101,7 +101,7 @@ public class LinearEncodingAlgorithmUnitTest
         // 1 1 0 0
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns);
-        Assert.Equal("1 0 1 1 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
+        Assert.Equal("0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 1 0 1 1 0 0 0 0 \n", algorithm.EncodedMessage.ToString());
         
         
     }
@@ -137,11 +137,11 @@ public class LinearEncodingAlgorithmUnitTest
         // ---------------------------------------------------------------------------------------------------
 
         LinearEncodingAlgorithm encodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, null, dimension, originalMessage.Columns, matrixGenerator);
+            new LinearEncodingAlgorithm(originalMessage, null, dimension, originalMessage.Columns, matrixGenerator, numberBitLength: 8);
         
         // checking if the correct random generator matrix was created
         Assert.Equal("1 0 0 0 1 \n0 1 0 0 1 \n0 0 1 1 1 \n", encodingAlgorithm.GeneratorMatrix.ToString());
-        Assert.Equal("1 1 0 0 0 0 1 0 0 1 \n",encodingAlgorithm.EncodedMessage.ToString());
+        Assert.Equal("0 0 0 0 0 0 0 1 1 1 0 1 1 1 0 1 0 0 0 1 1 0 0 0 1 \n",encodingAlgorithm.EncodedMessage.ToString());
 
 
     }
@@ -151,7 +151,9 @@ public class LinearEncodingAlgorithmUnitTest
     [Fact]
     public void GetCorrectSizeMessageForEncoding_CheckIfDimensionCountIsNotLargerThanMessageLength()
     {
-        Field field = new Field(5);
+        Field field = new Field(2);
+        
+        // all these elements will be converted to either 0 or 1
         int[,] elements1 = { {1, 3, 2, 1, 0, 2, 1, 1}};
         int[,] elements2 = { { 1, 0, 4, 1, 3 }, { 3, 4, 1, 1, 0}, { 0, 4, 1, 1, 0 }, { 1, 1, 2, 3, 0 } };
         Matrix originalMessage = new Matrix(elements1, field.q);

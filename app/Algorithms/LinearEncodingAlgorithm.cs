@@ -1,6 +1,10 @@
 namespace app.Algorithms;
 using app.Math;
 
+
+
+// warning! the encoding algorithm works with only binary digits!
+// since appending the length of the message is in binary, a matrix with different field elements would be created
 public class LinearEncodingAlgorithm
 {
     public Matrix OriginalMessage { get; private set; }
@@ -11,7 +15,7 @@ public class LinearEncodingAlgorithm
     public int k; // dimensija (how long each divided up part should be)
     
     public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension, int n,
-        GeneratorMatrixGenerator matrixGenerator = null)
+        GeneratorMatrixGenerator matrixGenerator = null, int numberBitLength = 32)
     // a custom matrix generator can be assigned, mostly for mock unit testing
     {
         if (originalMessage.Rows != 1)
@@ -26,19 +30,38 @@ public class LinearEncodingAlgorithm
         this.k = dimension;
         this.OriginalMessage = originalMessage;
 
+        // converting originalLength to a binary array, so that it can be added alongside the original message
+        int originalLength = OriginalMessage.Columns;
+        int lengthBits = numberBitLength;
+                                   // this may seem like a lot and it is for very small messages, however
+                                   // when in different scenarios text and IMAGE encoding will be required
+                                   // where a 2MB jpg image can be about 16M bits
+                                   // the extra 32 bits, where they can store length data of about 4.2Billion bits
+                                   // seem reasonable when you can store that much
+                                   // maximum message with extra 32bits for message length can store
+                                   // size for images up to 0.5369 GB (a lot for an image!)
+                                   // but even if files were sent the message could simply be split up
+                                   // and everything would still work :)
+
+        int[,] lengthBitsArray = new int[1, lengthBits];
+        string lengthInBinary = Convert.ToString(originalLength, 2).PadLeft(lengthBits, '0');
+        for (int i = 0; i < lengthBits; ++i)
+        {
+            lengthBitsArray[0, i] = lengthInBinary[i] == '1' ? 1 : 0;
+        }
+
+        Matrix lengthMatrix = new Matrix(lengthBitsArray);
+        this.OriginalMessage = Matrix.MergeMatrices(lengthMatrix, originalMessage);
+
         if (generatorMatrix == null)
         {
             if (matrixGenerator == null)
             {
                 matrixGenerator = new GeneratorMatrixGenerator(new RandomNumberGenerator());
-                this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, n);
                 
             }
-            else
-            {
-                this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, n);
-            }
             
+            this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, n);
         }
         else
         {
@@ -48,8 +71,9 @@ public class LinearEncodingAlgorithm
         this.field = originalMessage[0, 0].field;
         
         // call encoding algorithm
-        (this.EncodedMessage, OriginalMessageLength) = EncodeMessage();
-        
+        this.EncodedMessage = EncodeMessage();
+        //this.EncodedMessage = Matrix.MergeMatrices(EncodedMessage, lengthMatrix);
+
     }
     
 
@@ -104,7 +128,7 @@ public class LinearEncodingAlgorithm
         return totalMessage;
     }
     
-    public (Matrix, int) EncodeMessage()
+    public Matrix EncodeMessage()
     {
         // the entire message with a correct size for encoding
         // check GetCorrectSizeMessageForEncoding() for more info about message length
@@ -143,7 +167,7 @@ public class LinearEncodingAlgorithm
         
         // returning the encoded vector fully merged
         Matrix resultMatrix = new Matrix(encodedMessageVector, field.q);
-        return (resultMatrix, OriginalMessage.Columns);
+        return resultMatrix;
 
     }
     
