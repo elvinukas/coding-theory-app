@@ -78,6 +78,16 @@ public class Matrix
     }
 
     /// matrix operations
+    
+    
+    public override bool Equals(object obj)
+    {
+        if (obj is Matrix matrix)
+        {
+            return this == matrix; // use the overloaded == operator
+        }
+        return false;
+    }
 
     public static bool operator ==(Matrix a, Matrix b)
     {

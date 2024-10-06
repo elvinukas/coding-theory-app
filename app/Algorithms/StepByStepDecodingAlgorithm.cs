@@ -44,7 +44,8 @@ public static class StepByStepDecodingAlgorithm
         int encodedMessageLength = receivedMessage.Columns;
         int numberOfParts = encodedMessageLength / n;
         Matrix decodedMessage = null;
-
+        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        
         for (int part = 0; part < numberOfParts; ++part)
         {
             int[,] receivedMessagePartArray = new int[1, n];
@@ -58,9 +59,67 @@ public static class StepByStepDecodingAlgorithm
                 // they are automatically turned to field elements
                 receivedMessagePartArray[0, column] = receivedMessage[0, part * n + column].Value;
             }
-
+            
+            
             Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
-            Matrix syndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            List<Matrix> uniqueSyndromes;
+            List<Matrix> cosetLeaders;
+            List<int> weights;
+
+            (uniqueSyndromes, cosetLeaders, weights) =
+                standardArrayGenerator.GenerateListOfUniqueSyndromes(parityCheckMatrix);
+
+            int i = 0;
+            Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
+            int originalWeight = weights[index];
+            List<Matrix> normalBitFlipList = standardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
+            
+            
+            while (true)
+            {
+                
+                Matrix syndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+                int currentIndex = uniqueSyndromes.IndexOf(syndrome);
+                int currentWeight = weights[currentIndex];
+                
+                // List<Matrix> sameWeightCosetLeader = new List<Matrix>();
+                //
+                // for (int m = 0; i < cosetLeaders.Count; ++i)
+                // {
+                //     if (weights[m] == cosetLeaderWeight)
+                //     {
+                //         sameWeightCosetLeader.Add(cosetLeaders[m]);
+                //     }
+                // }
+                
+                if (currentWeight == 0)
+                {
+                    decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
+                    break;
+                }
+                else
+                {
+                    Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
+                    Matrix possibleMessageSyndrome = possibleMessage * parityCheckMatrix.Transpose();
+                    int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
+                    
+                    if (weights[syndromeIndex] < currentWeight)
+                    {
+                        receivedMessagePart = possibleMessage.Clone();
+                        //i = -1;
+                    }
+
+                    ++i;
+
+                }
+                
+                
+            }
+            
+            
+            
+            
             
             
             // now that the receivedMessagePart is converted to a matrix (vector)
@@ -68,67 +127,68 @@ public static class StepByStepDecodingAlgorithm
 
             // if errors do not exist (meaning syndrome is zero)
             // then we can certainly say that the decoded message is the first k elements of the n-length encoded message
-            if (!DoErrorsExistWithSyndrome(syndrome))
-            {
-                decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
-
-            }
-            // now if errors do exist (meaning the syndrome is not zero)
-            // we need to create a coset leader
-            // then with that coset leader (error vector) we need to subtract it from the receivedMessage
-            // then we check that result if DoErrorsExistWithSyndrome, and if its zero
-            // then we know our original message = receivedMessage - cosetLeader
-            // we add it to the decodedMessage
-            else
-            {
-                int weight = 1;
-
-                while (true)
-                {
-                    StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
-                    List<Matrix> cosetLeaders = standardArrayGenerator.GenerateCosetLeaders(weight);
-
-                    Matrix bestMessagePart = null;
-                    int minErrorWeight = n; // maximum possible weight
-                    bool foundLeader = false;
-                    
-                    foreach (Matrix cosetLeader in cosetLeaders)
-                    {
-                        Matrix possibleOriginalMessagePart = receivedMessagePart + cosetLeader;
-                        Matrix newSyndrome = possibleOriginalMessagePart * parityCheckMatrix.Transpose();
-
-                        int errorWeight = GetSyndromeWeight(cosetLeader);
-                        
-                        // compare weights
-                        if (GetSyndromeWeight(newSyndrome) == 0 && errorWeight < minErrorWeight)
-                        {
-                            bestMessagePart = possibleOriginalMessagePart;
-                            minErrorWeight = errorWeight;
-                            foundLeader = true;
-                            
-                        }
-                    
-                    }
-                    
-                    
-
-                    if (foundLeader && bestMessagePart != null)
-                    {
-                        decodedMessage = AppendDecodedMessage(decodedMessage, bestMessagePart, k);
-                        break;
-                    }
-
-                    // if the decoding process fails, throw exception
-                    if (weight >= n)
-                    {
-                        throw new InvalidOperationException(
-                            "Something went wrong. Message cannot be decoded (syndrome weight is too large!).");
-                    }
-
-                    ++weight;
-                }
-                
-            }
+            // if (cosetLeaderWeight == 0)
+            // {
+            //     decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
+            //
+            // }
+            // // now if errors do exist (meaning the syndrome is not zero)
+            // // we need to create a coset leader
+            // // then with that coset leader (error vector) we need to subtract it from the receivedMessage
+            // // then we check that result if DoErrorsExistWithSyndrome, and if its zero
+            // // then we know our original message = receivedMessage - cosetLeader
+            // // we add it to the decodedMessage
+            // else
+            // {
+            //     int weight = 1;
+            //
+            //     while (true)
+            //     {
+            //         standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+            //         List<Matrix> cosetLeaders = standardArrayGenerator.GenerateCosetLeaders(weight);
+            //
+            //         Matrix bestMessagePart = null;
+            //         int minErrorWeight = n; // maximum possible weight
+            //         bool foundLeader = false;
+            //         
+            //         foreach (Matrix cosetLeader in cosetLeaders)
+            //         {
+            //             Matrix possibleOriginalMessagePart = receivedMessagePart + cosetLeader;
+            //             Matrix newSyndrome = possibleOriginalMessagePart * parityCheckMatrix.Transpose();
+            //
+            //             int errorWeight = GetSyndromeWeight(cosetLeader);
+            //             
+            //             // compare weights
+            //             // finding the best error weight scenario
+            //             if (GetSyndromeWeight(newSyndrome) < GetSyndromeWeight(syndrome) && errorWeight < minErrorWeight)
+            //             {
+            //                 bestMessagePart = possibleOriginalMessagePart;
+            //                 minErrorWeight = errorWeight;
+            //                 foundLeader = true;
+            //                 
+            //             }
+            //         
+            //         }
+            //         
+            //         
+            //
+            //         if (foundLeader && bestMessagePart != null)
+            //         {
+            //             decodedMessage = AppendDecodedMessage(decodedMessage, bestMessagePart, k);
+            //             break;
+            //         }
+            //
+            //         // if the decoding process fails, throw exception
+            //         if (weight >= n)
+            //         {
+            //             throw new InvalidOperationException(
+            //                 "Something went wrong. Message cannot be decoded (syndrome weight is too large!).");
+            //         }
+            //
+            //         ++weight;
+            //     }
+            //     
+            // }
             
             
         }
@@ -252,14 +312,14 @@ public static class StepByStepDecodingAlgorithm
 
     }
 
-    public static int GetSyndromeWeight(Matrix syndrome)
+    public static int GetWeight(Matrix matrix)
     {
         int weight = 0;
-        for (int i = 0; i < syndrome.Rows; ++i)
+        for (int i = 0; i < matrix.Rows; ++i)
         {
-            for (int j = 0; j < syndrome.Columns; ++j)
+            for (int j = 0; j < matrix.Columns; ++j)
             {
-                if (syndrome[i, j].Value == 1)
+                if (matrix[i, j].Value == 1)
                 {
                     ++weight;
                 }

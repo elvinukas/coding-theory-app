@@ -21,15 +21,15 @@ public class SimulationUnitTests
             {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1}
         });
         
-        LinearEncodingAlgorithm linearEncodingAlgorithm = new LinearEncodingAlgorithm(originalMessage, null, 5, 10, numberBitLength: 8);
+        LinearEncodingAlgorithm linearEncodingAlgorithm = new LinearEncodingAlgorithm(originalMessage, null, 4, 10);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         Matrix retrievedGeneratorMatrix = linearEncodingAlgorithm.GeneratorMatrix;
 
-        Channel channel = new Channel(encodedMessage, 0.001);
+        Channel channel = new Channel(encodedMessage, 0.02);
         Matrix encodedMessageWithPossibleErrors = channel.ReceivedMessage;
 
         Matrix decodedMessage =
-            StepByStepDecodingAlgorithm.Decode(retrievedGeneratorMatrix, encodedMessageWithPossibleErrors, numberBitLength: 8);
+            StepByStepDecodingAlgorithm.Decode(retrievedGeneratorMatrix, encodedMessageWithPossibleErrors);
         
         _testOutputHelper.WriteLine(originalMessage.ToString());
         _testOutputHelper.WriteLine(decodedMessage.ToString());

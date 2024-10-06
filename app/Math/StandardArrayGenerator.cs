@@ -62,6 +62,72 @@ public class StandardArrayGenerator
         
     }
 
+    public (List<Matrix>, List<Matrix>, List<int>) GenerateListOfUniqueSyndromes(Matrix parityCheckMatrix)
+    {
+        int maxUniqueSyndromes = (int)System.Math.Pow(2, n);
+        List<Matrix> uniqueSyndromeList = new List<Matrix>();
+        List<Matrix> cosetLeaderList = new List<Matrix>();
+        List<int> weights = new List<int>();
+        
+        int weight = 0;
+        bool continueLoop = true;
+        for (int i = 0; i < maxUniqueSyndromes && continueLoop; ++i)
+        {
+            List<Matrix> cosetLeaders = GenerateCosetLeaders(weight);
+
+            foreach (Matrix cosetLeader in cosetLeaders)
+            {
+                Matrix syndrome = cosetLeader * parityCheckMatrix.Transpose();
+
+                if (!uniqueSyndromeList.Contains(syndrome))
+                {
+                    uniqueSyndromeList.Add(syndrome);
+                    cosetLeaderList.Add(cosetLeader);
+
+                    int cosetLeaderWeight = GetWeight(cosetLeader);
+                    weights.Add(cosetLeaderWeight);
+                }
+
+                if (uniqueSyndromeList.Count == maxUniqueSyndromes)
+                {
+                    continueLoop = false;
+                    break;
+                }
+                
+            }
+
+            ++weight;
+
+
+        }
+
+        return (uniqueSyndromeList, cosetLeaderList, weights);
+
+
+
+
+    }
+
+
+
+    public int GetWeight(Matrix matrix)
+    {
+        
+        int weight = 0;
+        for (int i = 0; i < matrix.Rows; ++i)
+        {
+            for (int j = 0; j < matrix.Columns; ++j)
+            {
+                if (matrix[i, j].Value == 1)
+                {
+                    ++weight;
+                }
+            }
+        }
+
+        return weight;
+    }
+
 
     public List<Matrix> GenerateCosetLeaders(int weight)
     {
@@ -69,24 +135,41 @@ public class StandardArrayGenerator
         List<Matrix> cosetLeaders = new List<Matrix>();
 
         int[] currentLeader = new int[lengthOfEncodedMessage];
+
+        // add the zero vector as the first coset leader when weight is 0
         if (weight == 0)
         {
             int[,] zeroVector = new int[1, lengthOfEncodedMessage];
             Matrix zeroCosetLeader = new Matrix(zeroVector);
             cosetLeaders.Add(zeroCosetLeader);
-            
-            // this is for the standard array creation, later on probably will need to delete
-            GenerateCosetLeadersRecursive(cosetLeaders, currentLeader, 0, 0, weight + 1);
             return cosetLeaders;
         }
 
-        // if weight is not 0, coset leaders need to be generated recursively using the given weight
-
-        
-
+        // for higher weights, generate recursively
         GenerateCosetLeadersRecursive(cosetLeaders, currentLeader, 0, 0, weight);
         return cosetLeaders;
         
+    }
+    
+    public List<Matrix> GenerateCosetLeadersUpToWeight(int maxWeight)
+    {
+        int lengthOfEncodedMessage = Codewords[0].Columns;
+        List<Matrix> cosetLeaders = new List<Matrix>();
+
+        int[] currentLeader = new int[lengthOfEncodedMessage];
+
+        // add the zero vector as the first coset leader
+        int[,] zeroVector = new int[1, lengthOfEncodedMessage];
+        Matrix zeroCosetLeader = new Matrix(zeroVector);
+        cosetLeaders.Add(zeroCosetLeader);
+
+        // generate coset leaders for each weight from 1 to maxWeight
+        for (int weight = 1; weight <= maxWeight; ++weight)
+        {
+            GenerateCosetLeadersRecursive(cosetLeaders, currentLeader, 0, 0, weight);
+        }
+
+        return cosetLeaders;
     }
 
     
