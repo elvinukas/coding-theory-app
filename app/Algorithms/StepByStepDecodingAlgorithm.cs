@@ -13,14 +13,21 @@ using app.Math;
 
 public static class StepByStepDecodingAlgorithm
 {
-    public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage)
+    public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage, int numberBitLength = 32)
     {
         
         // H = [P^T I_{n-k}]
         
         int k = generatorMatrix.Rows;
         int n = generatorMatrix.Columns;
-
+        int lengthBitSize = numberBitLength; // 32 bits were allocated for storing message length by default
+        
+        
+        
+        
+        // message cannot be trimmed before decoding!!!
+        // it must be decoded fully, then trimmed
+        
         // firstly, parityMatrix P needs to be constructed
         Matrix parityMatrix = RetrieveParityMatrix(generatorMatrix);
         
@@ -113,11 +120,10 @@ public static class StepByStepDecodingAlgorithm
             
             
         }
-
-        return decodedMessage;
-
-
-
+        
+        int originalMessageLength = RetrieveOriginalMessageLength(decodedMessage, lengthBitSize);
+        return TrimDecodedMessage(decodedMessage, originalMessageLength, lengthBitSize);
+        
     }
 
     private static Matrix AppendDecodedMessage(Matrix decodedMessage, Matrix receivedMessagePart, int k)
@@ -224,6 +230,48 @@ public static class StepByStepDecodingAlgorithm
         return false;
 
     }
+
+    public static int RetrieveOriginalMessageLength(Matrix receivedMessage, int lengthBitSize)
+    {
+        int messageLength = 0;
+        
+        for (int i = 0; i < lengthBitSize; ++i)
+        {
+            messageLength = messageLength * 2 + receivedMessage[0, i].Value;
+        }
+
+        return messageLength;
+    }
+
+    public static Matrix TrimEncodedMessage(Matrix receivedMessage, int lengthBitSize)
+    {
+        int totalLength = receivedMessage.Columns;
+        
+        // remainingLength - how many bits are left after trimming the bits allocated for message size
+        int remainingLength = totalLength - lengthBitSize;
+        int[,] trimmedMessageArray = new int[1, remainingLength];
+
+        for (int i = 0; i < remainingLength; ++i)
+        {
+            trimmedMessageArray[0, i] = receivedMessage[0, i + lengthBitSize].Value;
+        }
+
+        return new Matrix(trimmedMessageArray, receivedMessage[0, 0].field.q);
+
+    }
+
+    public static Matrix TrimDecodedMessage(Matrix decodedMessage, int originalMessageLength, int lengthBitSize)
+    {
+        int[,] trimmedMessageArray = new int[1, originalMessageLength];
+
+        for (int i = 0; i < originalMessageLength; ++i)
+        {
+            trimmedMessageArray[0, i] = decodedMessage[0, i + lengthBitSize].Value;
+        }
+
+        return new Matrix(trimmedMessageArray, decodedMessage[0, 0].field.q);
+    }
+    
     
     
 }
