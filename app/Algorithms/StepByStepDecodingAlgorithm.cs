@@ -1,5 +1,6 @@
 namespace app.Algorithms;
 using app.Math;
+using app.Exceptions;
 
 /// <summary>
 /// The step-by-step decoding algorithm depends on matrix transposition, parity matrix and the generator matrix structure.
@@ -122,7 +123,17 @@ public static class StepByStepDecodingAlgorithm
         }
         
         int originalMessageLength = RetrieveOriginalMessageLength(decodedMessage, lengthBitSize);
-        return TrimDecodedMessage(decodedMessage, originalMessageLength, lengthBitSize);
+        Matrix fullyDecodedMessage;
+        try
+        {
+            fullyDecodedMessage = TrimDecodedMessage(decodedMessage, originalMessageLength, lengthBitSize);
+        }
+        catch (DecodingException e) // a decoding exception is thrown if the original message length is impossible to determine
+        {
+            throw;
+        }
+        
+        return fullyDecodedMessage;
         
     }
 
@@ -251,12 +262,21 @@ public static class StepByStepDecodingAlgorithm
         int remainingLength = totalLength - lengthBitSize;
         int[,] trimmedMessageArray = new int[1, remainingLength];
 
-        for (int i = 0; i < remainingLength; ++i)
+        try
         {
-            trimmedMessageArray[0, i] = receivedMessage[0, i + lengthBitSize].Value;
-        }
+            for (int i = 0; i < remainingLength; ++i)
+            {
+                trimmedMessageArray[0, i] = receivedMessage[0, i + lengthBitSize].Value;
+            }
 
-        return new Matrix(trimmedMessageArray, receivedMessage[0, 0].field.q);
+            return new Matrix(trimmedMessageArray, receivedMessage[0, 0].field.q);
+        }
+        catch (IndexOutOfRangeException e)
+        {
+            throw new DecodingException(
+                "The data has been irrecoverably corrupted. The original message length cannot be determined.", e);
+        }
+        
 
     }
 
