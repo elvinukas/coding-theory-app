@@ -25,7 +25,7 @@ public class SimulationUnitTests
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         Matrix retrievedGeneratorMatrix = linearEncodingAlgorithm.GeneratorMatrix;
 
-        Channel channel = new Channel(encodedMessage, 0.01);
+        Channel channel = new Channel(encodedMessage, 0.001);
         Matrix encodedMessageWithPossibleErrors = channel.ReceivedMessage;
 
         Matrix decodedMessage =

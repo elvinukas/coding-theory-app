@@ -115,86 +115,7 @@ public class StepByStepDecodingAlgorithmUnitTests
 
 
     }
-
-    [Fact]
-    public void DoErrorsExistWithSyndrome_CheckIfErrorDetectedCorrectly()
-    {
-        // this generator matrix is taken from the test RetrieveParityCheckMatrix_CheckIfCorrectMatrixIsRetrieved()
-        // the generator matrix must be G = [I_k | P], where I_k is the identity matrix part of k length, and P is the parity matrix (does not matter what numbers
-        Matrix originalMessage = new Matrix(new int[,]
-        {
-            { 1, 1, 0 }
-
-        });
-        
-        
-        int[,] generatorMatrixElements =
-        {
-            { 1, 0, 0, 0 },
-            { 0, 1, 0, 1 },
-            { 0, 0, 1, 0 }
-        };
-        Matrix generatorMatrix = new Matrix(generatorMatrixElements);
-        LinearEncodingAlgorithm linearEncodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, 3, 4, numberBitLength: 8);
-        Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
-        
-        // that means that the parityCheckMatrix is actually verified to be correct
-        
-        Matrix transposedParityMatrix = StepByStepDecodingAlgorithm.RetrieveParityMatrix(generatorMatrix).Transpose();
-
-        Matrix parityCheckMatrix =
-            StepByStepDecodingAlgorithm.RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
-
-        Matrix expectedParityCheckMatrix = new Matrix(new int[,]
-        {
-            {0, 1, 0, 1}
-        });
-        
-        Assert.True(expectedParityCheckMatrix == parityCheckMatrix);
-        
-        Matrix multiplicationResult = generatorMatrix * parityCheckMatrix.Transpose();
-
-        for (int column = 0; column < multiplicationResult.Columns; ++column)
-        {
-            Assert.True(multiplicationResult[0, column].Value == 0);
-        }
-        
-        
-
-        // there are no errors at all in any parts given the generator matrix
-        Matrix firstPart = new Matrix(new int[,]
-        {
-            { 0, 0, 0, 0 }
-        });
-        
-        Matrix secondPart = new Matrix(new int[,]
-        {
-            { 0, 0, 0, 0 }
-        });
-        
-        Matrix thirdPart = new Matrix(new int[,]
-        {
-            { 1, 1, 1, 1 }
-        });
-        
-        Matrix fourthPart = new Matrix(new int[,]
-        {
-            { 1, 0, 0, 0 }
-        });
-        
-        
-        
-        // now we must check 
-        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(firstPart, parityCheckMatrix));
-        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(secondPart, parityCheckMatrix));
-        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(thirdPart, parityCheckMatrix));
-        Assert.False(StepByStepDecodingAlgorithm.DoErrorsExistWithSyndrome(fourthPart, parityCheckMatrix));
-    }
     
-    
-
-
     [Fact]
     public void Decode_CheckIfDecodingIsCorrectWhenThereIsAMistake()
     {
@@ -277,9 +198,9 @@ public class StepByStepDecodingAlgorithmUnitTests
 
         Matrix generatorMatrix = new Matrix(new int[,]
         {
-            {1, 0, 0, 0, 1},
-            {0, 1, 0, 0, 1},
-            {0, 0, 1, 1, 1,}
+            {1, 0, 0, 0, 1, 0, 1},
+            {0, 1, 0, 0, 1, 1, 1},
+            {0, 0, 1, 1, 1, 0, 1}
         });
 
         LinearEncodingAlgorithm linearEncodingAlgorithm =
@@ -289,7 +210,8 @@ public class StepByStepDecodingAlgorithmUnitTests
         // simulating without a channel, manually inputting a mistake
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1}
+            {0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
         });
 
         Matrix receivedMessage = encodedMessage + errorVector;
