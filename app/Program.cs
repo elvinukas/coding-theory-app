@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using app.Algorithms;
 using Microsoft.VisualBasic;
 using app.Math;
 
@@ -83,5 +84,8 @@ Matrix genMatrica = new Matrix(exampleGenMatricos);
 
 StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(genMatrica);
 
+
+string message = "labas";
+Matrix userMessage = TextConverter.ConvertToBinaryMatrix(message);
 
 

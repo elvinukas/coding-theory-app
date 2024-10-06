@@ -21,11 +21,11 @@ public class SimulationUnitTests
             {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1}
         });
         
-        LinearEncodingAlgorithm linearEncodingAlgorithm = new LinearEncodingAlgorithm(originalMessage, null, 5, 8, numberBitLength: 8);
+        LinearEncodingAlgorithm linearEncodingAlgorithm = new LinearEncodingAlgorithm(originalMessage, null, 5, 10, numberBitLength: 8);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         Matrix retrievedGeneratorMatrix = linearEncodingAlgorithm.GeneratorMatrix;
 
-        Channel channel = new Channel(encodedMessage, 0.05);
+        Channel channel = new Channel(encodedMessage, 0.01);
         Matrix encodedMessageWithPossibleErrors = channel.ReceivedMessage;
 
         Matrix decodedMessage =

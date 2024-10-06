@@ -130,7 +130,7 @@ public static class StepByStepDecodingAlgorithm
         }
         catch (DecodingException e) // a decoding exception is thrown if the original message length is impossible to determine
         {
-            throw;
+            throw new DecodingException(e.Message);
         }
         
         return fullyDecodedMessage;
