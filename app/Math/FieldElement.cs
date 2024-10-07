@@ -6,7 +6,7 @@ namespace app.Math;
 public class FieldElement
 {
     public Field field;
-    public int Value { get; private set; } // the value of a group element
+    public int Value { get; internal set; } // the value of a group element
     
     
     // checking if the group element is correct, and if not fixing it according to the group size

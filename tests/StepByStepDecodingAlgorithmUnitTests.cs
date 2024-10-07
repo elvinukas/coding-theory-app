@@ -202,6 +202,41 @@ public class StepByStepDecodingAlgorithmUnitTests
         Assert.True(originalMessage == decodedMessage);
 
     }
+
+
+
+
+    [Fact]
+    public void Decode_TryDecoding()
+    {
+        Matrix originalMessage = new Matrix(new int[,]
+        {
+            {1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1}
+        });
+
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+
+            {1, 0, 0, 0, 0, 1, 0, 1},
+            {0, 1, 0, 0, 0, 0, 1, 0},
+            {0, 0, 1, 0, 0, 1, 1, 1},
+            {0, 0, 0, 1, 0, 1, 0, 0},
+            {0, 0, 0, 0, 1, 0, 0, 1}
+        });
+
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension: 5, n: 0);
+        Matrix errorVector;
+        Matrix sentMessage = algorithm.EncodedMessage;
+
+        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, sentMessage);
+        
+        Assert.True(originalMessage == decodedMessage);
+
+
+
+
+
+    }
     
     
     // at its current form as presented in the unit test the algorithm can correct 1 mistake per each part

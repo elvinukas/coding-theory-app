@@ -35,18 +35,21 @@ public class GeneratorMatrixGenerator
         // (that's where this following code does)
         for (int row = 0; row < k; ++row)
         {
+            
             for (int column = k; column < n; ++column)
             {
-                if (RandomNumberGenerator.GetNewRandomNumber() >= 0.5)
-                {
+                if (RandomNumberGenerator.GetNewRandomNumber() >= 0.5) {
                     generatorMatrix[row, column] = 1;
-                }
-                else
+                } else
                 {
                     generatorMatrix[row, column] = 0;
                 }
                 
             }
+            
+            
+            
+            
         }
 
         return new Matrix(generatorMatrix, 2); // field.q = 2;
