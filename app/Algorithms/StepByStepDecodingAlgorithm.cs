@@ -70,7 +70,8 @@ public static class StepByStepDecodingAlgorithm
                 standardArrayGenerator.GenerateListOfUniqueSyndromes(parityCheckMatrix);
 
             int i = 0;
-            Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            //Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
             int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
             int originalWeight = weights[index];
             List<Matrix> normalBitFlipList = standardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
@@ -78,20 +79,10 @@ public static class StepByStepDecodingAlgorithm
             
             while (true)
             {
-                
-                Matrix syndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+
+                Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
                 int currentIndex = uniqueSyndromes.IndexOf(syndrome);
                 int currentWeight = weights[currentIndex];
-                
-                // List<Matrix> sameWeightCosetLeader = new List<Matrix>();
-                //
-                // for (int m = 0; i < cosetLeaders.Count; ++i)
-                // {
-                //     if (weights[m] == cosetLeaderWeight)
-                //     {
-                //         sameWeightCosetLeader.Add(cosetLeaders[m]);
-                //     }
-                // }
                 
                 if (currentWeight == 0)
                 {
@@ -100,8 +91,9 @@ public static class StepByStepDecodingAlgorithm
                 }
                 else
                 {
-                    Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
-                    Matrix possibleMessageSyndrome = possibleMessage * parityCheckMatrix.Transpose();
+                    //Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
+                    Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
+                    Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
                     int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
                     
                     if (weights[syndromeIndex] < currentWeight)

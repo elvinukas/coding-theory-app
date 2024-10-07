@@ -181,7 +181,7 @@ public class StepByStepDecodingAlgorithmUnitTests
         Matrix originalMessage = new Matrix(elements1, field.q);
         //Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 5;
-        int n = 15;
+        int n = 8;
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, null,
             dimension, n, numberBitLength: 8);
@@ -190,7 +190,8 @@ public class StepByStepDecodingAlgorithmUnitTests
 
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} 
+            {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
             
         });
 

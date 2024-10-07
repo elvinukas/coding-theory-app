@@ -77,7 +77,8 @@ public class StandardArrayGenerator
 
             foreach (Matrix cosetLeader in cosetLeaders)
             {
-                Matrix syndrome = cosetLeader * parityCheckMatrix.Transpose();
+                //Matrix syndrome = cosetLeader * parityCheckMatrix.Transpose();
+                Matrix syndrome = (parityCheckMatrix * cosetLeader.Transpose()).Transpose();
 
                 if (!uniqueSyndromeList.Contains(syndrome))
                 {
@@ -192,7 +193,7 @@ public class StandardArrayGenerator
         }
 
 
-        for (int i = start; i < currentLeader.Length; ++i)
+        for (int i = currentLeader.Length - 1; i >= start; --i)
         {
             currentLeader[i] = 1;
             
