@@ -59,7 +59,7 @@ public class Channel
 
         for (int i = 0; i < numberOfErrors; ++i)
         {
-            int index = (int) randomNumberGenerator.GetNewRandomNumber() * columns;
+            int index = (int) (randomNumberGenerator.GetNewRandomNumber() * columns);
             if (errorVector[0, index].Value == 1)
             {
                 --i;

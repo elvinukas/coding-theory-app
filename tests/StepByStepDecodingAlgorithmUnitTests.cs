@@ -225,8 +225,8 @@ public class StepByStepDecodingAlgorithmUnitTests
         });
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension: 5, n: 0);
-        Matrix errorVector;
-        Matrix sentMessage = algorithm.EncodedMessage;
+        Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 1);
+        Matrix sentMessage = algorithm.EncodedMessage + errorVector;
 
         Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, sentMessage);
         
