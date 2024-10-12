@@ -4,7 +4,8 @@ namespace tests;
 using app.Math;
 using app.Algorithms;
 
-// 2min 13sec without multithreading
+// 2min 13s - 2min 30sec without any optimizations
+// 41.284s after first optimizations 
 public class ImageConverterUnitTests
 {
     [Fact]

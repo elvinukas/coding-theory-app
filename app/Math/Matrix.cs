@@ -15,13 +15,13 @@ public class Matrix
         this.Rows = rows;
         this.Columns = columns;
         matrix = new FieldElement[this.Rows, this.Columns]; // this makes all elements in the matrix group groupelements
-        
-        
+
+        Field field = new Field(q);
         for (int i = 0; i < this.Rows; ++i)
         {
             for (int j = 0; j < this.Columns; ++j)
             {
-                matrix[i, j] = new FieldElement(0, new Field(q));
+                matrix[i, j] = new FieldElement(0, field);
             }
         }
         
@@ -36,11 +36,12 @@ public class Matrix
         matrix = new FieldElement[Rows, Columns];
 
         // assigning each matrix element with a specified element from the elements 2d array
+        Field field = new Field(q);
         for (int row = 0; row < Rows; ++row)
         {
             for (int column = 0; column < Columns; ++column)
             {
-                matrix[row, column] = new FieldElement(elements[row, column], new Field(q));
+                matrix[row, column] = new FieldElement(elements[row, column], field);
             }
         }
 
@@ -53,11 +54,12 @@ public class Matrix
         this.Columns = originalMatrix.Columns;
         this.matrix = new FieldElement[Rows, Columns];
 
+        Field field = new Field(q);
         for (int row = 0; row < Rows; ++row)
         {
             for (int column = 0; column < Columns; ++column)
             {
-                matrix[row, column] = new FieldElement(originalMatrix.matrix[row, column].Value, new Field(q));
+                matrix[row, column] = new FieldElement(originalMatrix.matrix[row, column].Value, field);
             }
         }
 

@@ -37,28 +37,16 @@ public interface IConverter<T>
     static Matrix MakeMatrixFromByteFile(string filePath)
     {
         byte[] bytes = File.ReadAllBytes(filePath);
-        StringBuilder binaryString = new StringBuilder();
-
-        // Convert each byte to its binary representation
-        foreach (byte b in bytes)
+        int[,] binaryMatrix = new int[1, bytes.Length * 8];
+        Parallel.For(0, bytes.Length, i =>
         {
-            binaryString.Append(Convert.ToString(b, 2).PadLeft(8, '0'));
-        }
-
-        string bits = binaryString.ToString();
-        int totalBits = bits.Length;
-        int rows = 1; // If you want a single row
-        int cols = totalBits; // All bits in one row
-
-        // create the matrix
-        int[,] binaryMatrix = new int[rows, cols];
-
-        // populate the matrix with bits
-        for (int i = 0; i < totalBits; i++)
-        {
-            // Convert the character '0' or '1' to the integer 0 or 1
-            binaryMatrix[0, i] = bits[i] == '1' ? 1 : 0;
-        }
+            byte b = bytes[i];
+            for (int j = 0; j < 8; j++)
+            {
+                int bit = (b >> (7 - j)) & 1;
+                binaryMatrix[0, i * 8 + j] = bit;
+            }
+        }); 
 
         return new Matrix(binaryMatrix);
     }
