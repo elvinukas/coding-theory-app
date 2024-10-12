@@ -20,8 +20,16 @@ public class SimulationUnitTests
         {
             {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1}
         });
+
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+            {1, 0, 0, 0, 1, 1, 0},
+            {0, 1, 0, 0, 1, 0, 1},
+            {0, 0, 1, 0, 1, 1, 1},
+            {0, 0, 0, 1, 0, 1, 1}
+        });
         
-        LinearEncodingAlgorithm linearEncodingAlgorithm = new LinearEncodingAlgorithm(originalMessage, null, 4, 10);
+        LinearEncodingAlgorithm linearEncodingAlgorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, 4, 7);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         Matrix retrievedGeneratorMatrix = linearEncodingAlgorithm.GeneratorMatrix;
 
