@@ -217,15 +217,14 @@ public class StepByStepDecodingAlgorithmUnitTests
         Matrix generatorMatrix = new Matrix(new int[,]
         {
 
-            {1, 0, 0, 0, 0, 1, 0, 1},
-            {0, 1, 0, 0, 0, 0, 1, 0},
-            {0, 0, 1, 0, 0, 1, 1, 1},
-            {0, 0, 0, 1, 0, 1, 0, 0},
-            {0, 0, 0, 0, 1, 0, 0, 1}
+            {1, 0, 0, 0, 1, 1, 0},
+            {0, 1, 0, 0, 1, 0, 1},
+            {0, 0, 1, 0, 1, 1, 1},
+            {0, 0, 0, 1, 0, 1, 1}
         });
         
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension: 5, n: 0);
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension: 4, n: 7);
         Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 1);
         Matrix sentMessage = algorithm.EncodedMessage + errorVector;
 
