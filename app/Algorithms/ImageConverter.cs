@@ -20,9 +20,8 @@ public class ImageConverter : IConverter<Image>
         {
             image.Save(fileStream, new BmpEncoder());
         }
-
-        byte[] imageBytes = File.ReadAllBytes(binaryFileLocation);
-        return IConverter<Image>.MakeMatrixFromByteArray(imageBytes);
+        
+        return IConverter<Image>.MakeMatrixFromByteFile(binaryFileLocation);
 
     }
 

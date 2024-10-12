@@ -4,6 +4,7 @@ namespace tests;
 using app.Math;
 using app.Algorithms;
 
+// 2min 13sec without multithreading
 public class ImageConverterUnitTests
 {
     [Fact]
