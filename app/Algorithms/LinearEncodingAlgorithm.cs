@@ -5,9 +5,14 @@ using app.Math;
 
 // warning! the encoding algorithm works with only binary digits!
 // since appending the length of the message is in binary, a matrix with different field elements would be created
+
+// the length of the original message is considered to be industry-based (known) information, which is not needed
+// to be sent through the original vector
+
+
 public class LinearEncodingAlgorithm
 {
-    public Matrix OriginalMessage { get; private set; }
+    private Matrix OriginalMessage { get; }
     public int OriginalMessageLength { get; private set; }
     public Matrix EncodedMessage { get; private set; }
     public Matrix GeneratorMatrix { get; private set; }
@@ -15,7 +20,7 @@ public class LinearEncodingAlgorithm
     public int k; // dimensija (how long each divided up part should be)
     
     public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension, int n,
-        GeneratorMatrixGenerator matrixGenerator = null, int numberBitLength = 32)
+        GeneratorMatrixGenerator matrixGenerator = null)
     // a custom matrix generator can be assigned, mostly for mock unit testing
     {
         if (originalMessage.Rows != 1)
@@ -29,29 +34,9 @@ public class LinearEncodingAlgorithm
         }
         this.k = dimension;
         this.OriginalMessage = originalMessage;
+        this.OriginalMessageLength = OriginalMessage.Columns;
 
-        // converting originalLength to a binary array, so that it can be added alongside the original message
-        int originalLength = OriginalMessage.Columns;
-        int lengthBits = numberBitLength;
-                                   // this may seem like a lot and it is for very small messages, however
-                                   // when in different scenarios text and IMAGE encoding will be required
-                                   // where a 2MB jpg image can be about 16M bits
-                                   // the extra 32 bits, where they can store length data of about 4.2Billion bits
-                                   // seem reasonable when you can store that much
-                                   // maximum message with extra 32bits for message length can store
-                                   // size for images up to 0.5369 GB (a lot for an image!)
-                                   // but even if files were sent the message could simply be split up
-                                   // and everything would still work :)
-
-        int[,] lengthBitsArray = new int[1, lengthBits];
-        string lengthInBinary = Convert.ToString(originalLength, 2).PadLeft(lengthBits, '0');
-        for (int i = 0; i < lengthBits; ++i)
-        {
-            lengthBitsArray[0, i] = lengthInBinary[i] == '1' ? 1 : 0;
-        }
-
-        Matrix lengthMatrix = new Matrix(lengthBitsArray);
-        this.OriginalMessage = Matrix.MergeMatrices(lengthMatrix, originalMessage);
+        // original message length is error-free information!
 
         if (generatorMatrix == null)
         {
@@ -72,8 +57,6 @@ public class LinearEncodingAlgorithm
         
         // call encoding algorithm
         this.EncodedMessage = EncodeMessage();
-        //this.EncodedMessage = Matrix.MergeMatrices(EncodedMessage, lengthMatrix);
-
     }
     
 

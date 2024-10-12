@@ -78,6 +78,21 @@ public class Matrix
     }
 
     /// matrix operations
+    
+    
+    public override bool Equals(object obj)
+    {
+        if (obj is Matrix matrix)
+        {
+            return this == matrix; // use the overloaded == operator
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return 400; // the hash code is the same for all matrices, so that the hashtable uses .Equals() as its comparison
+    }
 
     public static bool operator ==(Matrix a, Matrix b)
     {

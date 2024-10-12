@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace app.Algorithms;
 using app.Math;
 using app.Exceptions;
@@ -14,20 +16,13 @@ using app.Exceptions;
 
 public static class StepByStepDecodingAlgorithm
 {
-    public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage, int numberBitLength = 32)
+    public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage, int originalMessageLength)
     {
         
         // H = [P^T I_{n-k}]
         
         int k = generatorMatrix.Rows;
         int n = generatorMatrix.Columns;
-        int lengthBitSize = numberBitLength; // 32 bits were allocated for storing message length by default
-        
-        
-        
-        
-        // message cannot be trimmed before decoding!!!
-        // it must be decoded fully, then trimmed
         
         // firstly, parityMatrix P needs to be constructed
         Matrix parityMatrix = RetrieveParityMatrix(generatorMatrix);
@@ -44,7 +39,8 @@ public static class StepByStepDecodingAlgorithm
         int encodedMessageLength = receivedMessage.Columns;
         int numberOfParts = encodedMessageLength / n;
         Matrix decodedMessage = null;
-
+        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        
         for (int part = 0; part < numberOfParts; ++part)
         {
             int[,] receivedMessagePartArray = new int[1, n];
@@ -58,86 +54,62 @@ public static class StepByStepDecodingAlgorithm
                 // they are automatically turned to field elements
                 receivedMessagePartArray[0, column] = receivedMessage[0, part * n + column].Value;
             }
-
+            
+            
             Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
-            Matrix syndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            List<Matrix> uniqueSyndromes;
+            List<Matrix> cosetLeaders;
+            List<int> weights;
+
+            (uniqueSyndromes, cosetLeaders, weights) =
+                standardArrayGenerator.GenerateListOfUniqueSyndromes(parityCheckMatrix);
+
+            int i = 0;
+            //Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+            int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
+            int originalWeight = weights[index];
+            List<Matrix> normalBitFlipList = standardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
             
             
-            // now that the receivedMessagePart is converted to a matrix (vector)
-            // decoding process using the standard array can begin
-
-            // if errors do not exist (meaning syndrome is zero)
-            // then we can certainly say that the decoded message is the first k elements of the n-length encoded message
-            if (!DoErrorsExistWithSyndrome(syndrome))
+            while (true)
             {
-                decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
 
-            }
-            // now if errors do exist (meaning the syndrome is not zero)
-            // we need to create a coset leader
-            // then with that coset leader (error vector) we need to subtract it from the receivedMessage
-            // then we check that result if DoErrorsExistWithSyndrome, and if its zero
-            // then we know our original message = receivedMessage - cosetLeader
-            // we add it to the decodedMessage
-            else
-            {
-                int weight = 1;
-
-                while (true)
+                Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+                int currentIndex = uniqueSyndromes.IndexOf(syndrome);
+                int currentWeight = weights[currentIndex];
+                
+                if (currentWeight == 0)
                 {
-                    StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
-                    List<Matrix> cosetLeaders = standardArrayGenerator.GenerateCosetLeaders(weight);
-
-                    Matrix bestMessagePart = null;
-                    int minErrorWeight = n; // maximum possible weight
-                    bool foundLeader = false;
-                    
-                    foreach (Matrix cosetLeader in cosetLeaders)
-                    {
-                        Matrix possibleOriginalMessagePart = receivedMessagePart + cosetLeader;
-                        Matrix newSyndrome = possibleOriginalMessagePart * parityCheckMatrix.Transpose();
-
-                        int errorWeight = GetSyndromeWeight(cosetLeader);
-                        
-                        // compare weights
-                        if (GetSyndromeWeight(newSyndrome) == 0 && errorWeight < minErrorWeight)
-                        {
-                            bestMessagePart = possibleOriginalMessagePart;
-                            minErrorWeight = errorWeight;
-                            foundLeader = true;
-                            
-                        }
-                    
-                    }
-                    
-                    
-
-                    if (foundLeader && bestMessagePart != null)
-                    {
-                        decodedMessage = AppendDecodedMessage(decodedMessage, bestMessagePart, k);
-                        break;
-                    }
-
-                    // if the decoding process fails, throw exception
-                    if (weight >= n)
-                    {
-                        throw new InvalidOperationException(
-                            "Something went wrong. Message cannot be decoded (syndrome weight is too large!).");
-                    }
-
-                    ++weight;
+                    decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
+                    break;
                 }
+                else
+                {
+                    Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
+                    //Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
+                    Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
+                    int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
+                    
+                    if (weights[syndromeIndex] < currentWeight)
+                    {
+                        receivedMessagePart = possibleMessage.Clone();
+                        //i = -1;
+                    }
+
+                    ++i;
+
+                }
+                
                 
             }
             
-            
         }
         
-        int originalMessageLength = RetrieveOriginalMessageLength(decodedMessage, lengthBitSize);
         Matrix fullyDecodedMessage;
         try
         {
-            fullyDecodedMessage = TrimDecodedMessage(decodedMessage, originalMessageLength, lengthBitSize);
+            fullyDecodedMessage = TrimDecodedMessage(decodedMessage, originalMessageLength);
         }
         catch (DecodingException e) // a decoding exception is thrown if the original message length is impossible to determine
         {
@@ -252,14 +224,14 @@ public static class StepByStepDecodingAlgorithm
 
     }
 
-    public static int GetSyndromeWeight(Matrix syndrome)
+    public static int GetWeight(Matrix matrix)
     {
         int weight = 0;
-        for (int i = 0; i < syndrome.Rows; ++i)
+        for (int i = 0; i < matrix.Rows; ++i)
         {
-            for (int j = 0; j < syndrome.Columns; ++j)
+            for (int j = 0; j < matrix.Columns; ++j)
             {
-                if (syndrome[i, j].Value == 1)
+                if (matrix[i, j].Value == 1)
                 {
                     ++weight;
                 }
@@ -270,56 +242,38 @@ public static class StepByStepDecodingAlgorithm
 
 
     }
-
-    public static int RetrieveOriginalMessageLength(Matrix receivedMessage, int lengthBitSize)
-    {
-        int messageLength = 0;
-        
-        for (int i = 0; i < lengthBitSize; ++i)
-        {
-            messageLength = messageLength * 2 + receivedMessage[0, i].Value;
-        }
-
-        return messageLength;
-    }
-
-    public static Matrix TrimEncodedMessage(Matrix receivedMessage, int lengthBitSize)
-    {
-        int totalLength = receivedMessage.Columns;
-        
-        // remainingLength - how many bits are left after trimming the bits allocated for message size
-        int remainingLength = totalLength - lengthBitSize;
-        int[,] trimmedMessageArray = new int[1, remainingLength];
-
-        try
-        {
-            for (int i = 0; i < remainingLength; ++i)
-            {
-                trimmedMessageArray[0, i] = receivedMessage[0, i + lengthBitSize].Value;
-            }
-
-            return new Matrix(trimmedMessageArray, receivedMessage[0, 0].field.q);
-        }
-        catch (IndexOutOfRangeException e)
-        {
-            throw new DecodingException(
-                "The data has been irrecoverably corrupted. The original message length cannot be determined.", e);
-        }
-        
-
-    }
-
-    public static Matrix TrimDecodedMessage(Matrix decodedMessage, int originalMessageLength, int lengthBitSize)
+    
+    public static Matrix TrimDecodedMessage(Matrix decodedMessage, int originalMessageLength)
     {
         int[,] trimmedMessageArray = new int[1, originalMessageLength];
 
         for (int i = 0; i < originalMessageLength; ++i)
         {
-            trimmedMessageArray[0, i] = decodedMessage[0, i + lengthBitSize].Value;
+            trimmedMessageArray[0, i] = decodedMessage[0, i].Value;
         }
 
         return new Matrix(trimmedMessageArray, decodedMessage[0, 0].field.q);
     }
+
+    public static int GetMinimalCodeLength(Matrix generatorMatrix)
+    {
+        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        List<Matrix> codewords = standardArrayGenerator.Codewords;
+
+        int minimumCounter = Int32.MaxValue;
+        foreach (Matrix codeword in codewords)
+        {
+            if (GetWeight(codeword) < minimumCounter && GetWeight(codeword) != 0)
+            {
+                minimumCounter = GetWeight(codeword);
+            }
+        }
+
+
+        return minimumCounter;
+
+    }
+    
     
     
     

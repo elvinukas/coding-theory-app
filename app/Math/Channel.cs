@@ -50,6 +50,28 @@ public class Channel
         return OriginalMessage + errorVector; // y = c + e
         
     }
+
+    public static Matrix GetSpecifiedNumOfErrorVector(Matrix sentMessage, int numberOfErrors)
+    {
+        int columns = sentMessage.Columns;
+        RandomNumberGenerator randomNumberGenerator = new RandomNumberGenerator();
+        Matrix errorVector = new Matrix(new int[1, columns]);
+
+        for (int i = 0; i < numberOfErrors; ++i)
+        {
+            int index = (int) (randomNumberGenerator.GetNewRandomNumber() * columns);
+            if (errorVector[0, index].Value == 1)
+            {
+                --i;
+                continue;
+            }
+            errorVector[0, index].Value = 1;
+            
+        }
+
+        return errorVector;
+
+    }
     
     
     
