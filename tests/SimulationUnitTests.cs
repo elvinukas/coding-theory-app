@@ -45,6 +45,34 @@ public class SimulationUnitTests
 
         
     }
+
+    [Fact]
+    public void Simulation_EncodeAndDecodeText()
+    {
+        string text = "Išbandome žinutės užkodavimą ir dekodavimą.";
+        Matrix convertedMessage = TextConverter.ConvertToBinaryMatrix(text);
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+            { 1, 0, 0, 0, 1, 1, 0 },
+            { 0, 1, 0, 0, 1, 0, 1 },
+            { 0, 0, 1, 0, 1, 1, 1 },
+            { 0, 0, 0, 1, 0, 1, 1 }
+        });
+
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(convertedMessage, generatorMatrix, 4, 7);
+        Matrix encodedMessage = algorithm.EncodedMessage;
+        Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 2);
+        Matrix receivedMessage = encodedMessage + errorVector;
+
+        Matrix decodedMessage =
+            StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, algorithm.OriginalMessageLength);
+
+        string retrievedMessage = TextConverter.ConvertToString(decodedMessage);
+        _testOutputHelper.WriteLine(retrievedMessage);
+        
+        Assert.True(text == retrievedMessage);
+
+    }
     
     
 }
