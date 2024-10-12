@@ -67,7 +67,7 @@ public class SimulationUnitTests
         Matrix decodedMessage =
             StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, algorithm.OriginalMessageLength);
 
-        string retrievedMessage = TextConverter.ConvertToString(decodedMessage);
+        string retrievedMessage = TextConverter.ConvertToOriginalFormat(decodedMessage);
         _testOutputHelper.WriteLine(retrievedMessage);
         
         Assert.True(text == retrievedMessage);
