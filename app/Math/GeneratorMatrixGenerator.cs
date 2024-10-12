@@ -1,5 +1,10 @@
 namespace app.Math;
 
+// basically,
+// vartotojas, pasirinkdamas, kad kompiuteris generuoja generuojancia matrica, prisiima atsakomybe,
+// kad tas kodas nevisada gales istaisyti klaidas (arba ju visai neistaisys)
+// BET, as pasistengsiu, kad kodas turetu dideli atstuma (jei pavyks)
+
 public class GeneratorMatrixGenerator
 {
 

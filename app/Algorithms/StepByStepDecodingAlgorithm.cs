@@ -377,74 +377,21 @@ public static class StepByStepDecodingAlgorithm
 
     public static int GetMinimalCodeLength(Matrix generatorMatrix)
     {
-        int d = 1; // minimal code length
-        Matrix parityMatrix = RetrieveParityMatrix(generatorMatrix);
-        
-        // then, it needs to be transposed
-        Matrix transposedParityMatrix = parityMatrix.Transpose();
-        
-        // then, parity-check matrix H needs to be constructed
-        Matrix parityCheckMatrix = RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
+        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        List<Matrix> codewords = standardArrayGenerator.Codewords;
 
-
-        // finding the list of all columns as matrices
-        List<Matrix> listOfColumns = new List<Matrix>();
-        for (int column = 0; column < parityCheckMatrix.Columns; ++column)
+        int minimumCounter = Int32.MaxValue;
+        foreach (Matrix codeword in codewords)
         {
-            int[,] columnArray = new int[parityCheckMatrix.Rows, 1];
-
-            for (int row = 0; row < parityCheckMatrix.Rows; ++row)
+            if (GetWeight(codeword) < minimumCounter && GetWeight(codeword) != 0)
             {
-                columnArray[row, 0] = parityCheckMatrix[row, column].Value;
-            }
-
-            Matrix columnMatrix = new Matrix(columnArray);
-            listOfColumns.Add(columnMatrix);
-        }
-        
-        // checking if d = 1;
-        foreach (Matrix column in listOfColumns)
-        {
-            if (GetWeight(column) == 0)
-            {
-                return d;
-            }
-            
-        }
-        
-        // | counting unique column counts
-        // hashtables provide an easy way to do that, since the same element cannot be contained
-
-        Hashtable hashtable = new Hashtable();
-        foreach (Matrix matrix in listOfColumns)
-        {
-            if (!hashtable.Contains(matrix))
-            {
-                hashtable.Add(matrix, 1);
-            }
-            else
-            {
-                hashtable[matrix] = (int) hashtable[matrix] + 1;
-            }
-        }
-        
-        
-        // count how many columns are unique
-        int counter = 0;
-        foreach (Matrix matrix in hashtable)
-        {
-            if (hashtable.Contains(matrix))
-            {
-                if (1 == (int)hashtable[matrix])
-                {
-                    ++counter;
-                }
+                minimumCounter = GetWeight(codeword);
             }
         }
 
-        d = counter;
-        return d;
-        
+
+        return minimumCounter;
+
     }
     
     

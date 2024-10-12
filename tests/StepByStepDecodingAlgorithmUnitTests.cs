@@ -2,6 +2,9 @@ namespace tests;
 using app.Math;
 using app.Algorithms;
 
+// basically,
+// 
+
 public class StepByStepDecodingAlgorithmUnitTests
 {
 
@@ -190,7 +193,7 @@ public class StepByStepDecodingAlgorithmUnitTests
 
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
             
         });
@@ -223,6 +226,8 @@ public class StepByStepDecodingAlgorithmUnitTests
             {0, 0, 0, 1, 0, 1, 0, 0},
             {0, 0, 0, 0, 1, 0, 0, 1}
         });
+        
+        // hemmingo kodas
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension: 5, n: 0);
         Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 1);
@@ -234,6 +239,70 @@ public class StepByStepDecodingAlgorithmUnitTests
 
 
 
+
+
+    }
+
+
+    // this is the problem, how to generate a generator matrix so that its minimal code length is the maximum possible
+    // according to k and n
+    [Fact]
+    public void GetMinimalCodeLength_CheckIfCalculationsAreCorrect1()
+    {
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+            {1, 0, 0, 0, 1, 1},
+            {0, 1, 0, 0, 1, 1},
+            {0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 1, 1, 0}
+        });
+
+        int d = StepByStepDecodingAlgorithm.GetMinimalCodeLength(generatorMatrix);
+        
+        
+        Assert.True(d == 1);
+
+
+    }
+    
+    // not complete
+    [Fact]
+    public void GetMinimalCodeLength_CheckIfCalculationsAreCorrect2()
+    {
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+            {1, 0, 0, 0, 0, 1, 0},
+            {0, 1, 0, 0, 0, 1, 0},
+            {0, 0, 1, 0, 0, 0, 1},
+            {0, 0, 0, 1, 0, 0, 1},
+            {0, 0, 0, 0, 1, 1, 0}
+        });
+        
+        
+        
+
+        int d = StepByStepDecodingAlgorithm.GetMinimalCodeLength(generatorMatrix);
+        
+        Assert.True(d == 2);
+
+
+    }
+    
+    [Fact]
+    public void GetMinimalCodeLength_CheckIfCalculationsAreCorrect3()
+    {
+        Matrix generatorMatrix = new Matrix(new int[,]
+        {
+            {1, 0, 0, 0, 1, 1, 0},
+            {0, 1, 0, 0, 1, 0, 1},
+            {0, 0, 1, 0, 1, 1, 1},
+            {0, 0, 0, 1, 0, 1, 1}
+        });
+        
+
+        int d = StepByStepDecodingAlgorithm.GetMinimalCodeLength(generatorMatrix);
+        
+        Assert.True(d == 3);
 
 
     }
