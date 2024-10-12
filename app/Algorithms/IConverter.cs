@@ -4,8 +4,8 @@ using app.Math;
 
 public interface IConverter<T>
 {
-    static abstract Matrix ConvertToBinaryMatrix(T input);
-    static abstract T ConvertToOriginalFormat(Matrix input);
+    static abstract Matrix ConvertToBinaryMatrix(T input, string path);
+    static abstract T ConvertToOriginalFormat(Matrix input, string path);
 
     static Matrix MakeMatrixFromByteArray(byte[] array)
     {

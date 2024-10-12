@@ -14,32 +14,34 @@ using SixLabors.ImageSharp;
 public class ImageConverter : IConverter<Image>
 {
 
-    public static Matrix ConvertToBinaryMatrix(Image image)
+    public static Matrix ConvertToBinaryMatrix(Image image, string binaryFileLocation)
     {
-        using (MemoryStream memoryStream = new MemoryStream())
+        using (FileStream fileStream = new FileStream(binaryFileLocation, FileMode.Create))
         {
-            image.Save(memoryStream, new BmpEncoder());
-            byte[] imageByteArray = memoryStream.ToArray();
-            return IConverter<Image>.MakeMatrixFromByteArray(imageByteArray);
-            
+            image.Save(fileStream, new BmpEncoder());
         }
-        
+
+        byte[] imageBytes = File.ReadAllBytes(binaryFileLocation);
+        return IConverter<Image>.MakeMatrixFromByteArray(imageBytes);
+
     }
 
-    public static Image ConvertToOriginalFormat(Matrix input)
+    public static Image ConvertToOriginalFormat(Matrix input, string filePath)
     {
         byte[] imageBytes = IConverter<Image>.MakeByteArrayFromMatrix(input);
+        
+        File.WriteAllBytes(filePath, imageBytes);
 
-        using (MemoryStream memoryStream = new MemoryStream(imageBytes))
+        using (FileStream memoryStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
         {
             return Image.Load(memoryStream);
         }
         
     }
 
-    public static void SaveImage(Matrix input, string savePath)
+    public static void SaveImage(Matrix input, string binaryFilePath, string savePath)
     {
-        using (Image image = ImageConverter.ConvertToOriginalFormat(input))
+        using (Image image = ImageConverter.ConvertToOriginalFormat(input, binaryFilePath))
         {
             image.Save(savePath, new BmpEncoder());
         }
