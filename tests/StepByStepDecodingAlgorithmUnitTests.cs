@@ -124,7 +124,7 @@ public class StepByStepDecodingAlgorithmUnitTests
     [Fact]
     public void Decode_CheckIfDecodingIsCorrectWhenThereIsAMistake()
     {
-        int k = 6;
+        int k = 4;
         
         Matrix originalMessage = new Matrix(new int[,]
         {
@@ -133,29 +133,27 @@ public class StepByStepDecodingAlgorithmUnitTests
 
         Matrix generatorMatrix = new Matrix(new int[,]
         {
-            {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0},
-            {0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-            {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-            {0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1},
-            {0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1},
-            {0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0},
+            {1, 0, 0, 0, 1, 1, 0},
+            {0, 1, 0, 0, 1, 0, 1},
+            {0, 0, 1, 0, 1, 1, 1},
+            {0, 0, 0, 1, 0, 1, 1}
         });
 
         LinearEncodingAlgorithm linearEncodingAlgorithm =
-            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns, numberBitLength: 8);
+            new LinearEncodingAlgorithm(originalMessage, generatorMatrix, k, generatorMatrix.Columns);
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         
         // simulating without a channel, manually inputting a mistake
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         });
 
         Matrix receivedMessage = encodedMessage + errorVector;
         
         // decoding process
 
-        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, numberBitLength: 8);
+        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, linearEncodingAlgorithm.OriginalMessageLength);
         
         // 0 0 0 0 0 1 0 1 1 1 0 0 1 0 0 - without trimming
         // with trimming it is
@@ -172,35 +170,34 @@ public class StepByStepDecodingAlgorithmUnitTests
     public void Decode_CheckIfDecodingIsCorrectWhenThereIsAMistake2()
     {
         Field field = new Field(2);
-        int[,] elements1 = { { 1, 1, 0 }};
-        // int[,] elements2 =
-        // {
-        //     {1, 0, 0, 0, 0, 1}, 
-        //     {0, 1, 0, 0, 0, 1}, 
-        //     {0, 0, 1, 1, 1, 1}
-        //
-        // };
+        int[,] elements1 = { { 1, 1, 0, 0, 1, 0, 1, 0 }};
+        int[,] elements2 =
+        {
+            {1, 0, 0, 0, 1, 1, 0},
+            {0, 1, 0, 0, 1, 0, 1},
+            {0, 0, 1, 0, 1, 1, 1},
+            {0, 0, 0, 1, 0, 1, 1}
+        
+        };
         
         Matrix originalMessage = new Matrix(elements1, field.q);
-        //Matrix generatorMatrix = new Matrix(elements2, field.q);
-        int dimension = 5;
-        int n = 8;
+        Matrix generatorMatrix = new Matrix(elements2, field.q);
+        int dimension = 4;
+        int n = 7;
 
-        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, null,
-            dimension, n, numberBitLength: 8);
+        LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix,
+            dimension, n);
         // n assigning value here does not matter, it can be zero
         // since a generator matrix is provided it does not matter
 
         Matrix errorVector = new Matrix(new int[,]
         {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-            
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0}
         });
 
         Matrix encodedMessage = algorithm.EncodedMessage + errorVector;
 
-        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(algorithm.GeneratorMatrix, encodedMessage, numberBitLength: 8);
+        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(algorithm.GeneratorMatrix, encodedMessage, algorithm.OriginalMessageLength);
 
         Assert.True(originalMessage == decodedMessage);
 
@@ -227,13 +224,12 @@ public class StepByStepDecodingAlgorithmUnitTests
             {0, 0, 0, 0, 1, 0, 0, 1}
         });
         
-        // hemmingo kodas
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension: 5, n: 0);
         Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 1);
         Matrix sentMessage = algorithm.EncodedMessage + errorVector;
 
-        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, sentMessage);
+        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, sentMessage, algorithm.OriginalMessageLength);
         
         Assert.True(originalMessage == decodedMessage);
 

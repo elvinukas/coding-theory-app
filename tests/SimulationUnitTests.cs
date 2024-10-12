@@ -29,7 +29,7 @@ public class SimulationUnitTests
         Matrix encodedMessageWithPossibleErrors = channel.ReceivedMessage;
 
         Matrix decodedMessage =
-            StepByStepDecodingAlgorithm.Decode(retrievedGeneratorMatrix, encodedMessageWithPossibleErrors);
+            StepByStepDecodingAlgorithm.Decode(retrievedGeneratorMatrix, encodedMessageWithPossibleErrors, linearEncodingAlgorithm.OriginalMessageLength);
         
         _testOutputHelper.WriteLine(originalMessage.ToString());
         _testOutputHelper.WriteLine(decodedMessage.ToString());
