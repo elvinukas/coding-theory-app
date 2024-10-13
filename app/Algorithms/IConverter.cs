@@ -6,8 +6,9 @@ using app.Math;
 
 public interface IConverter<T>
 {
-    static abstract Matrix ConvertToBinaryMatrix(T input, string path);
-    static abstract T ConvertToOriginalFormat(Matrix input, string path);
+    static abstract byte[] ConvertToBinaryArray(T input, string path);
+    static abstract T ConvertToOriginalFormat(byte[] input, string path);
+    
 
     static Matrix MakeMatrixFromByteArray(byte[] array)
     {

@@ -92,7 +92,7 @@ app.Run();
 string binarySavePath = "../tests/test-images/test.bin";
 string decodedBinarySavePath = "../tests/test-images/test_decoded.bin";
 Image image = Image.Load("../tests/test-images/test.jpeg");
-Matrix convertedMatrix = ImageConverter.ConvertToBinaryMatrix(image, binarySavePath);
+//Matrix convertedMatrix = ImageConverter.ConvertToBinaryMatrix(image, binarySavePath);
 
 Matrix generatorMatrix = new Matrix(new int[,]
 {
@@ -102,15 +102,15 @@ Matrix generatorMatrix = new Matrix(new int[,]
     { 0, 0, 0, 1, 0, 1, 1 }
 });
 
-LinearEncodingAlgorithm encodingAlgorithm = new LinearEncodingAlgorithm(convertedMatrix, generatorMatrix, 4, 7);
+//LinearEncodingAlgorithm encodingAlgorithm = new LinearEncodingAlgorithm(convertedMatrix, generatorMatrix, 4, 7);
 
-Matrix encodedImage = encodingAlgorithm.EncodedMessage;
-Channel channel = new Channel(encodedImage, 0.01);
-Matrix withErrors = channel.ReceivedMessage;
-Matrix decodedImage =
-    StepByStepDecodingAlgorithm.Decode(generatorMatrix, withErrors, encodingAlgorithm.OriginalMessageLength);
+// Matrix encodedImage = encodingAlgorithm.EncodedMessage;
+// Channel channel = new Channel(encodedImage, 0.01);
+// Matrix withErrors = channel.ReceivedMessage;
+// Matrix decodedImage =
+//     StepByStepDecodingAlgorithm.Decode(generatorMatrix, withErrors, encodingAlgorithm.OriginalMessageLength);
 
-ImageConverter.ConvertToOriginalFormat(decodedImage, "../../tests/test-images/test_decoded.bmp");
+//ImageConverter.ConvertToOriginalFormat(decodedImage, "../../tests/test-images/test_decoded.bmp");
 
 
 

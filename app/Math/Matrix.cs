@@ -82,6 +82,34 @@ public class Matrix
 
     }
 
+    // designed only for vectors and mostly reading from .bin files
+    public Matrix(byte[] byteArray)
+    {
+        int[,] binaryVector = new int[1, byteArray.Length * 8]; // * 8 since each byte is 8 bits long
+        int column = 0;
+        
+        // iterating through each byte
+        for (int i = 0; i < byteArray.Length; ++i)
+        {
+            byte textByte = byteArray[i];
+
+            // starting from the last bit of the byte
+            for (int bit = 7; bit >= 0; --bit)
+            {
+                int bitValue = textByte / (int)System.Math.Pow(2, bit);
+                binaryVector[0, column] = bitValue % 2;
+                ++column;
+            }
+            
+        }
+
+        Matrix newMatrix = new Matrix(binaryVector);
+        this.Rows = newMatrix.Rows;
+        this.Columns = newMatrix.Columns;
+        this.matrix = newMatrix.matrix;
+        
+    }
+
     // copy constructor for the .Clone()
     public Matrix(Matrix originalMatrix, int q = 2)
     {

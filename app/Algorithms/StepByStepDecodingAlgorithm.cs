@@ -273,6 +273,56 @@ public static class StepByStepDecodingAlgorithm
         return minimumCounter;
 
     }
+
+
+
+    public static byte[] DecodeFile(string inputFilePath, string outputFilePath, Matrix generatorMatrix, int originalMessageLength)
+    {
+        int n = generatorMatrix.Columns;
+        int k = generatorMatrix.Rows;
+        
+        byte[] encodedData = File.ReadAllBytes(inputFilePath);
+        BitArray encodedBitArray = new BitArray(encodedData);
+
+        int totalBits = encodedBitArray.Count;
+        int numberOfParts = totalBits / n;
+
+        // this is with the padding, we will edit it later
+        BitArray decodedBitArray = new BitArray(numberOfParts * k);
+
+        // extracting n bits
+        int[,] receivedMessagePartArray = new int[1, n];
+        Parallel.For(0, numberOfParts,part =>
+        {
+            for (int i = 0; i < n; i++)
+            {
+                receivedMessagePartArray[0, i] = encodedBitArray[part * n + i] ? 1 : 0;
+            }
+
+            Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
+            Matrix decodedPartMatrix = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessagePart, k);
+
+            for (int i = 0; i < k; ++i)
+            {
+                decodedBitArray[part * k + i] = decodedPartMatrix[0, i].Value == 1;
+            }
+        });
+        
+        // trimming the bitarray to original message length in bits
+        BitArray finalBitArray = new BitArray(originalMessageLength * 8);
+        for (int i = 0; i < originalMessageLength * 8; ++i)
+        {
+            finalBitArray[i] = decodedBitArray[i];
+        }
+
+        byte[] finalDecodedBytes = new byte[originalMessageLength];
+        finalBitArray.CopyTo(finalDecodedBytes, 0);
+
+        return finalDecodedBytes;
+
+
+
+    }
     
     
     

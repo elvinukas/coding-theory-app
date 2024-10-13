@@ -11,40 +11,69 @@ using app.Algorithms;
 // 7 - 13s after third and more optimizations
 public class ImageConverterUnitTests
 {
+    
+    // public void ImageConverter_CheckIfConverterWorksAsExpected()
+    // {
+    //     string imagePath = "../../../test-images/1.bmp";
+    //     string binaryPath = "../../../test-images/1.bin"; 
+    //     string reconvertedBinaryPath = "../../../test-images/1_reconverted.bin"; 
+    //     string savePath = "../../../test-images/1_reconverted.bmp";
+    //     Image image = Image.Load(imagePath);
+    //     Stopwatch stopwatch = Stopwatch.StartNew();
+    //     Matrix convertedImage = ImageConverter.ConvertToBinaryMatrix(image, binaryPath);
+    //     stopwatch.Stop();
+    //     Console.WriteLine($"ConvertToBinaryMatrix took {stopwatch.ElapsedMilliseconds} ms");
+    //     stopwatch.Reset();
+    //     
+    //     stopwatch.Start();
+    //     ImageConverter.SaveImage(convertedImage, reconvertedBinaryPath, savePath);
+    //     stopwatch.Stop();
+    //     Console.WriteLine($"Saving image took {stopwatch.ElapsedMilliseconds} ms");
+    //
+    //     byte[] convertedBinary = File.ReadAllBytes(binaryPath);
+    //     byte[] reconvertedBinary = File.ReadAllBytes(reconvertedBinaryPath);
+    //     Assert.True(convertedBinary.SequenceEqual(reconvertedBinary), "Converted binary file is not the same as the original one." );
+    //     
+    //     if (File.Exists(binaryPath))
+    //     {
+    //         File.Delete(binaryPath);
+    //     }
+    //
+    //     if (File.Exists(reconvertedBinaryPath))
+    //     {
+    //         File.Delete(reconvertedBinaryPath);
+    //     }
+    //     
+    //
+    // }
+
     [Fact]
-    public void ImageConverter_CheckIfConverterWorksAsExpected()
+    public void ImageConverter_CheckIfTheNewConverterWorksAsExpected()
     {
-        string imagePath = "../../../test-images/1.bmp";
-        string binaryPath = "../../../test-images/1.bin"; 
-        string reconvertedBinaryPath = "../../../test-images/1_reconverted.bin"; 
-        string savePath = "../../../test-images/1_reconverted.bmp";
+        string imagePath = "../../../test-images/test.jpeg";
+        string binaryPath = "../../../test-images/test.bin";
+        string encodedBinaryPath = "../../../test-images/test_encoded.bin";
+        string decodedBinaryPath = "../../../test-images/test_decoded.bin"; 
+        string savePath = "../../../test-images/test_decoded.jpeg";
         Image image = Image.Load(imagePath);
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        Matrix convertedImage = ImageConverter.ConvertToBinaryMatrix(image, binaryPath);
-        stopwatch.Stop();
-        Console.WriteLine($"ConvertToBinaryMatrix took {stopwatch.ElapsedMilliseconds} ms");
-        stopwatch.Reset();
+        byte[] imageBytes = ImageConverter.ConvertToBinaryArray(image, binaryPath);
         
-        stopwatch.Start();
-        ImageConverter.SaveImage(convertedImage, reconvertedBinaryPath, savePath);
-        stopwatch.Stop();
-        Console.WriteLine($"Saving image took {stopwatch.ElapsedMilliseconds} ms");
-
-        byte[] convertedBinary = File.ReadAllBytes(binaryPath);
-        byte[] reconvertedBinary = File.ReadAllBytes(reconvertedBinaryPath);
-        Assert.True(convertedBinary.SequenceEqual(reconvertedBinary), "Converted binary file is not the same as the original one." );
-        
-        if (File.Exists(binaryPath))
+        Matrix generatorMatrix = new Matrix(new int[,]
         {
-            File.Delete(binaryPath);
-        }
+            { 1, 0, 0, 0, 1, 1, 0 },
+            { 0, 1, 0, 0, 1, 0, 1 },
+            { 0, 0, 1, 0, 1, 1, 1 },
+            { 0, 0, 0, 1, 0, 1, 1 }
+        });
 
-        if (File.Exists(reconvertedBinaryPath))
-        {
-            File.Delete(reconvertedBinaryPath);
-        }
+        FileInfo binaryFile = new FileInfo(binaryPath);
+        int originalMessageLength = (int) binaryFile.Length;
+        UpdatedLinearEncodingAlgorithm.EncodeMessage(binaryPath, encodedBinaryPath, generatorMatrix);
+        StepByStepDecodingAlgorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath, generatorMatrix,
+            originalMessageLength);
+
+        ImageConverter.SaveImage(decodedBinaryPath, savePath);
         
-
     }
     
     

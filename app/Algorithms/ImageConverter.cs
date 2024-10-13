@@ -1,5 +1,6 @@
 
 using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace app.Algorithms;
 
@@ -14,35 +15,34 @@ using SixLabors.ImageSharp;
 public class ImageConverter : IConverter<Image>
 {
 
-    public static Matrix ConvertToBinaryMatrix(Image image, string binaryFileLocation)
+    public static byte[] ConvertToBinaryArray(Image image, string binaryFileLocation)
     {
         using (FileStream fileStream = new FileStream(binaryFileLocation, FileMode.Create))
         {
-            image.Save(fileStream, new BmpEncoder());
+            image.Save(fileStream, new JpegEncoder());
         }
         
-        return IConverter<Image>.MakeMatrixFromByteFile(binaryFileLocation);
+        return File.ReadAllBytes(binaryFileLocation);
 
     }
 
-    public static Image ConvertToOriginalFormat(Matrix input, string filePath)
+    public static Image ConvertToOriginalFormat(byte[] input, string filePath)
     {
-        byte[] imageBytes = IConverter<Image>.MakeByteArrayFromMatrix(input);
-        
-        File.WriteAllBytes(filePath, imageBytes);
+        File.WriteAllBytes(filePath, input);
 
-        using (FileStream memoryStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+        using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
         {
-            return Image.Load(memoryStream);
+            return Image.Load(fileStream);
         }
         
     }
 
-    public static void SaveImage(Matrix input, string binaryFilePath, string savePath)
+    public static void SaveImage(string pathToBinary, string savePath)
     {
-        using (Image image = ImageConverter.ConvertToOriginalFormat(input, binaryFilePath))
+        byte[] byteArray = File.ReadAllBytes(pathToBinary);
+        using (Image image = ImageConverter.ConvertToOriginalFormat(byteArray, savePath))
         {
-            image.Save(savePath, new BmpEncoder());
+            image.Save(savePath, new JpegEncoder());
         }
         
     }
