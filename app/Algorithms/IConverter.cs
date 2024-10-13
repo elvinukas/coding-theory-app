@@ -51,18 +51,20 @@ public interface IConverter<T>
         return new Matrix(binaryMatrix);
     }
 
+    
+    // previously 1.654s
     static byte[] MakeByteArrayFromMatrix(Matrix matrix)
     {
         int numberOfBytes = matrix.Columns / 8;
         byte[] bytes = new byte[numberOfBytes];
 
-        int column = 0;
         
         // iterating through each byte
 
-        for (int i = 0; i < bytes.Length; ++i)
+        Parallel.For(0, numberOfBytes, i =>
         {
             byte textByte = 0; // current byte value
+            int column = i * 8; // resolves race condition with multithreading
 
             for (int bit = 7; bit >= 0; --bit)
             {
@@ -71,7 +73,8 @@ public interface IConverter<T>
             }
 
             bytes[i] = textByte;
-        }
+        });
+            
 
         return bytes;
     }

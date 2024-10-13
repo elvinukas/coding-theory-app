@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace app.Math;
 
-public class FieldElement
+public struct FieldElement
 {
     public Field field;
     public int Value { get; internal set; } // the value of a group element

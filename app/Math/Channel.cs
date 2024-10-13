@@ -56,6 +56,7 @@ public class Channel
         int columns = sentMessage.Columns;
         RandomNumberGenerator randomNumberGenerator = new RandomNumberGenerator();
         Matrix errorVector = new Matrix(new int[1, columns]);
+        
 
         for (int i = 0; i < numberOfErrors; ++i)
         {
@@ -65,7 +66,7 @@ public class Channel
                 --i;
                 continue;
             }
-            errorVector[0, index].Value = 1;
+            errorVector[0, index] = new FieldElement(1, errorVector[0, index].field);
             
         }
 

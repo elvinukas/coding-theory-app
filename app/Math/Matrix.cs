@@ -50,9 +50,13 @@ public class Matrix
                     {
                         matrix[row, column] = zero;
                     }
-                    else
+                    else if (elements[row, column] == 1)
                     {
                         matrix[row, column] = one;
+                    }
+                    else
+                    {
+                        matrix[row, column] = new FieldElement(elements[row, column], field);
                     }
                 }
             }
