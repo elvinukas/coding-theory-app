@@ -126,9 +126,9 @@ public class LinearEncodingAlgorithm
         int totalEncodedMessageLength = numberOfParts * encodedMessageLengthPerPart;
         int[,] encodedMessageVector = new int[1, totalEncodedMessageLength]; // 1 row, totalEncodedMessageLength columns
                                                                              // of a matrix (meaning a vector in this case)
-                                                                             
+
         // encoding each part of the divided up message
-        for (int part = 0; part < numberOfParts; ++part)
+        Parallel.For(0, numberOfParts, part =>
         {
             int[,] messagePart = new int[1, k]; // 1 row, k columns, since each encodedMessage is k chars long
             for (int column = 0; column < k; ++column)
@@ -145,8 +145,8 @@ public class LinearEncodingAlgorithm
                 encodedMessageVector[0, part * encodedMessageLengthPerPart + column] =
                     encodedPartMatrix[0, column].Value;
             }
-
-        }
+        });
+        
         
         // returning the encoded vector fully merged
         Matrix resultMatrix = new Matrix(encodedMessageVector, field.q);
