@@ -41,8 +41,8 @@ public class Matrix
         {
             FieldElement zero = new FieldElement(0, field);
             FieldElement one = new FieldElement(1, field);
-            
-            for (int row = 0; row < Rows; ++row)
+
+            Parallel.For(0, Rows, row =>
             {
                 for (int column = 0; column < Columns; ++column)
                 {
@@ -59,20 +59,23 @@ public class Matrix
                         matrix[row, column] = new FieldElement(elements[row, column], field);
                     }
                 }
-            }
-            
 
+            });
+
+            
         }
         else
         {
             // assigning each matrix element with a specified element from the elements 2d array
-            for (int row = 0; row < Rows; ++row)
+
+            Parallel.For(0, Rows, row =>
             {
                 for (int column = 0; column < Columns; ++column)
                 {
                     matrix[row, column] = new FieldElement(elements[row, column], field);
                 }
-            }
+            });
+            
         }
 
         
