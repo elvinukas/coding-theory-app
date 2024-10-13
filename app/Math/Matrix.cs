@@ -15,7 +15,7 @@ public class Matrix
         this.Rows = rows;
         this.Columns = columns;
         matrix = new FieldElement[this.Rows, this.Columns]; // this makes all elements in the matrix group groupelements
-
+        
         Field field = new Field(q);
         for (int i = 0; i < this.Rows; ++i)
         {
@@ -41,8 +41,9 @@ public class Matrix
         {
             FieldElement zero = new FieldElement(0, field);
             FieldElement one = new FieldElement(1, field);
+            
 
-            Parallel.For(0, Rows, row =>
+            for (int row = 0; row < Rows; ++row)
             {
                 for (int column = 0; column < Columns; ++column)
                 {
@@ -59,22 +60,22 @@ public class Matrix
                         matrix[row, column] = new FieldElement(elements[row, column], field);
                     }
                 }
-
-            });
+            }
 
             
         }
         else
         {
             // assigning each matrix element with a specified element from the elements 2d array
+            
 
-            Parallel.For(0, Rows, row =>
+            for (int row = 0; row < Rows; ++row)
             {
                 for (int column = 0; column < Columns; ++column)
                 {
                     matrix[row, column] = new FieldElement(elements[row, column], field);
                 }
-            });
+            }
             
         }
 
@@ -342,12 +343,14 @@ public class Matrix
         // the matrix multiplication result will be in a shape of a.rows and b.columns
         Matrix result = new Matrix(a.Rows, b.Columns);
         int q = a.matrix[0, 0].field.q;
+        Field field = new Field(q);
+        FieldElement zero = new FieldElement(0, field);
         for (int row = 0; row < a.Rows; ++row)
         {
             for (int column = 0; column < b.Columns; ++column)
             {
                 // multiplication uses the sum as the final result
-                FieldElement sumResult = new FieldElement(0, new Field(q));
+                FieldElement sumResult = zero;
                 
                 // follows the rules of matrix multiplication
                 // we start from the first matrix and second matrix top left corner and multiply
@@ -355,6 +358,8 @@ public class Matrix
                 // continue until every element is multiplied
                 for (int i = 0; i < a.Columns; ++i)
                 {
+                    if (a[row, i].Value == 0 || b[i, column].Value == 0)
+                        continue;
                     sumResult += a[row, i] * b[i, column]; // using GroupElement multiplication
                 }
     

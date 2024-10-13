@@ -69,8 +69,8 @@ public class ImageConverterUnitTests
         FileInfo binaryFile = new FileInfo(binaryPath);
         int originalMessageLength = (int) binaryFile.Length;
         UpdatedLinearEncodingAlgorithm.EncodeMessage(binaryPath, encodedBinaryPath, generatorMatrix);
-        StepByStepDecodingAlgorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath, generatorMatrix,
-            originalMessageLength);
+        StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
+        algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);
 
         ImageConverter.SaveImage(decodedBinaryPath, savePath);
         

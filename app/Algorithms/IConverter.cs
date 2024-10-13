@@ -39,7 +39,8 @@ public interface IConverter<T>
     {
         byte[] bytes = File.ReadAllBytes(filePath);
         int[,] binaryMatrix = new int[1, bytes.Length * 8];
-        Parallel.For(0, bytes.Length, i =>
+
+        for (int i = 0; i < bytes.Length; ++i)
         {
             byte b = bytes[i];
             for (int j = 0; j < 8; j++)
@@ -47,7 +48,7 @@ public interface IConverter<T>
                 int bit = (b >> (7 - j)) & 1;
                 binaryMatrix[0, i * 8 + j] = bit;
             }
-        }); 
+        }
 
         return new Matrix(binaryMatrix);
     }
@@ -61,8 +62,8 @@ public interface IConverter<T>
 
         
         // iterating through each byte
-
-        Parallel.For(0, numberOfBytes, i =>
+        
+        for (int i = 0; i < numberOfBytes; ++i)
         {
             byte textByte = 0; // current byte value
             int column = i * 8; // resolves race condition with multithreading
@@ -74,7 +75,7 @@ public interface IConverter<T>
             }
 
             bytes[i] = textByte;
-        });
+        }
             
 
         return bytes;

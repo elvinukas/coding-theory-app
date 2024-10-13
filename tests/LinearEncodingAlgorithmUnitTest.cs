@@ -44,7 +44,7 @@ public class LinearEncodingAlgorithmUnitTest
         Matrix generatorMatrix = new Matrix(elements2, field.q);
         int dimension = 1;
 
-        var exception = Assert.Throws<AggregateException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns));
+        var exception = Assert.Throws<ArithmeticException>(() => new LinearEncodingAlgorithm(originalMessage, generatorMatrix, dimension, generatorMatrix.Columns));
         //Assert.Equal("Matrix multiplication is not possible. The number of First Matrix columns must equal the number of rows in the Second Matrix", exception.Message);
         
     }

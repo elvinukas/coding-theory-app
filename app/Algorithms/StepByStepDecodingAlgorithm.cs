@@ -14,8 +14,106 @@ using app.Exceptions;
 /// </summary>
 
 
-public static class StepByStepDecodingAlgorithm
+public class StepByStepDecodingAlgorithm
 {
+    public Matrix GeneratorMatrix { get; private set; }
+    public int originalMessageLength { get; private set; }
+    public Matrix parityCheckMatrix { get; private set; }
+    public int k { get; private set; }
+    public int n { get; private set; }
+    public StandardArrayGenerator StandardArrayGenerator { get; private set; }
+    public static int counter { get; private set; }
+    
+    public List<Matrix> uniqueSyndromes { get; private set; }
+    public List<Matrix> cosetLeaders { get; private set; }
+    public List<int> weights { get; private set; }
+    
+    
+    public StepByStepDecodingAlgorithm(Matrix generatorMatrix, int originalMessageLength)
+    {
+        this.GeneratorMatrix = generatorMatrix;
+        this.k = generatorMatrix.Rows;
+        this.n = generatorMatrix.Columns;
+        this.originalMessageLength = originalMessageLength;
+        
+        // firstly, parityMatrix P needs to be constructed
+        Matrix parityMatrix = RetrieveParityMatrix(generatorMatrix);
+        // then, it needs to be transposed
+        Matrix transposedParityMatrix = parityMatrix.Transpose();
+        // then, parity-check matrix H needs to be constructed
+        this.parityCheckMatrix = RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
+        this.StandardArrayGenerator = new StandardArrayGenerator(GeneratorMatrix);
+        (uniqueSyndromes, cosetLeaders, weights) =
+            StandardArrayGenerator.GenerateListOfUniqueSyndromes(parityCheckMatrix);
+        
+        
+    }
+
+    public Matrix Decode(Matrix receivedMessage)
+    {
+        int encodedMessageLength = receivedMessage.Columns;
+        Matrix decodedMessage = null;
+        
+        
+            int[,] receivedMessagePartArray = new int[1, n];
+            for (int column = 0; column < n; ++column)
+            {
+                // receivedMessage[0, part * n + column] is a FieldElement object
+                // therefore .Value needs to be received so that the int[,] array can be filled
+                // matrix object can be created using the int[,] argument, not the FieldElement[,] argument,
+                // so that is why its easier just to use ints, later on when the matrix is created
+                // they are automatically turned to field elements
+                receivedMessagePartArray[0, column] = receivedMessage[0, 0 * n + column].Value;
+            }
+            
+            
+            Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
+            
+            int i = 0;
+            //Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
+            Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+            int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
+            int originalWeight = weights[index];
+            List<Matrix> normalBitFlipList = StandardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
+            
+            
+            while (true)
+            {
+
+                Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+                int currentIndex = uniqueSyndromes.IndexOf(syndrome);
+                int currentWeight = weights[currentIndex];
+                
+                if (currentWeight == 0)
+                {
+                    decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
+                    break;
+                }
+                else
+                {
+                    Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
+                    //Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
+                    Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
+                    int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
+                    
+                    if (weights[syndromeIndex] < currentWeight)
+                    {
+                        receivedMessagePart = possibleMessage.Clone();
+                        //i = -1;
+                    }
+
+                    ++i;
+
+                }
+                
+                
+            }
+
+            ++counter;
+            return decodedMessage;
+        
+    }
+    
     public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage, int originalMessageLength)
     {
         
@@ -276,10 +374,10 @@ public static class StepByStepDecodingAlgorithm
 
 
 
-    public static byte[] DecodeFile(string inputFilePath, string outputFilePath, Matrix generatorMatrix, int originalMessageLength)
+    public byte[] DecodeFile(string inputFilePath, string outputFilePath)
     {
-        int n = generatorMatrix.Columns;
-        int k = generatorMatrix.Rows;
+        int n = GeneratorMatrix.Columns;
+        int k = GeneratorMatrix.Rows;
         
         byte[] encodedData = File.ReadAllBytes(inputFilePath);
         BitArray encodedBitArray = new BitArray(encodedData);
@@ -290,23 +388,24 @@ public static class StepByStepDecodingAlgorithm
         // this is with the padding, we will edit it later
         BitArray decodedBitArray = new BitArray(numberOfParts * k);
 
-        // extracting n bits
-        int[,] receivedMessagePartArray = new int[1, n];
-        Parallel.For(0, numberOfParts,part =>
+        for (int part = 0; part < numberOfParts; ++part)
         {
+            int[,] receivedMessagePartArray = new int[1, n];
             for (int i = 0; i < n; i++)
             {
                 receivedMessagePartArray[0, i] = encodedBitArray[part * n + i] ? 1 : 0;
             }
-
+        
             Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
-            Matrix decodedPartMatrix = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessagePart, k);
-
+            Matrix decodedPartMatrix = this.Decode(receivedMessagePart);
+            Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
+        
             for (int i = 0; i < k; ++i)
             {
                 decodedBitArray[part * k + i] = decodedPartMatrix[0, i].Value == 1;
             }
-        });
+        }
+        
         
         // trimming the bitarray to original message length in bits
         BitArray finalBitArray = new BitArray(originalMessageLength * 8);
@@ -317,6 +416,8 @@ public static class StepByStepDecodingAlgorithm
 
         byte[] finalDecodedBytes = new byte[originalMessageLength];
         finalBitArray.CopyTo(finalDecodedBytes, 0);
+        
+        File.WriteAllBytes(outputFilePath, finalDecodedBytes);
 
         return finalDecodedBytes;
 
