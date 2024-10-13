@@ -6,6 +6,7 @@ using app.Algorithms;
 
 // 2min 13s - 2min 30sec without any optimizations
 // 41.284s after first optimizations 
+// 15.693s after second optimization
 public class ImageConverterUnitTests
 {
     [Fact]

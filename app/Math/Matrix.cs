@@ -34,16 +34,44 @@ public class Matrix
         this.Rows = elements.GetLength(0);
         this.Columns = elements.GetLength(1);
         matrix = new FieldElement[Rows, Columns];
-
-        // assigning each matrix element with a specified element from the elements 2d array
         Field field = new Field(q);
-        for (int row = 0; row < Rows; ++row)
+        
+        // binary optimizations if possible
+        if (q == 2)
         {
-            for (int column = 0; column < Columns; ++column)
+            FieldElement zero = new FieldElement(0, field);
+            FieldElement one = new FieldElement(1, field);
+            
+            for (int row = 0; row < Rows; ++row)
             {
-                matrix[row, column] = new FieldElement(elements[row, column], field);
+                for (int column = 0; column < Columns; ++column)
+                {
+                    if (elements[row, column] == 0)
+                    {
+                        matrix[row, column] = zero;
+                    }
+                    else
+                    {
+                        matrix[row, column] = one;
+                    }
+                }
+            }
+            
+
+        }
+        else
+        {
+            // assigning each matrix element with a specified element from the elements 2d array
+            for (int row = 0; row < Rows; ++row)
+            {
+                for (int column = 0; column < Columns; ++column)
+                {
+                    matrix[row, column] = new FieldElement(elements[row, column], field);
+                }
             }
         }
+
+        
 
     }
 
