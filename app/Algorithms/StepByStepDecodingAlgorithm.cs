@@ -68,18 +68,20 @@ public class StepByStepDecodingAlgorithm
             
             
             Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
-            
+            Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
             int i = 0;
-            //Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
             Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+            //Matrix originalMessageSyndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
             int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
             int originalWeight = weights[index];
             List<Matrix> normalBitFlipList = StandardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
             
             
+            
             while (true)
             {
 
+                //Matrix syndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
                 Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
                 int currentIndex = uniqueSyndromes.IndexOf(syndrome);
                 int currentWeight = weights[currentIndex];
@@ -93,6 +95,7 @@ public class StepByStepDecodingAlgorithm
                 {
                     Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
                     //Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
+                    // Matrix possibleMessageSyndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, possibleMessage.Transpose()).Transpose();
                     Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
                     int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
                     
@@ -138,6 +141,8 @@ public class StepByStepDecodingAlgorithm
         int numberOfParts = encodedMessageLength / n;
         Matrix decodedMessage = null;
         StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
+
         
         for (int part = 0; part < numberOfParts; ++part)
         {
@@ -173,6 +178,7 @@ public class StepByStepDecodingAlgorithm
             while (true)
             {
 
+                //Matrix syndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
                 Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
                 int currentIndex = uniqueSyndromes.IndexOf(syndrome);
                 int currentWeight = weights[currentIndex];
@@ -186,6 +192,7 @@ public class StepByStepDecodingAlgorithm
                 {
                     Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
                     //Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
+                    //Matrix possibleMessageSyndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, possibleMessage.Transpose()).Transpose();
                     Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
                     int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
                     
@@ -216,6 +223,19 @@ public class StepByStepDecodingAlgorithm
         
         return fullyDecodedMessage;
         
+    }
+
+    public static Matrix MultiplyCached(Dictionary<(Matrix, Matrix), Matrix> multiplicationCache, Matrix a, Matrix b)
+    {
+        var key = (a, b);
+        if (multiplicationCache.ContainsKey(key))
+        {
+            return multiplicationCache[key];
+        }
+
+        Matrix result = a * b;
+        multiplicationCache[key] = result;
+        return result;
     }
 
     private static Matrix AppendDecodedMessage(Matrix decodedMessage, Matrix receivedMessagePart, int k)
@@ -388,7 +408,10 @@ public class StepByStepDecodingAlgorithm
         // this is with the padding, we will edit it later
         BitArray decodedBitArray = new BitArray(numberOfParts * k);
 
-        for (int part = 0; part < numberOfParts; ++part)
+       
+
+        object lockObject = new object();
+        Parallel.For(0, numberOfParts, part =>
         {
             int[,] receivedMessagePartArray = new int[1, n];
             for (int i = 0; i < n; i++)
@@ -398,13 +421,20 @@ public class StepByStepDecodingAlgorithm
         
             Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
             Matrix decodedPartMatrix = this.Decode(receivedMessagePart);
-            Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
-        
-            for (int i = 0; i < k; ++i)
+
+            lock (lockObject)
             {
-                decodedBitArray[part * k + i] = decodedPartMatrix[0, i].Value == 1;
+                if (part % 10000 == 0)
+                    Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
+        
+                for (int i = 0; i < k; ++i)
+                {
+                    decodedBitArray[part * k + i] = decodedPartMatrix[0, i].Value == 1;
+                }
             }
-        }
+            
+            
+        });
         
         
         // trimming the bitarray to original message length in bits

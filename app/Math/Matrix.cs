@@ -17,11 +17,12 @@ public class Matrix
         matrix = new FieldElement[this.Rows, this.Columns]; // this makes all elements in the matrix group groupelements
         
         Field field = new Field(q);
+        FieldElement zero = new FieldElement(0, field);
         for (int i = 0; i < this.Rows; ++i)
         {
             for (int j = 0; j < this.Columns; ++j)
             {
-                matrix[i, j] = new FieldElement(0, field);
+                matrix[i, j] = zero;
             }
         }
         
@@ -360,7 +361,7 @@ public class Matrix
                 {
                     if (a[row, i].Value == 0 || b[i, column].Value == 0)
                         continue;
-                    sumResult += a[row, i] * b[i, column]; // using GroupElement multiplication
+                    sumResult += a[row, i] * b[i, column]; // using FieldElement multiplication
                 }
     
 

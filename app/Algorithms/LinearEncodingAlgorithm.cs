@@ -128,6 +128,8 @@ public class LinearEncodingAlgorithm
                                                                              // of a matrix (meaning a vector in this case)
 
         // encoding each part of the divided up message
+        Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
+        int counter = 0;
 
         for (int part = 0; part < numberOfParts; ++part)
         {
@@ -139,13 +141,17 @@ public class LinearEncodingAlgorithm
 
 
             Matrix partMatrix = new Matrix(messagePart, field.q);
-            Matrix encodedPartMatrix = partMatrix * GeneratorMatrix;
+            Matrix encodedPartMatrix = MultiplyCached(multiplicationCache,partMatrix, GeneratorMatrix);
 
             for (int column = 0; column < encodedMessageLengthPerPart; ++column)
             {
                 encodedMessageVector[0, part * encodedMessageLengthPerPart + column] =
                     encodedPartMatrix[0, column].Value;
             }
+
+            ++counter;
+            if (part % 10000 == 0)
+                Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
         }
         
         
@@ -153,6 +159,19 @@ public class LinearEncodingAlgorithm
         Matrix resultMatrix = new Matrix(encodedMessageVector, field.q);
         return resultMatrix;
 
+    }
+    
+    public static Matrix MultiplyCached(Dictionary<(Matrix, Matrix), Matrix> multiplicationCache, Matrix a, Matrix b)
+    {
+        var key = (a, b);
+        if (multiplicationCache.ContainsKey(key))
+        {
+            return multiplicationCache[key];
+        }
+
+        Matrix result = a * b;
+        multiplicationCache[key] = result;
+        return result;
     }
     
     
