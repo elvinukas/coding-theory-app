@@ -102,6 +102,7 @@ public class StepByStepDecodingAlgorithm
                     if (weights[syndromeIndex] < currentWeight)
                     {
                         receivedMessagePart = possibleMessage.Clone();
+                            //Console.Write("Error detected and possibly fixed! ");
                         //i = -1;
                     }
 
@@ -424,7 +425,7 @@ public class StepByStepDecodingAlgorithm
 
             lock (lockObject)
             {
-                if (part % 10000 == 0)
+                if (part % 100000 == 0)
                     Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
         
                 for (int i = 0; i < k; ++i)

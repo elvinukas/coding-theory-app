@@ -54,7 +54,7 @@ public class ImageConverterUnitTests
         string binaryPath = "../../../test-images/test.bin";
         string encodedBinaryPath = "../../../test-images/test_encoded.bin";
         string decodedBinaryPath = "../../../test-images/test_decoded.bin"; 
-        string savePath = "../../../test-images/test_decoded.jpeg";
+        string savePath = "../../../test-images/test_decoded.bmp";
         Image image = Image.Load(imagePath);
         byte[] imageBytes = ImageConverter.ConvertToBinaryArray(image, binaryPath);
         
@@ -69,7 +69,7 @@ public class ImageConverterUnitTests
         FileInfo binaryFile = new FileInfo(binaryPath);
         int originalMessageLength = (int) binaryFile.Length;
         UpdatedLinearEncodingAlgorithm.EncodeMessage(binaryPath, encodedBinaryPath, generatorMatrix);
-        
+        Channel channel = new Channel(encodedBinaryPath, 0.15, generatorMatrix.Rows, generatorMatrix.Columns);
         
         StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
         algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);

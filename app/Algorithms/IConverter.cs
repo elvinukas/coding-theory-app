@@ -6,7 +6,7 @@ using app.Math;
 
 public interface IConverter<T>
 {
-    static abstract byte[] ConvertToBinaryArray(T input, string path);
+    static abstract byte[] ConvertToBinaryArray(T input, string path, bool bmp = true);
     static abstract T ConvertToOriginalFormat(byte[] input, string path);
     
 
