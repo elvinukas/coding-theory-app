@@ -8,7 +8,6 @@ public class Channel
     public Matrix OriginalMessage { get; private set; } // original encoded message (m) without errors
     public Matrix ReceivedMessage { get; private set; } // received encoded message (m') with possible errors
     public static int counter { get; private set; }
-    public bool bmp { get; private set; }
 
     public Channel(Matrix encodedMessage, double probabilityOfError, RandomNumberGenerator randomNumberGenerator = null)
     {
@@ -31,7 +30,7 @@ public class Channel
     }
 
     // introducing errors to a file
-    public Channel(string filePath, double probabilityOfError, int k, int n, RandomNumberGenerator randomNumberGenerator = null, bool bmp = true)
+    public Channel(string filePath, double probabilityOfError, int k, int n, RandomNumberGenerator randomNumberGenerator = null)
     {
         
         if (probabilityOfError is > 1 or < 0) // ide recommended this approach, same as || 
@@ -49,7 +48,6 @@ public class Channel
         this.OriginalMessage = null; // when errors are made to a file, no matrix is needed
         this.RandomNumberGenerator = randomNumberGenerator ?? new RandomNumberGenerator();
         this.ReceivedMessage = null;
-        this.bmp = bmp;
         
         MakeErrorsInFile(filePath, k, n);
     }
@@ -69,19 +67,18 @@ public class Channel
     {
         byte[] receivedBytes = new byte[originalBytes.Length];
 
-        if (bmp)
+        for (int i = 0; i < originalBytes.Length; ++i)
         {
-            for (int i = 0; i < originalBytes.Length; ++i)
+            if (i <= (int) (54 * ((double)n / k)))
             {
-                if (i <= (int) (54 * ((double)n / k)))
-                {
-                    receivedBytes[i] = originalBytes[i];
-                } else
-                {
-                    receivedBytes[i] = IntroduceErrorsToByte(originalBytes[i]);
-                }
+                receivedBytes[i] = originalBytes[i];
+            } else
+            {
+                receivedBytes[i] = IntroduceErrorsToByte(originalBytes[i]);
             }
         }
+            
+        
         
         
 

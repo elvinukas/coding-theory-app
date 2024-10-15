@@ -50,11 +50,11 @@ public class ImageConverterUnitTests
     [Fact]
     public void ImageConverter_CheckIfTheNewConverterWorksAsExpected()
     {
-        string imagePath = "../../../test-images/test.jpeg";
-        string binaryPath = "../../../test-images/test.bin";
-        string encodedBinaryPath = "../../../test-images/test_encoded.bin";
-        string decodedBinaryPath = "../../../test-images/test_decoded.bin"; 
-        string savePath = "../../../test-images/test_decoded.bmp";
+        string imagePath = "../../../test-images/1.bmp";
+        string binaryPath = "../../../test-images/1.bin";
+        string encodedBinaryPath = "../../../test-images/1_encoded.bin";
+        string decodedBinaryPath = "../../../test-images/1_decoded.bin"; 
+        string savePath = "../../../test-images/1_decoded.bmp";
         Image image = Image.Load(imagePath);
         byte[] imageBytes = ImageConverter.ConvertToBinaryArray(image, binaryPath);
         
@@ -73,7 +73,6 @@ public class ImageConverterUnitTests
         
         StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
         algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);
-
         ImageConverter.SaveImage(decodedBinaryPath, savePath);
         
     }

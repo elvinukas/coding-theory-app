@@ -15,18 +15,11 @@ using SixLabors.ImageSharp;
 public class ImageConverter : IConverter<Image>
 {
 
-    public static byte[] ConvertToBinaryArray(Image image, string binaryFileLocation, bool bmp = true)
+    public static byte[] ConvertToBinaryArray(Image image, string binaryFileLocation)
     {
         using (FileStream fileStream = new FileStream(binaryFileLocation, FileMode.Create))
         {
-            if (bmp)
-            {
-                image.Save(fileStream, new BmpEncoder());
-            }
-            else
-            {
-                image.Save(fileStream, new JpegEncoder());
-            }
+            image.Save(fileStream, new BmpEncoder());
         }
         
         return File.ReadAllBytes(binaryFileLocation);
@@ -44,20 +37,12 @@ public class ImageConverter : IConverter<Image>
         
     }
 
-    public static void SaveImage(string pathToBinary, string savePath, bool bmp = true)
+    public static void SaveImage(string pathToBinary, string savePath)
     {
         byte[] byteArray = File.ReadAllBytes(pathToBinary);
         using (Image image = ImageConverter.ConvertToOriginalFormat(byteArray, savePath))
         {
-            if (bmp)
-            {
-                image.Save(savePath, new BmpEncoder());
-            }
-            else
-            {
-                image.Save(savePath, new JpegEncoder());
-            }
-            
+            image.Save(savePath, new BmpEncoder());
         }
         
     }
