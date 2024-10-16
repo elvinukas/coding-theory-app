@@ -6,7 +6,8 @@ public class Channel
     public double ProbabilityOfError { get; private set; } // p_e
     public RandomNumberGenerator RandomNumberGenerator { get; set; }
     public Matrix OriginalMessage { get; private set; } // original encoded message (m) without errors
-    public Matrix ReceivedMessage { get; private set; } // received encoded message (m') with possible errors 
+    public Matrix ReceivedMessage { get; private set; } // received encoded message (m') with possible errors
+    public static int counter { get; private set; }
 
     public Channel(Matrix encodedMessage, double probabilityOfError, RandomNumberGenerator randomNumberGenerator = null)
     {
@@ -27,6 +28,82 @@ public class Channel
         // passing through channel
         this.ReceivedMessage = GetReceivedMessage();
     }
+
+    // introducing errors to a file
+    public Channel(string filePath, double probabilityOfError, int k, int n, RandomNumberGenerator randomNumberGenerator = null)
+    {
+        
+        if (probabilityOfError is > 1 or < 0) // ide recommended this approach, same as || 
+        {
+            throw new ArgumentException("The probability of an error inside a channel must be between 0 and 1.");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            throw new ArgumentException("Selected file in Channel does not exist.");
+        }
+
+
+        this.ProbabilityOfError = probabilityOfError;
+        this.OriginalMessage = null; // when errors are made to a file, no matrix is needed
+        this.RandomNumberGenerator = randomNumberGenerator ?? new RandomNumberGenerator();
+        this.ReceivedMessage = null;
+        
+        MakeErrorsInFile(filePath, k, n);
+    }
+
+    public void MakeErrorsInFile(string filePath, int k, int n)
+    {
+        byte[] originalBytes = File.ReadAllBytes(filePath);
+
+        byte[] modifiedBytes = ModifyBytes(originalBytes, k, n);
+        
+        Console.WriteLine("Number of errors inputted: " + counter);
+        File.WriteAllBytes(filePath, modifiedBytes);
+
+    }
+
+    private byte[] ModifyBytes(byte[] originalBytes, int k, int n)
+    {
+        byte[] receivedBytes = new byte[originalBytes.Length];
+
+        for (int i = 0; i < originalBytes.Length; ++i)
+        {
+            if (i <= (int) (54 * ((double)n / k)))
+            {
+                receivedBytes[i] = originalBytes[i];
+            } else
+            {
+                receivedBytes[i] = IntroduceErrorsToByte(originalBytes[i]);
+            }
+        }
+            
+        
+        
+        
+
+        return receivedBytes;
+
+    }
+
+
+    private byte IntroduceErrorsToByte(byte originalByte)
+    {
+        byte receivedByte = originalByte;
+        for (int bitPosition = 0; bitPosition < 8; ++bitPosition)
+        {
+            double randomChanceOfErrorForBit = RandomNumberGenerator.GetNewRandomNumber();
+            if (randomChanceOfErrorForBit < ProbabilityOfError)
+            {
+                // flipping byte
+                ++counter;
+                receivedByte ^= (byte)(1 << bitPosition);
+            }
+        }
+
+        return receivedByte;    
+    }
+    
 
 
     // message that gets passed through a channel with a probability of errors
@@ -50,12 +127,14 @@ public class Channel
         return OriginalMessage + errorVector; // y = c + e
         
     }
+    
 
     public static Matrix GetSpecifiedNumOfErrorVector(Matrix sentMessage, int numberOfErrors)
     {
         int columns = sentMessage.Columns;
         RandomNumberGenerator randomNumberGenerator = new RandomNumberGenerator();
         Matrix errorVector = new Matrix(new int[1, columns]);
+        
 
         for (int i = 0; i < numberOfErrors; ++i)
         {
@@ -65,7 +144,7 @@ public class Channel
                 --i;
                 continue;
             }
-            errorVector[0, index].Value = 1;
+            errorVector[0, index] = new FieldElement(1, errorVector[0, index].field);
             
         }
 

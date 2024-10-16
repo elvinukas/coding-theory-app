@@ -27,7 +27,7 @@ public class TextConverterUnitTests
             {0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,1,0,0,0,1,0,0,1,1,0,0,0,0,1,0,1,1,1,0,0,1,1}
         });
 
-        string originalMessage = TextConverter.ConvertToString(utf8Message);
+        string originalMessage = TextConverter.ConvertToOriginalFormat(utf8Message);
         
         Assert.True(originalMessage == "labas");
 

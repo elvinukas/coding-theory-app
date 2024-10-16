@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace app.Math;
 
-public class FieldElement
+public struct FieldElement
 {
     public Field field;
     public int Value { get; internal set; } // the value of a group element
@@ -14,7 +14,15 @@ public class FieldElement
     public FieldElement(int value, Field field)
     {
         this.field = field;
-        this.Value = ((value % field.q) + field.q) % field.q;
+        if (field.q == 2)
+        {
+            this.Value = value % 2;
+        }
+        else
+        {
+            this.Value = ((value % field.q) + field.q) % field.q;
+        }
+        
     }
 
 
@@ -40,7 +48,7 @@ public class FieldElement
             return true;
         }
         
-        if (firstElement.field != secondElement.field)
+        if (firstElement.field.q != secondElement.field.q)
         {
             return true;
         }

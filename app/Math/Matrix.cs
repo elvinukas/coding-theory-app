@@ -16,12 +16,13 @@ public class Matrix
         this.Columns = columns;
         matrix = new FieldElement[this.Rows, this.Columns]; // this makes all elements in the matrix group groupelements
         
-        
+        Field field = new Field(q);
+        FieldElement zero = new FieldElement(0, field);
         for (int i = 0; i < this.Rows; ++i)
         {
             for (int j = 0; j < this.Columns; ++j)
             {
-                matrix[i, j] = new FieldElement(0, new Field(q));
+                matrix[i, j] = zero;
             }
         }
         
@@ -34,16 +35,81 @@ public class Matrix
         this.Rows = elements.GetLength(0);
         this.Columns = elements.GetLength(1);
         matrix = new FieldElement[Rows, Columns];
-
-        // assigning each matrix element with a specified element from the elements 2d array
-        for (int row = 0; row < Rows; ++row)
+        Field field = new Field(q);
+        
+        // binary optimizations if possible
+        if (q == 2)
         {
-            for (int column = 0; column < Columns; ++column)
+            FieldElement zero = new FieldElement(0, field);
+            FieldElement one = new FieldElement(1, field);
+            
+
+            for (int row = 0; row < Rows; ++row)
             {
-                matrix[row, column] = new FieldElement(elements[row, column], new Field(q));
+                for (int column = 0; column < Columns; ++column)
+                {
+                    if (elements[row, column] == 0)
+                    {
+                        matrix[row, column] = zero;
+                    }
+                    else if (elements[row, column] == 1)
+                    {
+                        matrix[row, column] = one;
+                    }
+                    else
+                    {
+                        matrix[row, column] = new FieldElement(elements[row, column], field);
+                    }
+                }
             }
+
+            
+        }
+        else
+        {
+            // assigning each matrix element with a specified element from the elements 2d array
+            
+
+            for (int row = 0; row < Rows; ++row)
+            {
+                for (int column = 0; column < Columns; ++column)
+                {
+                    matrix[row, column] = new FieldElement(elements[row, column], field);
+                }
+            }
+            
         }
 
+        
+
+    }
+
+    // designed only for vectors and mostly reading from .bin files
+    public Matrix(byte[] byteArray)
+    {
+        int[,] binaryVector = new int[1, byteArray.Length * 8]; // * 8 since each byte is 8 bits long
+        int column = 0;
+        
+        // iterating through each byte
+        for (int i = 0; i < byteArray.Length; ++i)
+        {
+            byte textByte = byteArray[i];
+
+            // starting from the last bit of the byte
+            for (int bit = 7; bit >= 0; --bit)
+            {
+                int bitValue = textByte / (int)System.Math.Pow(2, bit);
+                binaryVector[0, column] = bitValue % 2;
+                ++column;
+            }
+            
+        }
+
+        Matrix newMatrix = new Matrix(binaryVector);
+        this.Rows = newMatrix.Rows;
+        this.Columns = newMatrix.Columns;
+        this.matrix = newMatrix.matrix;
+        
     }
 
     // copy constructor for the .Clone()
@@ -53,11 +119,12 @@ public class Matrix
         this.Columns = originalMatrix.Columns;
         this.matrix = new FieldElement[Rows, Columns];
 
+        Field field = new Field(q);
         for (int row = 0; row < Rows; ++row)
         {
             for (int column = 0; column < Columns; ++column)
             {
-                matrix[row, column] = new FieldElement(originalMatrix.matrix[row, column].Value, new Field(q));
+                matrix[row, column] = new FieldElement(originalMatrix.matrix[row, column].Value, field);
             }
         }
 
@@ -266,23 +333,59 @@ public class Matrix
                 "Matrix multiplication is not possible. The number of First Matrix columns must equal the number of rows in the Second Matrix");
         }
 
-        if (a.matrix[0, 0].field.q != b.matrix[0, 0].field.q)
+        int q = a.matrix[0, 0].field.q;
+        if (q != b.matrix[0, 0].field.q)
         {
             throw new InvalidOperationException(
                 "Matrix multiplication is not possible when the different matrixes " +
                 "use different field sizes for their field elements.");
         }
-        
+
         // storing the result
         // the matrix multiplication result will be in a shape of a.rows and b.columns
         Matrix result = new Matrix(a.Rows, b.Columns);
-        int q = a.matrix[0, 0].field.q;
+        Field field = new Field(q);
+        FieldElement zero = new FieldElement(0, field);
+        FieldElement one = new FieldElement(1, field);
+        
+        // if the field is 2 (meaning binary matrix), we can make operations using bitwise operators instead of field element ones
+        // this could yield better performance
+        if (q == 2)
+        {
+            for (int row = 0; row < a.Rows; ++row)
+            {
+                for (int column = 0; column < b.Columns; ++column)
+                {
+                    int sumResult = 0;
+
+                    for (int i = 0; i < a.Columns; ++i)
+                    {
+                        sumResult ^= (a[row, i].Value & b[i, column].Value); // ^= binary addition plus assignment, & bitwise and
+                    }
+
+                    if (sumResult == 0)
+                    {
+                        result[row, column] = zero;
+                    }
+                    else
+                    {
+                        result[row, column] = one;
+                    }
+                    
+                }
+            }
+            
+            return result;
+        }
+        
+        
+        // if q != 2, we need to use field element multiplication
         for (int row = 0; row < a.Rows; ++row)
         {
             for (int column = 0; column < b.Columns; ++column)
             {
                 // multiplication uses the sum as the final result
-                FieldElement sumResult = new FieldElement(0, new Field(q));
+                FieldElement sumResult = zero;
                 
                 // follows the rules of matrix multiplication
                 // we start from the first matrix and second matrix top left corner and multiply
@@ -290,7 +393,9 @@ public class Matrix
                 // continue until every element is multiplied
                 for (int i = 0; i < a.Columns; ++i)
                 {
-                    sumResult += a[row, i] * b[i, column]; // using GroupElement multiplication
+                    if (a[row, i].Value == 0 || b[i, column].Value == 0)
+                        continue;
+                    sumResult += a[row, i] * b[i, column]; // using FieldElement multiplication
                 }
     
 
