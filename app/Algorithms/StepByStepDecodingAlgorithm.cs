@@ -411,7 +411,7 @@ public class StepByStepDecodingAlgorithm
 
        
 
-        object lockObject = new object();
+        //object lockObject = new object();
         Parallel.For(0, numberOfParts, part =>
         {
             int[,] receivedMessagePartArray = new int[1, n];
@@ -422,16 +422,19 @@ public class StepByStepDecodingAlgorithm
         
             Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
             Matrix decodedPartMatrix = this.Decode(receivedMessagePart);
-
-            lock (lockObject)
+            
+            for (int i = 0; i < k; ++i)
             {
-                if (part % 100000 == 0)
-                    Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
-        
-                for (int i = 0; i < k; ++i)
+                decodedBitArray[part * k + i] = decodedPartMatrix[0, i].Value == 1;
+            }
+
+            if (part % 100000 == 0 || part == numberOfParts)
+            {
+                lock (Console.Out)
                 {
-                    decodedBitArray[part * k + i] = decodedPartMatrix[0, i].Value == 1;
+                    Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
                 }
+                
             }
             
             

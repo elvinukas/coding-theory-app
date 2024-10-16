@@ -5,7 +5,7 @@ using app.Math;
 using SixLabors.ImageSharp;
 
 
-/*
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -34,7 +34,7 @@ app.MapFallbackToFile("index.html");
 
 app.Run();
 
-*/
+
 
 /// ------------------------------------------------------
 /// ------------------------------------------------------
@@ -89,18 +89,18 @@ app.Run();
 // string message = "labas";
 // Matrix userMessage = TextConverter.ConvertToBinaryMatrix(message);
 
-string binarySavePath = "../tests/test-images/test.bin";
-string decodedBinarySavePath = "../tests/test-images/test_decoded.bin";
-Image image = Image.Load("../tests/test-images/test.jpeg");
-//Matrix convertedMatrix = ImageConverter.ConvertToBinaryMatrix(image, binarySavePath);
-
-Matrix generatorMatrix = new Matrix(new int[,]
-{
-    { 1, 0, 0, 0, 1, 1, 0 },
-    { 0, 1, 0, 0, 1, 0, 1 },
-    { 0, 0, 1, 0, 1, 1, 1 },
-    { 0, 0, 0, 1, 0, 1, 1 }
-});
+// string binarySavePath = "../tests/test-images/test.bin";
+// string decodedBinarySavePath = "../tests/test-images/test_decoded.bin";
+// Image image = Image.Load("../tests/test-images/test.jpeg");
+// //Matrix convertedMatrix = ImageConverter.ConvertToBinaryMatrix(image, binarySavePath);
+//
+// Matrix generatorMatrix = new Matrix(new int[,]
+// {
+//     { 1, 0, 0, 0, 1, 1, 0 },
+//     { 0, 1, 0, 0, 1, 0, 1 },
+//     { 0, 0, 1, 0, 1, 1, 1 },
+//     { 0, 0, 0, 1, 0, 1, 1 }
+// });
 
 //LinearEncodingAlgorithm encodingAlgorithm = new LinearEncodingAlgorithm(convertedMatrix, generatorMatrix, 4, 7);
 

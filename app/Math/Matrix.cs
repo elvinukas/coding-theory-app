@@ -333,19 +333,53 @@ public class Matrix
                 "Matrix multiplication is not possible. The number of First Matrix columns must equal the number of rows in the Second Matrix");
         }
 
-        if (a.matrix[0, 0].field.q != b.matrix[0, 0].field.q)
+        int q = a.matrix[0, 0].field.q;
+        if (q != b.matrix[0, 0].field.q)
         {
             throw new InvalidOperationException(
                 "Matrix multiplication is not possible when the different matrixes " +
                 "use different field sizes for their field elements.");
         }
-        
+
         // storing the result
         // the matrix multiplication result will be in a shape of a.rows and b.columns
         Matrix result = new Matrix(a.Rows, b.Columns);
-        int q = a.matrix[0, 0].field.q;
         Field field = new Field(q);
         FieldElement zero = new FieldElement(0, field);
+        FieldElement one = new FieldElement(1, field);
+        
+        // if the field is 2 (meaning binary matrix), we can make operations using bitwise operators instead of field element ones
+        // this could yield better performance
+        if (q == 2)
+        {
+            for (int row = 0; row < a.Rows; ++row)
+            {
+                for (int column = 0; column < b.Columns; ++column)
+                {
+                    int sumResult = 0;
+
+                    for (int i = 0; i < a.Columns; ++i)
+                    {
+                        sumResult ^= (a[row, i].Value & b[i, column].Value); // ^= binary addition plus assignment, & bitwise and
+                    }
+
+                    if (sumResult == 0)
+                    {
+                        result[row, column] = zero;
+                    }
+                    else
+                    {
+                        result[row, column] = one;
+                    }
+                    
+                }
+            }
+            
+            return result;
+        }
+        
+        
+        // if q != 2, we need to use field element multiplication
         for (int row = 0; row < a.Rows; ++row)
         {
             for (int column = 0; column < b.Columns; ++column)
