@@ -46,7 +46,7 @@ public class LinearEncodingAlgorithm
                 
             }
             
-            this.GeneratorMatrix = matrixGenerator.GenerateGeneratorMatrix(k, n);
+            this.GeneratorMatrix = matrixGenerator.GenerateMatrix(k, n);
         }
         else
         {
