@@ -120,7 +120,7 @@ public class LinearEncodingAlgorithmUnitTest
             0.4, 0.6, 0.2, 0.9, 0.6, 0.7, 0.1
         });
         var mock = new Mock<RandomNumberGenerator>();
-        mock.Setup(random => random.GetNewRandomNumber())
+        mock.Setup(random => random.GenerateNumber())
             .Returns(() => queueOfRandomValues.Dequeue());
         
         // injecting "mock" RandomNumberGenerator into GeneratorMatrixGenerator
