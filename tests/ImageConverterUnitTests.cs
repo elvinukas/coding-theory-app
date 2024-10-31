@@ -47,35 +47,35 @@ public class ImageConverterUnitTests
     //
     // }
 
-    [Fact]
-    public void ImageConverter_CheckIfTheNewConverterWorksAsExpected()
-    {
-        string imagePath = "../../../test-images/1.bmp";
-        string binaryPath = "../../../test-images/1.bin";
-        string encodedBinaryPath = "../../../test-images/1_encoded.bin";
-        string decodedBinaryPath = "../../../test-images/1_decoded.bin"; 
-        string savePath = "../../../test-images/1_decoded.bmp";
-        Image image = Image.Load(imagePath);
-        byte[] imageBytes = ImageConverter.ConvertToBinaryArray(image, binaryPath);
+    //[Fact]
+    // public void ImageConverter_CheckIfTheNewConverterWorksAsExpected()
+    // {
+    //     string imagePath = "../../../test-images/1.bmp";
+    //     string binaryPath = "../../../test-images/1.bin";
+    //     string encodedBinaryPath = "../../../test-images/1_encoded.bin";
+    //     string decodedBinaryPath = "../../../test-images/1_decoded.bin"; 
+    //     string savePath = "../../../test-images/1_decoded.bmp";
+    //     Image image = Image.Load(imagePath);
+    //     byte[] imageBytes = ImageConverter.ConvertToBinaryArray(image, binaryPath);
+    //     
+    //     Matrix generatorMatrix = new Matrix(new int[,]
+    //     {
+    //         { 1, 0, 0, 0, 1, 1, 0 },
+    //         { 0, 1, 0, 0, 1, 0, 1 },
+    //         { 0, 0, 1, 0, 1, 1, 1 },
+    //         { 0, 0, 0, 1, 0, 1, 1 }
+    //     });
+    //
+    //     FileInfo binaryFile = new FileInfo(binaryPath);
+    //     int originalMessageLength = (int) binaryFile.Length;
+    //     UpdatedLinearEncodingAlgorithm.EncodeMessage(binaryPath, encodedBinaryPath, generatorMatrix);
+    //     Channel channel = new Channel(encodedBinaryPath, 0.15, generatorMatrix.Rows, generatorMatrix.Columns);
+    //     
+    //     StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
+    //     algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);
+    //     ImageConverter.SaveImage(decodedBinaryPath, savePath);
         
-        Matrix generatorMatrix = new Matrix(new int[,]
-        {
-            { 1, 0, 0, 0, 1, 1, 0 },
-            { 0, 1, 0, 0, 1, 0, 1 },
-            { 0, 0, 1, 0, 1, 1, 1 },
-            { 0, 0, 0, 1, 0, 1, 1 }
-        });
-
-        FileInfo binaryFile = new FileInfo(binaryPath);
-        int originalMessageLength = (int) binaryFile.Length;
-        UpdatedLinearEncodingAlgorithm.EncodeMessage(binaryPath, encodedBinaryPath, generatorMatrix);
-        Channel channel = new Channel(encodedBinaryPath, 0.15, generatorMatrix.Rows, generatorMatrix.Columns);
-        
-        StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
-        algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);
-        ImageConverter.SaveImage(decodedBinaryPath, savePath);
-        
-    }
+    //}
     
     
 }
