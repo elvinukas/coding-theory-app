@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using SixLabors.ImageSharp;
+using Xunit.Abstractions;
 
 namespace tests;
 using app.Math;
@@ -11,8 +12,14 @@ using app.Algorithms;
 // 7 - 13s after third and more optimizations
 public class ImageConverterUnitTests
 {
-    
-     // public void ImageConverter_CheckIfConverterWorksAsExpected()
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public ImageConverterUnitTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
+    // public void ImageConverter_CheckIfConverterWorksAsExpected()
      // {
      //     string imagePath = "../../../test-images/1.bmp";
      //     string binaryPath = "../../../test-images/1.bin"; 
@@ -47,6 +54,9 @@ public class ImageConverterUnitTests
      //
      // }
 
+     
+     // Error probability: 5%
+     // Actual error percentage: 1,9444310335843653%
     [Fact]
      public void ImageConverter_CheckIfTheNewConverterWorksAsExpected()
      {
@@ -66,13 +76,17 @@ public class ImageConverterUnitTests
              { 0, 0, 0, 1, 0, 1, 1 }
          });
     
-         FileInfo binaryFile = new FileInfo(binaryPath);
+         FileInfo binaryFile = new FileInfo(binaryPath); 
          int originalMessageLength = (int) binaryFile.Length;
          UpdatedLinearEncodingAlgorithm.EncodeFile(binaryPath, encodedBinaryPath, generatorMatrix);
-         Channel channel = new Channel(encodedBinaryPath, 0.02, generatorMatrix.Rows, generatorMatrix.Columns);
+         Channel channel = new Channel(encodedBinaryPath, 0.05, generatorMatrix.Rows, generatorMatrix.Columns);
          
          StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
          algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);
+         ComparableImage ogImage = new ComparableImage(binaryPath);
+         ComparableImage decodedImage = new ComparableImage(decodedBinaryPath);
+         _testOutputHelper.WriteLine("Error probability: " + channel.ProbabilityOfError * 100 + "%");
+         _testOutputHelper.WriteLine("Actual error percentage: " + ( 100.0 - ComparableImage.CalculateSimilarity(ogImage, decodedImage)) + "%");
          ImageConverter.SaveImage(decodedBinaryPath, savePath);
         
     }

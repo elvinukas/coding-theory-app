@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace app.Algorithms;
 
 public class ComparableImage : ISimilarity<ComparableImage>
@@ -13,29 +15,31 @@ public class ComparableImage : ISimilarity<ComparableImage>
     {
         byte[] fileData1 = File.ReadAllBytes(image1.FilePath);
         byte[] fileData2 = File.ReadAllBytes(image2.FilePath);
-        
+
         if (fileData1.Length != fileData2.Length)
         {
-            // if file size is different, similarity cannot be calculated
+            // If file sizes differ, similarity cannot be calculated
             return 0.0;
         }
-        
-        // calculating different bytes
-        int totalBytes = fileData1.Length;
-        int differentBytes = 0;
 
-        for (int i = 0; i < totalBytes; i++)
+        BitArray bits1 = new BitArray(fileData1);
+        BitArray bits2 = new BitArray(fileData2);
+
+        int totalBits = bits1.Count;
+        int differentBits = 0;
+
+        for (int i = 0; i < totalBits; i++)
         {
-            if (fileData1[i] != fileData2[i])
+            if (bits1[i] != bits2[i])
             {
-                differentBytes++;
+                differentBits++;
             }
         }
 
-        double similarity = 1.0 - (double)differentBytes / totalBytes;
+        double similarity = 1.0 - (double)differentBits / totalBits;
         return similarity * 100;
-        
     }
+
     
     
     
