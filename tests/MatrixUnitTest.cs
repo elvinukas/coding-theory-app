@@ -288,6 +288,26 @@ namespace tests
             Assert.True(originalMatrix.Transpose() == expectedTransposedMatrix);
             
         }
+
+        [Fact]
+        public void CalculateSimilarity_CheckIfCalcutionIsCorrect()
+        {
+            Matrix a = new Matrix(new int[,]
+            {
+                { 1, 2, 3, 4, 5 },
+                {1, 2, 3, 4, 5}
+            }, q: 7);
+            
+            Matrix b = new Matrix(new int[,]
+            {
+                { 1, 2, 3, 4, 5},
+                {0, 2, 0, 4, 5}
+            }, q: 7);
+
+            double trueSimilarity = 80.0;
+            Assert.True(Matrix.CalculateSimilarity(a, b) == trueSimilarity);
+
+        }
         
         
         
