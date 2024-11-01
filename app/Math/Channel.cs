@@ -92,7 +92,7 @@ public class Channel
         byte receivedByte = originalByte;
         for (int bitPosition = 0; bitPosition < 8; ++bitPosition)
         {
-            double randomChanceOfErrorForBit = RandomNumberGenerator.GetNewRandomNumber();
+            double randomChanceOfErrorForBit = RandomNumberGenerator.GenerateNumber();
             if (randomChanceOfErrorForBit < ProbabilityOfError)
             {
                 // flipping byte
@@ -114,7 +114,7 @@ public class Channel
 
         for (int value = 0; value < messageLength; ++value)
         {
-            double randomChanceOfErrorForElement = RandomNumberGenerator.GetNewRandomNumber();
+            double randomChanceOfErrorForElement = RandomNumberGenerator.GenerateNumber();
             if (randomChanceOfErrorForElement < ProbabilityOfError)
             {
                 error2DArray[0, value] = 1;
@@ -138,7 +138,7 @@ public class Channel
 
         for (int i = 0; i < numberOfErrors; ++i)
         {
-            int index = (int) (randomNumberGenerator.GetNewRandomNumber() * columns);
+            int index = (int) (randomNumberGenerator.GenerateNumber() * columns);
             if (errorVector[0, index].Value == 1)
             {
                 --i;

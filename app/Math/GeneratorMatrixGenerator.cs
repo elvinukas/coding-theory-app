@@ -5,18 +5,18 @@ namespace app.Math;
 // kad tas kodas nevisada gales istaisyti klaidas (arba ju visai neistaisys)
 // BET, as pasistengsiu, kad kodas turetu dideli atstuma (jei pavyks)
 
-public class GeneratorMatrixGenerator
+public class GeneratorMatrixGenerator : IMatrixGen
 {
 
-    private RandomNumberGenerator RandomNumberGenerator;
+    private readonly INumGen _randomNumberGenerator; 
 
     // this constructor is mainly for mock unit tests
-    public GeneratorMatrixGenerator(RandomNumberGenerator randomNumberGenerator)
+    public GeneratorMatrixGenerator(INumGen randomNumberGenerator)
     {
-        this.RandomNumberGenerator = randomNumberGenerator;
+        _randomNumberGenerator = randomNumberGenerator;
     }
 
-    public Matrix GenerateGeneratorMatrix(int k, int n)
+    public Matrix GenerateMatrix(int k, int n)
     {
         if (k >= n)
         {
@@ -43,7 +43,7 @@ public class GeneratorMatrixGenerator
             
             for (int column = k; column < n; ++column)
             {
-                if (RandomNumberGenerator.GetNewRandomNumber() >= 0.5) {
+                if (_randomNumberGenerator.GenerateNumber() >= 0.5) {
                     generatorMatrix[row, column] = 1;
                 } else
                 {

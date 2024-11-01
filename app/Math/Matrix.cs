@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
 using System.Text;
+using app.Algorithms;
+
 namespace app.Math;
 
-public class Matrix
+public class Matrix : ISimilarity<Matrix>
 {
     private FieldElement[,] matrix; // holds a two dimensional array [,]
     public int Rows { get; private set; }
@@ -439,6 +441,32 @@ public class Matrix
             result.AppendLine();
         }
         return result.ToString();
+    }
+
+
+    public static double CalculateSimilarity(Matrix a, Matrix b)
+    {
+        if (a.Rows != b.Rows || a.Columns != b.Columns)
+        {
+            return 0.0;
+        }
+
+        int differenceCounter = 0;
+        int totalElements = a.Rows * a.Columns;
+
+        for (int row = 0; row < a.Rows; ++row)
+        {
+            for (int column = 0; column < a.Columns; ++column)
+            {
+                if (a[row, column] != b[row, column])
+                {
+                    ++differenceCounter;
+                }
+            }
+        }
+
+        double similarity = 1.0 - (double)differenceCounter / totalElements;
+        return similarity * 100;
     }
 
 }

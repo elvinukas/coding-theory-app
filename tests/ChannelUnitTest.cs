@@ -35,7 +35,7 @@ public class ChannelUnitTest
 
         var mock = new Mock<RandomNumberGenerator>();
 
-        mock.SetupSequence(r => r.GetNewRandomNumber())
+        mock.SetupSequence(r => r.GenerateNumber())
             .Returns(0.1) // will be error bit (0.1 < 0.5)
             .Returns(0.6)
             .Returns(0.2) // will be error bit (0.2 < 0.5)
