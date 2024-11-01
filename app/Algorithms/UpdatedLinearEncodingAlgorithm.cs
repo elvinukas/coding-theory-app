@@ -16,6 +16,9 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
     public static void EncodeFile(string inputFilePath, string encodedFilePath, Matrix generatorMatrix)
     {
         byte[] binaryData = File.ReadAllBytes(inputFilePath);
+       
+        
+        
         int k = generatorMatrix.Rows;
         int n = generatorMatrix.Columns;
 
@@ -40,7 +43,7 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
         
         // encoding
         BitArray encodedBits = new BitArray(numberOfParts * n);
-        Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
+        
         
         
         int counter = 0;
@@ -55,8 +58,6 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
             }
 
             Matrix partMatrix = new Matrix(messagePartArray);
-
-            //Matrix encodedPartMatrix = MultiplyCached(multiplicationCache, partMatrix, generatorMatrix);
             Matrix encodedPartMatrix = Encode(partMatrix, generatorMatrix);
 
             lock (lockObject)
@@ -68,7 +69,7 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
                 }
                             
                 ++counter;
-                if (part % 100000 == 0)
+                if (part % 500000 == 0 || part == numberOfParts)
                     Console.WriteLine("Message part " + counter + "/" + numberOfParts + " encoded.");
             }
             
