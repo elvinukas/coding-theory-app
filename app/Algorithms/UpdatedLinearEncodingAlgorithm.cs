@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Runtime.CompilerServices;
 
 namespace app.Algorithms;
@@ -8,28 +9,84 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
 {
     public static Matrix Encode(Matrix originalMessage, Matrix gMatrix)
     {
-        if (originalMessage.Rows != 1)
-        {
-            throw new ArgumentException("The original message must be sent as a vector (matrix with one row).");
-        }
-
-        int k = gMatrix.Rows;
-        int n = gMatrix.Columns;
-        int ogMessageLength = originalMessage.Columns;
-
-        if (gMatrix == null)
-        {
-            RandomNumberGenerator randomNumberGenerator = new RandomNumberGenerator();
-            GeneratorMatrixGenerator matrixGenerator = new GeneratorMatrixGenerator(randomNumberGenerator);
-        }
-
-        return originalMessage;
+        return originalMessage * gMatrix;
 
     }
 
-    public static void EncodeFile(string filePath, string encodedFilePath)
+    public static void EncodeFile(string inputFilePath, string encodedFilePath, Matrix generatorMatrix)
     {
+        byte[] binaryData = File.ReadAllBytes(inputFilePath);
+        int k = generatorMatrix.Rows;
+        int n = generatorMatrix.Columns;
+
+        // add padding if necessary
+        BitArray tempBitArray = new BitArray(binaryData);
+        int totalBits = tempBitArray.Count;
+        int numberOfParts = (totalBits + k - 1) / k;
+        int neededBits = numberOfParts * k;
+
+        BitArray bitArray = new BitArray(neededBits);
+        
+        for (int i = 0; i < totalBits; i++)
+        {
+            bitArray[i] = tempBitArray[i];
+        }
+    
+        // adding the padding
+        for (int i = totalBits; i < neededBits; i++)
+        {
+            bitArray[i] = false; // padding with 0s
+        }
+        
+        // encoding
+        BitArray encodedBits = new BitArray(numberOfParts * n);
+        Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
+        
+        
+        int counter = 0;
+        object lockObject = new object();
+
+        Parallel.For(0, numberOfParts, part =>
+        {
+            int[,] messagePartArray = new int[1, k];
+            for (int i = 0; i < k; i++)
+            {
+                messagePartArray[0, i] = bitArray[part * k + i] ? 1 : 0; // Convert bit to int
+            }
+
+            Matrix partMatrix = new Matrix(messagePartArray);
+
+            //Matrix encodedPartMatrix = MultiplyCached(multiplicationCache, partMatrix, generatorMatrix);
+            Matrix encodedPartMatrix = Encode(partMatrix, generatorMatrix);
+
+            lock (lockObject)
+            {
+                // storing the encoded bits into a array
+                for (int column = 0; column < n; ++column)
+                {
+                    encodedBits[part * n + column] = encodedPartMatrix[0, column].Value == 1; // the boolean value is automatically converted to a bit 1 or 0
+                }
+                            
+                ++counter;
+                if (part % 100000 == 0)
+                    Console.WriteLine("Message part " + counter + "/" + numberOfParts + " encoded.");
+            }
+            
+            
+        });
+        
+
+        SaveBitsToFile(encodedBits, encodedFilePath);
         
     }
+    
+    private static void SaveBitsToFile(BitArray bits, string filePath)
+    {
+        int totalBytes = (bits.Length + 7) / 8; // calculating the amount of bytes needed
+        byte[] bytes = new byte[totalBytes];
+        bits.CopyTo(bytes, 0);
+        File.WriteAllBytes(filePath, bytes);
+    }
+    
     
 }
