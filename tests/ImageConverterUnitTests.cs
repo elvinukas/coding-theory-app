@@ -83,10 +83,8 @@ public class ImageConverterUnitTests
          
          StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(generatorMatrix, originalMessageLength);
          algorithm.DecodeFile(encodedBinaryPath, decodedBinaryPath);
-         ComparableImage ogImage = new ComparableImage(binaryPath);
-         ComparableImage decodedImage = new ComparableImage(decodedBinaryPath);
          _testOutputHelper.WriteLine("Error probability: " + channel.ProbabilityOfError * 100 + "%");
-         _testOutputHelper.WriteLine("Actual error percentage: " + ( 100.0 - ComparableImage.CalculateSimilarity(ogImage, decodedImage)) + "%");
+         _testOutputHelper.WriteLine("Actual error percentage: " + ( 100.0 - ImageConverter.CalculateSimilarity(binaryPath, decodedBinaryPath)) + "%");
          ImageConverter.SaveImage(decodedBinaryPath, savePath);
         
     }

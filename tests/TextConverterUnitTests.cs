@@ -33,6 +33,18 @@ public class TextConverterUnitTests
 
 
     }
+
+    [Fact]
+    public void CalculateSimilarity_CheckIfSimilarityCorrect()
+    {
+        string a = "Labas, kaip tau sekasi? 1234!@";
+        string b = "Labas, kaip tau 101010? 1234!@";
+
+        double similarity = 24.0 / 30.0 * 100;
+
+        Assert.True(TextConverter.CalculateSimilarity(a, b) == similarity);
+        
+    }
     
     
 }
