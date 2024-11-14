@@ -51,6 +51,17 @@ export function FirstScenarioBinary() {
     };
     
     
+    // binary vector conversion into a int[,] matrix
+    
+    const binaryVectorConverter = () => {
+        const messageMatrix = [
+            binaryVector.split('').map(bit => parseInt(bit, 10))   
+        ];
+        return messageMatrix;
+    }
+    
+    
+    
     // handler to update the binary vector input
     const handleInputChange = (event) => {
         const input = event.target.value;
@@ -65,21 +76,58 @@ export function FirstScenarioBinary() {
         setErrorProbability(parseFloat(event.target.value));
     };
 
-    // unction for encoding
-    const handleEncode = () => {
-        const encodedVector = `Encoded(${binaryVector})`; // Replace with encoding logic
-        setEncodedVector(encodedVector);
+    // function for encoding
+    const handleEncode = async () => {
+        const messageMatrix = binaryVectorConverter();
+        const generatorMatrixArray = generatorMatrix.map(row =>
+            row.map(column => parseInt(column, 10))
+        );
+        
+        const requestData = {
+            MessageMatrix: messageMatrix,
+            GeneratorMatrix: generatorMatrixArray,
+            Dimension: matrixRows,
+            N: matrixCols
+        }
+        
+        try {
+            console.log(requestData);
+            const response = await fetch("/api/Encoding/encodevector", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const dataString = convertListToString(data.encodedMessage);
+                console.log(dataString);
+                setEncodedVector(dataString);
+            } else {
+                const errorData = await response.json();
+                alert("Error: " + errorData.Message);
+            }
+        } catch (error) {
+            alert("Failed to encode the vector: " + error.message);
+        }
+        
     };
+    
+    const convertListToString = (list) => {
+        return list.map(row => row.join("")).join("");
+    }
 
     // function for channel error introduction 
     const handleIntroduceErrors = () => {
-        const channelVector = `Channel(${encodedVector}, P=${errorProbability})`; // Replace with channel logic
+        const channelVector = `Channel(${encodedVector}, P=${errorProbability})`; 
         setChannelVector(channelVector);
     };
 
     // function for decoding
     const handleDecode = () => {
-        const decodedVector = `Decoded(${channelVector})`; // Replace with decoding logic
+        const decodedVector = `Decoded(${channelVector})`;
         setDecodedVector(decodedVector);
     };
 
@@ -113,7 +161,7 @@ export function FirstScenarioBinary() {
                     onChange={handleErrorProbabilityChange}
                     min="0"
                     max="1"
-                    step="0.01"
+                    step="0.000001"
                 />
             </div>
 
