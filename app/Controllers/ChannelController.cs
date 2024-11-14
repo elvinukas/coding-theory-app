@@ -1,5 +1,7 @@
+using System.Text.Json;
 using app.Math;
 using app.Models;
+using app.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace app.Controllers;
@@ -8,31 +10,40 @@ namespace app.Controllers;
 [Route("api/[controller]")]
 public class ChannelController : ControllerBase
 {
+    private readonly ChannelServiceFactory _channelServiceFactory;
+    
+    public ChannelController(ChannelServiceFactory channelServiceFactory)
+    {
+        _channelServiceFactory = channelServiceFactory;
+    }
+    
     [HttpPost]
-    public IActionResult PassThroughChannel([FromBody] ChannelRequest request)
+    public IActionResult PassThroughChannel([FromBody] JsonElement requestJson)
     {
         try
         {
-            int[,] matrixArray = MatrixConverter.ConvertToIntArray(request.Matrix);
-            Matrix matrix = new Matrix(matrixArray);
-            double errorProb = request.errorPercentage;
+            string type = requestJson.GetProperty("Type").GetString();
+            ChannelRequest request;
 
-            Channel channel = new Channel(matrix, errorProb);
-            Matrix receivedMessage = channel.ReceivedMessage;
-            List<List<int>> receivedMessageList = MatrixConverter.ConvertTo2DList(receivedMessage);
-
-            return Ok(new ChannelResponse
+            switch (type.ToLower())
             {
-                Matrix = receivedMessageList,
-                Message = "Message successfully passed through the channel."
-            });
+                case "vector":
+                    request = JsonSerializer.Deserialize<VectorChannelRequest>(requestJson.ToString());
+                    break;
+                
+                default:
+                    return BadRequest("Channel type not supported.");
+            }
+
+            var service = _channelServiceFactory.GetService(request);
+            var response = service.PassThrough(request);
+            return Ok(response);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return BadRequest("Message could not be passed through the channel.");
+            return BadRequest(new { Message = "Passing through the channel failed: " + ex.Message });
         }
         
-
     }
     
 }

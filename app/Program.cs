@@ -11,11 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+
 builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
 //builder.Services.AddTransient<IEncodingService, TextEncodingService>();
 //builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
 
+builder.Services.AddTransient<IChannelService, VectorChannelService>();
+
 builder.Services.AddSingleton<EncodingServiceFactory>();
+builder.Services.AddSingleton<ChannelServiceFactory>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 

@@ -125,6 +125,7 @@ export function FirstScenarioBinary() {
         const messageBeforeErrors = binaryVectorConverter(encodedVector);
         
         const requestData = {
+            Type: "vector",
             Matrix: messageBeforeErrors,
             errorPercentage: errorProbability/100
         }
