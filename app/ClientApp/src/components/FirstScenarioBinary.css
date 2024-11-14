@@ -16,11 +16,37 @@
 
 
 .right-section {
-    flex: 0 0 300px; /* Right section has a fixed width but is flexible in layout */
-    max-width: 30%;
+    flex: 0 0 350px; /* Right section has a fixed width but is flexible in layout */
+    max-width: 35%;
     background-color: #f9f9f9;
     padding: 15px;
     margin-left: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
+}
+
+.matrix-dimensions {
+    margin: 10px 0;
+}
+
+.matrix-input {
+    display: grid;
+    gap: 5px;
+    background-color: #ffffff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.matrix-row {
+    display: flex;
+}
+
+.matrix-cell {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    font-size: 1.2em;
+    border: 1px solid #ddd;
+    border-radius: 3px;
 }

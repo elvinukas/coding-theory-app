@@ -11,26 +11,43 @@ export function FirstScenarioBinary() {
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(false);
     const [matrixRows, setMatrixRows] = useState(3);
     const [matrixCols, setMatrixCols] = useState(5);
-    const [generatorMatrix, setGeneratorMatrix] = useState([]);
+    const [generatorMatrix, setGeneratorMatrix] = useState(
+        Array(matrixRows).fill(Array(matrixCols).fill(""))
+    );
     
     
     const handleUseCustomMatrixToggle = (event) => {
         setUseCustomGeneratorMatrix(event.target.checked);
     }
 
-    const handleMatrixRowsChange = (event) => {
-        setMatrixRows(parseInt(event.target.value, 10));
+    const handleMatrixDimensionsChange = () => {
+        setGeneratorMatrix(Array(matrixRows).fill(Array(matrixCols).fill("")));
     };
 
-    const handleMatrixColsChange = (event) => {
-        setMatrixCols(parseInt(event.target.value, 10));
+    const handleMatrixInputChange = (row, col, value) => {
+        const newMatrix = generatorMatrix.map((r, rowIndex) => {
+            if (rowIndex === row) {
+                return r.map((cell, colIndex) => {
+                    if (colIndex === col) {
+                        return value;
+                    } else {
+                        return cell;
+                    }
+                });
+            } else {
+                return r;
+            }
+        });
+
+        setGeneratorMatrix(newMatrix);
     };
     
     
     // handler to update the binary vector input
     const handleInputChange = (event) => {
         const input = event.target.value;
-        if (/^[01]*$/.test(input)) { // Only allow binary input
+        const maxLength = useCustomGeneratorMatrix ? matrixRows : Infinity;
+        if (/^[01]*$/.test(input) && input.length <= maxLength) { // Only allow binary input
             setBinaryVector(input);
         }
     };
@@ -126,26 +143,48 @@ export function FirstScenarioBinary() {
             </div>
 
             {useCustomGeneratorMatrix && (
-                <div className="matrix-settings">
-                    <h3>Generator Matrix Dimensions</h3>
-                    <label>
-                        Rows:
-                        <input
-                            type="number"
-                            value={matrixRows}
-                            onChange={handleMatrixRowsChange}
-                            min="1"
-                        />
-                    </label>
-                    <label>
-                        Columns:
-                        <input
-                            type="number"
-                            value={matrixCols}
-                            onChange={handleMatrixColsChange}
-                            min="1"
-                        />
-                    </label>
+                <div>
+                    <div className="matrix-dimensions">
+                        <label>
+                            Rows:
+                            <input
+                                type="number"
+                                value={matrixRows}
+                                onChange={(e) => setMatrixRows(parseInt(e.target.value))}
+                                onBlur={handleMatrixDimensionsChange}
+                                min="1"
+                            />
+                        </label>
+                        <label>
+                            Columns:
+                            <input
+                                type="number"
+                                value={matrixCols}
+                                onChange={(e) => setMatrixCols(parseInt(e.target.value))}
+                                onBlur={handleMatrixDimensionsChange}
+                                min="1"
+                            />
+                        </label>
+                    </div>
+
+                    <div className="matrix-input">
+                        {generatorMatrix.map((row, rowIndex) => (
+                            <div key={rowIndex} className="matrix-row">
+                                {row.map((value, colIndex) => (
+                                    <input
+                                        key={`${rowIndex}-${colIndex}`}
+                                        type="text"
+                                        value={value.replace(/[^01]/g, "")}
+                                        onChange={(e) =>
+                                            handleMatrixInputChange(rowIndex, colIndex, e.target.value)
+                                        }
+                                        className="matrix-cell"
+                                        maxLength="1"
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
