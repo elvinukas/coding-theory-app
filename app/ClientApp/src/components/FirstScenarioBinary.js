@@ -9,10 +9,18 @@ export function FirstScenarioBinary() {
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
 
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(false);
-    const [matrixRows, setMatrixRows] = useState(3);
-    const [matrixCols, setMatrixCols] = useState(5);
+    const [matrixRows, setMatrixRows] = useState(4);
+    const [matrixCols, setMatrixCols] = useState(7);
+    const preinputtedMatrixData = [
+        ["1", "0", "0", "0", "1", "1", "0"],
+        ["0", "1", "0", "0", "1", "0", "1"],
+        ["0", "0", "1", "0", "1", "1", "1"],
+        ["0", "0", "0", "1", "0", "1", "1"]
+    ];
     const [generatorMatrix, setGeneratorMatrix] = useState(
-        Array(matrixRows).fill(Array(matrixCols).fill(""))
+        Array.from({ length: 4 }, (_, rowIndex) =>
+            Array.from({ length: 7 }, (_, colIndex) => preinputtedMatrixData[rowIndex][colIndex] || "")
+        )
     );
     
     
@@ -110,7 +118,12 @@ export function FirstScenarioBinary() {
             </div>
 
             <div className="buttons">
-                <button onClick={handleEncode}>Encode Vector</button>
+                <button 
+                    onClick={handleEncode}
+                    disabled={useCustomGeneratorMatrix && binaryVector.length !== matrixRows}
+                >
+                    Encode Vector
+                </button>
                 <button onClick={handleIntroduceErrors} disabled={!encodedVector}>Introduce Errors</button>
                 <button onClick={handleDecode} disabled={!channelVector}>Decode Vector</button>
             </div>
