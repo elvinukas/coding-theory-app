@@ -63,7 +63,12 @@ export function FirstScenarioBinary() {
         {/* Left Section for Main Content */}
         <div className="left-section">
             <h1>First Scenario - <strong>Binary Vector</strong></h1>
-            <p>In this scenario, the user can write a binary vector according to the size of a provided generator matrix.</p>
+            <p>In this scenario, the user can write a binary vector according to the size of a generator matrix if provided.
+                If no generator matrix is provided, a random one will be generated.</p>
+            <p> <b>WARNING!</b> The user takes the
+                responsibility if the encoded message cannot be properly decoded. The randomly generated matrix may not have
+                the best properties for decoding (it's Hamming distance may be very small). Be advised.
+            </p>
 
             <div>
                 <h3>Input Binary Vector</h3>

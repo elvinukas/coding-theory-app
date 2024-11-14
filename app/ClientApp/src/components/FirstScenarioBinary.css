@@ -16,12 +16,11 @@
 
 
 .right-section {
-    position: fixed; 
-    right: 350px; 
-    top: 250px; 
-    width: 700px; 
+    flex: 0 0 300px; /* Right section has a fixed width but is flexible in layout */
+    max-width: 30%;
     background-color: #f9f9f9;
     padding: 15px;
+    margin-left: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
 }
