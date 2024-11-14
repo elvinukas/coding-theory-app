@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using app.Algorithms;
 using Microsoft.VisualBasic;
 using app.Math;
+using app.Services;
 using SixLabors.ImageSharp;
 
 
@@ -10,6 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
+//builder.Services.AddTransient<IEncodingService, TextEncodingService>();
+//builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
+
+builder.Services.AddSingleton<EncodingServiceFactory>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 
@@ -33,6 +39,8 @@ app.MapControllerRoute(
 
 app.MapFallbackToFile("index.html");
 app.MapControllers();
+
+
 
 app.Run();
 

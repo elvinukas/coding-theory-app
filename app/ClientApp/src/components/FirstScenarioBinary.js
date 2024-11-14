@@ -84,6 +84,7 @@ export function FirstScenarioBinary() {
         );
         
         const requestData = {
+            Type: "vector",
             MessageMatrix: messageMatrix,
             GeneratorMatrix: generatorMatrixArray,
             Dimension: matrixRows,
@@ -92,7 +93,7 @@ export function FirstScenarioBinary() {
         
         try {
             console.log(requestData);
-            const response = await fetch("/api/Encoding/encodevector", {
+            const response = await fetch("/api/Encoding/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -172,7 +173,7 @@ export function FirstScenarioBinary() {
                 If no generator matrix is provided, a random one will be generated.</p>
             <p> <b>WARNING!</b> The user takes the
                 responsibility if the encoded message cannot be properly decoded. The randomly generated matrix may not have
-                the best properties for decoding (it's Hamming distance may be very small). Be advised.
+                the best properties for decoding (its Hamming distance may be very small). Be advised.
             </p>
 
             <div>
