@@ -53,9 +53,9 @@ export function FirstScenarioBinary() {
     
     // binary vector conversion into a int[,] matrix
     
-    const binaryVectorConverter = () => {
+    const binaryVectorConverter = (vector) => {
         const messageMatrix = [
-            binaryVector.split('').map(bit => parseInt(bit, 10))   
+            vector.split('').map(bit => parseInt(bit, 10))   
         ];
         return messageMatrix;
     }
@@ -78,7 +78,7 @@ export function FirstScenarioBinary() {
 
     // function for encoding
     const handleEncode = async () => {
-        const messageMatrix = binaryVectorConverter();
+        const messageMatrix = binaryVectorConverter(binaryVector);
         const generatorMatrixArray = generatorMatrix.map(row =>
             row.map(column => parseInt(column, 10))
         );
@@ -120,9 +120,41 @@ export function FirstScenarioBinary() {
     }
 
     // function for channel error introduction 
-    const handleIntroduceErrors = () => {
-        const channelVector = `Channel(${encodedVector}, P=${errorProbability})`; 
-        setChannelVector(channelVector);
+    const handleIntroduceErrors = async () => {
+        const messageBeforeErrors = binaryVectorConverter(encodedVector);
+        
+        const requestData = {
+            Matrix: messageBeforeErrors,
+            errorPercentage: errorProbability/100
+        }
+        
+        try {
+            console.log(requestData);
+            const response = await fetch("/api/Channel", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const dataString = convertListToString(data.matrix);
+                console.log(dataString);
+                setChannelVector(dataString);
+                
+            } else {
+                const errorData = await response.json();
+                alert("Error: " + errorData.Message);
+            }
+            
+            
+        } catch (error) {
+            alert("Failed to pass the vector through the channel: " + error.message);
+        }
+        
+        
     };
 
     // function for decoding
@@ -182,7 +214,7 @@ export function FirstScenarioBinary() {
             </div>
 
             <div>
-                <h3>Channel Vector (with Errors)</h3>
+                <h3>Channel Vector (with possible errors)</h3>
                 <p>{channelVector}</p>
             </div>
 
