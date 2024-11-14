@@ -469,4 +469,17 @@ public class Matrix : ISimilarity<Matrix>
         return similarity * 100;
     }
 
+    public int[,] ToIntArray()
+    {
+        int[,] result = new int[Rows, Columns];
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                result[i, j] = this[i, j].Value;
+            }
+        }
+        return result;
+    }
+
 }
