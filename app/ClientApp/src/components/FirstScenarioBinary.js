@@ -132,7 +132,7 @@ export function FirstScenarioBinary() {
         
         try {
             console.log(requestData);
-            const response = await fetch("/api/Channel", {
+            const response = await fetch("/api/Channel/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -160,9 +160,43 @@ export function FirstScenarioBinary() {
     };
 
     // function for decoding
-    const handleDecode = () => {
-        const decodedVector = `Decoded(${channelVector})`;
-        setDecodedVector(decodedVector);
+    const handleDecode = async () => {
+        const receivedMessage = binaryVectorConverter(channelVector);
+        const generatorMatrixArray = generatorMatrix.map(row =>
+            row.map(column => parseInt(column, 10))
+        );
+        
+        const requestData = {
+            Type: "vector",
+            MessageMatrix: receivedMessage,
+            GeneratorMatrix: generatorMatrixArray,
+            Length: matrixRows
+        }
+        
+        try {
+            console.log(requestData);
+            const response = await fetch('/api/Decoding/', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const dataString = convertListToString(data.decodedMessage);
+                console.log(dataString);
+                setDecodedVector(dataString);
+                
+            } else {
+                const errorData = await response.json();
+                alert("Error: " + errorData.Message);
+            }
+        } catch (error) {
+            alert("Failed to decode the vector: " + error.message);
+        }
+        
     };
 
     return (
