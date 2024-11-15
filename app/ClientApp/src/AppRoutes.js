@@ -2,7 +2,7 @@ import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import {FirstScenarioBinary} from "./components/FirstScenarioBinary";
-
+import {SecondScenarioText} from "./components/SecondScenarioText.tsx";
 const AppRoutes = [
   {
     index: true,
@@ -17,8 +17,12 @@ const AppRoutes = [
     element: <FetchData />
   },
   {
-    path: 'first-scenario-binary',
+    path: '/first-scenario-binary',
     element: <FirstScenarioBinary />
+  },
+  {
+    path: '/second-scenario-text',
+    element: <SecondScenarioText />
   }
 ];
 
