@@ -1,9 +1,6 @@
-using System.Text.RegularExpressions;
-using app.Algorithms;
-using Microsoft.VisualBasic;
 using app.Math;
 using app.Services;
-using SixLabors.ImageSharp;
+
 
 
 
@@ -19,6 +16,9 @@ builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
 builder.Services.AddTransient<IDecodingService, VectorDecodingService>();
 
 builder.Services.AddTransient<IChannelService, VectorChannelService>();
+builder.Services.AddTransient<IMatrixGen, GeneratorMatrixGenerator>();
+builder.Services.AddTransient<INumGen, RandomNumberGenerator>();
+builder.Services.AddTransient<IGenerator, MatrixGenService>();
 
 builder.Services.AddSingleton<EncodingServiceFactory>();
 builder.Services.AddSingleton<ChannelServiceFactory>();
