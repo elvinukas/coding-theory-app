@@ -74,7 +74,10 @@ export function FirstScenarioBinary() {
 
     // handler to set error probability
     const handleErrorProbabilityChange = (event) => {
-        setErrorProbability(parseFloat(event.target.value));
+        const value = parseFloat(event.target.value);
+        if (value >= 0 && value <= 100) {
+            setErrorProbability(value);
+        }
     };
 
     // function for encoding
@@ -271,7 +274,7 @@ export function FirstScenarioBinary() {
                     value={errorProbability}
                     onChange={handleErrorProbabilityChange}
                     min="0"
-                    max="1"
+                    max="100"
                     step="0.000001"
                 />
             </div>
