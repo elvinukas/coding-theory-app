@@ -290,7 +290,6 @@ export function FirstScenarioBinary() {
             <div>
                 <h3 className="encoded-vector-title">
                     Encoded Vector
-                    <p>{encodedVector}</p>
                     {!useCustomGeneratorMatrix && (
                         <span className="warning-icon" data-tooltip="Currently using a randomly generated generator matrix!
                          Encoding will work, but it may not be efficient.">
