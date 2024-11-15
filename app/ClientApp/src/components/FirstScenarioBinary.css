@@ -50,3 +50,18 @@
     border: 1px solid #ddd;
     border-radius: 3px;
 }
+
+.error-bit {
+    color: red;
+    font-weight: bolder;
+}
+
+input[type="checkbox"]:disabled {
+    background-color: #ccc;  
+    border-color: #ccc;      
+    cursor: not-allowed;    
+}
+
+input[type="checkbox"]:disabled + label {
+    color: #ccc; 
+}

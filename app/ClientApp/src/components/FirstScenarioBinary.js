@@ -7,6 +7,7 @@ export function FirstScenarioBinary() {
     const [channelVector, setChannelVector] = useState("");
     const [decodedVector, setDecodedVector] = useState("");
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
+    const [allowManualEdit, setAllowManualEdit] = useState(false);
 
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(false);
     const [matrixRows, setMatrixRows] = useState(4);
@@ -107,8 +108,7 @@ export function FirstScenarioBinary() {
                 console.log(dataString);
                 setEncodedVector(dataString);
             } else {
-                const errorData = await response.json();
-                alert("Error: " + errorData.Message);
+                alert("Error: Failed to encode the vector.");
             }
         } catch (error) {
             alert("Failed to encode the vector: " + error.message);
@@ -148,7 +148,7 @@ export function FirstScenarioBinary() {
                 
             } else {
                 const errorData = await response.json();
-                alert("Error: " + errorData.Message);
+                alert("Error: Failed to pass the vector through the channel. ");
             }
             
             
@@ -190,14 +190,24 @@ export function FirstScenarioBinary() {
                 setDecodedVector(dataString);
                 
             } else {
-                const errorData = await response.json();
-                alert("Error: " + errorData.Message);
+                alert("Failed to decode the vector. Please check if vector length is correct after manual editting.");
             }
         } catch (error) {
             alert("Failed to decode the vector: " + error.message);
         }
         
     };
+    
+    const markErrors = () => {
+        return channelVector.split("").map((bit, index) => {
+            if (encodedVector[index] !== bit) {
+                return <span key={index} className="error-bit">{bit}</span>
+            }
+            return bit;
+            
+        }); 
+    };
+    
 
     return (
         <div className="container">
@@ -251,7 +261,35 @@ export function FirstScenarioBinary() {
 
             <div>
                 <h3>Channel Vector (with possible errors)</h3>
-                <p>{channelVector}</p>
+                <p>{markErrors()}</p>
+            </div>
+            
+            <div>
+                <label>
+                    <input
+                        type="checkbox"
+                        id="manualEditCheckbox"
+                        checked={allowManualEdit}
+                        onChange={(e) => setAllowManualEdit(e.target.checked)}
+                        disabled={!channelVector}
+                    />
+                    <label htmlFor="manualEditCheckbox" style={{ color: !channelVector ? '#ccc' : '' }}>
+                        Allow manual editing of the channel vector?
+                    </label>
+                </label>
+                {allowManualEdit && (
+                    <div>
+                        <h3>Edit channel Vector</h3>
+                        <input
+                            type="text"
+                            value={channelVector}
+                            onChange={(e) => setChannelVector(e.target.value)}
+                            placeholder={channelVector}
+                            
+                        />
+                    </div>
+                )}
+                
             </div>
 
             <div>
