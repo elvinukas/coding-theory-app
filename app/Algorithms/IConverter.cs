@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text;
 
 namespace app.Algorithms;
@@ -80,5 +81,18 @@ public interface IConverter<T>
 
         return bytes;
     }
+    
+    public static Matrix MakeMatrixFromBitArray(BitArray bitArray)
+    {
+        int[,] binaryVector = new int[1, bitArray.Length];
+
+        for (int i = 0; i < bitArray.Length; ++i)
+        {
+            binaryVector[0, i] = bitArray[i] ? 1 : 0;
+        }
+
+        return new Matrix(binaryVector);
+    }
+    
 
 }

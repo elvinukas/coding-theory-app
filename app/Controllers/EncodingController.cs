@@ -31,6 +31,9 @@ public class EncodingController : ControllerBase
                     request = JsonSerializer.Deserialize<VectorEncodeRequest>(requestJson.ToString());
                     break;
                 // ... and then text and image when they are implemented
+                case "text":
+                    request = JsonSerializer.Deserialize<TextEncodeRequest>(requestJson.ToString());
+                    break;
                 default:
                     return BadRequest("Encoding type not supported.");
             }

@@ -10,8 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
-//builder.Services.AddTransient<IEncodingService, TextEncodingService>();
-//builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
+builder.Services.AddTransient<IEncodingService, TextEncodingService>();
+//builder.Services.AddTransient<IEncodingService, ImageEncodingService>();
 
 builder.Services.AddTransient<IDecodingService, VectorDecodingService>();
 
