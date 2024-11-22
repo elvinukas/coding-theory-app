@@ -22,7 +22,9 @@ public class TextEncodingService : IEncodingService
 
         try
         {
-            Matrix encodedText = UpdatedLinearEncodingAlgorithm.Encode(convertedText, gMatrix, true);
+            LinearEncodingAlgorithm algorithm =
+                new LinearEncodingAlgorithm(convertedText, gMatrix, gMatrix.Rows, gMatrix.Columns);
+            Matrix encodedText = algorithm.EncodedMessage;
             List<List<int>> encodedTextList = MatrixConverter.ConvertTo2DList(encodedText);
 
             return new TextEncodeResponse

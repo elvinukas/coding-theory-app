@@ -142,7 +142,6 @@ public class StepByStepDecodingAlgorithm
             Matrix decodedPart = Decode(messagePart);
 
             decodedMessage = AppendDecodedMessage(decodedMessage, decodedPart, k);
-
         }
         
         

@@ -148,9 +148,8 @@ export function SecondScenarioText() {
         
         const data = await decode(requestData);
         if (data) {
-            const dataString = convertListToString(data);
-            console.log(dataString);
-            setDecodedText(dataString);
+            console.log(data.message);
+            setDecodedText(data.message);
         }
         
     }
@@ -234,6 +233,19 @@ export function SecondScenarioText() {
 
                 )}
 
+                {decodedText && (
+                    <div className="output-area">
+                        <h4>Text successfully decoded!</h4>
+
+                        <div className="text-field">
+                            <textarea
+                                value={decodedText}
+                                readOnly
+                            />
+                        </div>
+                    </div>
+                )}
+
 
             </div>
 
@@ -249,7 +261,7 @@ export function SecondScenarioText() {
 
                 <div>
                     <div className="matrix-dimensions">
-                    <label> Parameters: </label>
+                        <label> Parameters: </label>
                         <br/>
                         <span>Dimension: </span>
                         <input
