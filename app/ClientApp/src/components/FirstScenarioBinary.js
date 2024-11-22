@@ -157,7 +157,7 @@ export function FirstScenarioBinary() {
     }
 
     // function for channel error introduction 
-    const handleIntroduceErrors = async () => {
+    const handlePassThroughChannel = async () => {
         const messageBeforeErrors = binaryVectorConverter(encodedVector);
         
         const requestData = {
@@ -286,7 +286,7 @@ export function FirstScenarioBinary() {
                 >
                     Encode Vector
                 </button>
-                <button onClick={handleIntroduceErrors} disabled={!encodedVector}>Introduce Errors</button>
+                <button onClick={handlePassThroughChannel} disabled={!encodedVector}>Pass through channel</button>
                 <button onClick={handleDecode} disabled={!channelVector}>Decode Vector</button>
             </div>
 

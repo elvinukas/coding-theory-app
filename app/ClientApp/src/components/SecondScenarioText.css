@@ -117,4 +117,14 @@ input[type="checkbox"]:disabled + label {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.encoded-text-box {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    white-space: pre-wrap; /* Ensures that whitespace is respected */
+    word-wrap: break-word; /* Breaks long words */
+    word-break: break-all; /* Breaks long words at any character */
+}
+
 
