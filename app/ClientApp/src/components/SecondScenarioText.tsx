@@ -1,5 +1,7 @@
 import React, {useRef, useState} from "react";
 import "./SecondScenarioText.css";
+// @ts-ignore
+import { fetchGeneratorMatrix, encode, channel, decode} from "./ApiCallHandlers.ts";
 
 export function SecondScenarioText() {
     const [originalText, setOriginalText] = useState("");
@@ -69,43 +71,6 @@ export function SecondScenarioText() {
         }
     };
     
-    const fetchGeneratorMatrix = async () => {
-        let generatorMatrixArray;
-        if (useCustomGeneratorMatrix) {
-            generatorMatrixArray = generatorMatrix.map(row =>
-                row.map(column => parseInt(column, 10))
-            );
-            return generatorMatrixArray;
-        } else {
-            // fetching a randomly generated matrix
-            try {
-                const response = await fetch("/api/Matrix/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        rows: parseInt(matrixRows, 10),
-                        cols: parseInt(matrixCols, 10)
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    generatorMatrixArray = data.matrix.map(row =>
-                        row.map(column => parseInt(column, 10))
-                    );
-                    return generatorMatrixArray;
-                } else {
-                    alert("Error: Failed to fetch generator matrix.");
-                    return null;
-                }
-            } catch (error) {
-                alert("Failed to fetch generator matrix: " + error.message);
-                return null;
-            }
-        }
-    }
 
     const textareaRef = useRef(null); // reference to the text area
     
@@ -117,7 +82,7 @@ export function SecondScenarioText() {
         
 
         // -- generator matrix portion
-        let generatorMatrixArray = await fetchGeneratorMatrix();
+        let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
         
         // - encoding fetching
 
@@ -127,27 +92,12 @@ export function SecondScenarioText() {
             GeneratorMatrix: generatorMatrixArray
         }
         
-        try {
-            console.log(requestData);
-            const response = await fetch("/api/Encoding/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestData)
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const dataString = convertListToString(data.encodedMessage);
-                console.log(dataString);
-                setEncodedTextBinary(dataString);
-            } else {
-                alert("Error: Failed to encode the text.");
-            }
-        } catch (error) {
-            alert("Failed to encode the text: " + error.message);
+        const data = await encode(requestData);
+        if (data) {
+            const dataString = convertListToString(data.encodedMessage);
+            setEncodedTextBinary(dataString)
         }
+        
     }
 
     const convertListToString = (list) => {
@@ -157,36 +107,18 @@ export function SecondScenarioText() {
     const handlePassThroughChannel = async () => {
         const encodedText = binaryVectorConverter(encodedTextBinary);
         
-        
         const requestData = {
             Type: "vector",
             Matrix: encodedText,
             errorPercentage: errorProbability/100
         };
         
-        try {
-            console.log(requestData);
-            const response = await fetch ("api/Channel/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                const dataString = convertListToString(data.matrix);
-                console.log(dataString);
-                setEncodedTextChanneled(dataString);
-            } else {
-                alert("Error: Failed to channel the text.");
-            }
-            
-        } catch (error) {
-            alert("Failed to channel the text: " + error.message);
+        const data = await channel(requestData);
+        if (data) {
+            const dataString = convertListToString(data.matrix);
+            console.log(dataString);
+            setEncodedTextChanneled(dataString);
         }
-        
         
         
     }
@@ -201,7 +133,10 @@ export function SecondScenarioText() {
         });
     };
     
-    const handleDecode = () => {
+    const handleDecode = (text) => {
+        const encodedText = binaryVectorConverter(text);
+        
+        
         
         
     }
@@ -245,7 +180,7 @@ export function SecondScenarioText() {
                     </button>
                     <button onClick={handlePassThroughChannel} disabled={!encodedTextBinary}>Pass through channel
                     </button>
-                    <button onClick={handleDecode} disabled={!encodedTextChanneled}>Decode Text</button>
+                    <button onClick={handleDecode(encodedTextChanneled)} disabled={!encodedTextChanneled}>Decode Text</button>
                 </div>
 
                 <div className="text-field">
