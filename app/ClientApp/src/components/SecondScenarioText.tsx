@@ -14,6 +14,7 @@ export function SecondScenarioText() {
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [allowManualEdit, setAllowManualEdit] = useState(false);
     const [isEncodedTextVisible, setIsEncodedTextVisible] = useState(false);
+    const [isEncodedChanneledTextVisible, setIsEncodedChannelTextVisible] = useState(false);
 
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(false);
     const [matrixRows, setMatrixRows] = useState(4);
@@ -49,6 +50,13 @@ export function SecondScenarioText() {
             }
         });
     };
+
+    const binaryVectorConverter = (vector) => {
+        const messageMatrix = [
+            vector.split('').map(bit => parseInt(bit, 10))
+        ];
+        return messageMatrix;
+    }
 
     const handleUseCustomMatrixToggle = (event) => {
         setUseCustomGeneratorMatrix(event.target.checked);
@@ -146,9 +154,52 @@ export function SecondScenarioText() {
         return list.map(row => row.join("")).join("");
     }
     
-    const handlePassThroughChannel = () => {
+    const handlePassThroughChannel = async () => {
+        const encodedText = binaryVectorConverter(encodedTextBinary);
+        
+        
+        const requestData = {
+            Type: "vector",
+            Matrix: encodedText,
+            errorPercentage: errorProbability/100
+        };
+        
+        try {
+            console.log(requestData);
+            const response = await fetch ("api/Channel/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const dataString = convertListToString(data.matrix);
+                console.log(dataString);
+                setEncodedTextChanneled(dataString);
+            } else {
+                alert("Error: Failed to channel the text.");
+            }
+            
+        } catch (error) {
+            alert("Failed to channel the text: " + error.message);
+        }
+        
+        
         
     }
+
+    const markErrors = () => {
+        return encodedTextChanneled.split("").map((bit, index) => {
+            if (encodedTextBinary[index] !== bit) {
+                return <span key={index} className="error-bit">{bit}</span>
+            }
+            return bit;
+
+        });
+    };
     
     const handleDecode = () => {
         
@@ -204,17 +255,35 @@ export function SecondScenarioText() {
                     />
                 </div>
 
-                <div className="output-area">
-                    <h4>Text successfully encoded!</h4>
-                    <button onClick={() => setIsEncodedTextVisible(!isEncodedTextVisible)}>
-                        {isEncodedTextVisible ? "Hide Encoded Text" : "Show Encoded Text"}
-                    </button>
-                    {isEncodedTextVisible && (
-                        <div className="encoded-text-box">
-                            <p>{encodedTextBinary}</p>
-                        </div>
-                    )}
-                </div>
+                {encodedTextBinary && (
+                    <div className="output-area">
+                        <h4>Text successfully encoded!</h4>
+                        <button onClick={() => setIsEncodedTextVisible(!isEncodedTextVisible)}>
+                            {isEncodedTextVisible ? "Hide Encoded Text" : "Show Encoded Text"}
+                        </button>
+                        {isEncodedTextVisible && (
+                            <div className="encoded-text-box">
+                                <p>{encodedTextBinary}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {encodedTextChanneled && (
+                    <div className="output-area">
+                        <h4>Text successfully channeled!</h4>
+                        
+                        <button onClick={() => setIsEncodedChannelTextVisible(!isEncodedChanneledTextVisible)}>
+                            {isEncodedChanneledTextVisible ? "Hide Channeled Text" : "Show Channeled Text"}
+                        </button>
+                        {isEncodedChanneledTextVisible && (
+                            <div className="encoded-text-box">
+                                <div>{markErrors()}</div>
+                            </div>
+                        )}
+                    </div>
+
+                )}
 
 
             </div>
@@ -231,7 +300,7 @@ export function SecondScenarioText() {
 
                 <div>
                     <div className="matrix-dimensions">
-                        <label> Parameters: </label>
+                    <label> Parameters: </label>
                         <br/>
                         <span>Dimension: </span>
                         <input
