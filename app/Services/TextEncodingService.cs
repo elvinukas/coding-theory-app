@@ -16,6 +16,8 @@ public class TextEncodingService : IEncodingService
         string text = textRequest.Text;
 
         Matrix convertedText = TextConverter.ConvertToBinaryMatrix(text);
+        // 1 0 0 0 0 1 1 0 0 1 0 0 0 1 1 0 1 1 0 0 0 1 1 0 
+        // 
         Matrix gMatrix = new Matrix(MatrixConverter.ConvertToIntArray(textRequest.GeneratorMatrix));
 
         try
@@ -26,6 +28,7 @@ public class TextEncodingService : IEncodingService
             return new TextEncodeResponse
             {
                 EncodedMessage = encodedTextList,
+                OriginalMessageBinaryLength = convertedText.Columns,
                 Message = "Text successfully encoded."
             };
         }

@@ -152,8 +152,9 @@ public class StepByStepDecodingAlgorithmUnitTests
         Matrix receivedMessage = encodedMessage + errorVector;
         
         // decoding process
-
-        Matrix actuallyDecodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, linearEncodingAlgorithm.OriginalMessageLength);
+        StepByStepDecodingAlgorithm algorithm =
+            new StepByStepDecodingAlgorithm(generatorMatrix, linearEncodingAlgorithm.OriginalMessageLength);
+        Matrix actuallyDecodedMessage = algorithm.DecodeMessage(receivedMessage);
         
         // 0 0 0 0 0 1 0 1 1 1 0 0 1 0 0 - without trimming
         // with trimming it is
@@ -197,7 +198,10 @@ public class StepByStepDecodingAlgorithmUnitTests
 
         Matrix encodedMessage = algorithm.EncodedMessage + errorVector;
 
-        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(algorithm.GeneratorMatrix, encodedMessage, algorithm.OriginalMessageLength);
+
+        StepByStepDecodingAlgorithm decodingAlgorithm =
+            new StepByStepDecodingAlgorithm(generatorMatrix, algorithm.OriginalMessageLength);
+        Matrix decodedMessage = decodingAlgorithm.DecodeMessage(encodedMessage);
 
         Assert.True(originalMessage == decodedMessage);
 
@@ -228,7 +232,9 @@ public class StepByStepDecodingAlgorithmUnitTests
         Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 1);
         Matrix sentMessage = algorithm.EncodedMessage + errorVector;
 
-        Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(generatorMatrix, sentMessage, algorithm.OriginalMessageLength);
+        StepByStepDecodingAlgorithm decodingAlgorithm =
+            new StepByStepDecodingAlgorithm(generatorMatrix, algorithm.OriginalMessageLength);
+        Matrix decodedMessage = decodingAlgorithm.DecodeMessage(sentMessage);
         
         Assert.True(originalMessage == decodedMessage);
 

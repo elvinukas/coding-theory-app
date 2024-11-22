@@ -96,7 +96,7 @@ export const decode = async (requestData) => {
         if (response.ok) {
             return await response.json();
         } else {
-            alert("Failed to decode the vector. Please check if vector length is correct after manual editting.");
+            alert("Failed to decode the vector. Please check if vector length is correct after manual editing.");
         }
     } catch (error) {
         alert("Failed to decode the vector: " + error.message);

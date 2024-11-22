@@ -5,11 +5,10 @@ import { fetchGeneratorMatrix, encode, channel, decode} from "./ApiCallHandlers.
 
 export function SecondScenarioText() {
     const [originalText, setOriginalText] = useState("");
-    // const [originalTextBinary, setOriginalTextBinary] = useState("");
+    const [originalTextBinaryLength, setOriginalTextBinaryLength] = useState("");
     const [originalTextChanneled, setOriginalTextChanneled] = useState("");
     const [encodedTextBinary, setEncodedTextBinary] = useState("");
     const [encodedTextChanneled, setEncodedTextChanneled] = useState("");
-    const [decodedTextBinary, setDecodedTextBinary] = useState("");
     const [decodedText, setDecodedText] = useState("");
     const [decodedTextChanneled, setDecodedTextChanneled] = useState("");
 
@@ -32,6 +31,7 @@ export function SecondScenarioText() {
             Array.from({ length: 7 }, (_, colIndex) => preinputtedMatrixData[rowIndex][colIndex] || "")
         )
     );
+    const [generatorMatrixArray, setGeneratorMatrixArray] = useState(null);
 
     const handleMatrixDimensionsChange = () => {
         setGeneratorMatrix(Array(matrixRows).fill(Array(matrixCols).fill("")));
@@ -95,7 +95,8 @@ export function SecondScenarioText() {
         const data = await encode(requestData);
         if (data) {
             const dataString = convertListToString(data.encodedMessage);
-            setEncodedTextBinary(dataString)
+            setEncodedTextBinary(dataString);
+            setOriginalTextBinaryLength(data.originalMessageBinaryLength);
         }
         
     }
@@ -120,7 +121,6 @@ export function SecondScenarioText() {
             setEncodedTextChanneled(dataString);
         }
         
-        
     }
 
     const markErrors = () => {
@@ -133,11 +133,25 @@ export function SecondScenarioText() {
         });
     };
     
-    const handleDecode = (text) => {
-        const encodedText = binaryVectorConverter(text);
+    const handleDecode = async () => {
+        const encodedText = binaryVectorConverter(encodedTextChanneled);
+        const generatorMatrixArray = generatorMatrix.map(row =>
+            row.map(column => parseInt(column, 10))
+        );
         
+        const requestData = {
+            Type: "text",
+            MessageMatrix: encodedText,
+            GeneratorMatrix: generatorMatrixArray,
+            Length: originalTextBinaryLength
+        }
         
-        
+        const data = await decode(requestData);
+        if (data) {
+            const dataString = convertListToString(data);
+            console.log(dataString);
+            setDecodedText(dataString);
+        }
         
     }
     
@@ -180,7 +194,7 @@ export function SecondScenarioText() {
                     </button>
                     <button onClick={handlePassThroughChannel} disabled={!encodedTextBinary}>Pass through channel
                     </button>
-                    <button onClick={handleDecode(encodedTextChanneled)} disabled={!encodedTextChanneled}>Decode Text</button>
+                    <button onClick={handleDecode} disabled={!encodedTextChanneled}>Decode Text</button>
                 </div>
 
                 <div className="text-field">

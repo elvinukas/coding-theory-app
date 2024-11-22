@@ -14,6 +14,7 @@ builder.Services.AddTransient<IEncodingService, TextEncodingService>();
 //builder.Services.AddTransient<IEncodingService, ImageEncodingService>();
 
 builder.Services.AddTransient<IDecodingService, VectorDecodingService>();
+builder.Services.AddTransient<IDecodingService, TextDecodingService>();
 
 builder.Services.AddTransient<IChannelService, VectorChannelService>();
 builder.Services.AddTransient<IMatrixGen, GeneratorMatrixGenerator>();
