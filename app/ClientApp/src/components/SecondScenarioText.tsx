@@ -5,6 +5,7 @@ import { fetchGeneratorMatrix, encode, channel, decode} from "./ApiCallHandlers.
 
 export function SecondScenarioText() {
     const [originalText, setOriginalText] = useState("");
+    const [originalTextBinary, setOriginalTextBinary] = useState("");
     const [originalTextBinaryLength, setOriginalTextBinaryLength] = useState("");
     const [originalTextChanneled, setOriginalTextChanneled] = useState("");
     const [encodedTextBinary, setEncodedTextBinary] = useState("");
@@ -14,10 +15,12 @@ export function SecondScenarioText() {
 
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [allowManualEdit, setAllowManualEdit] = useState(false);
+    const [isOriginalBinaryTextVisisble, setIsOriginalBinaryTextVisible] = useState(false);
+    const [isOriginalChanneledTextVisible, setIsOriginalChanneledTextVisible] = useState(false);
     const [isEncodedTextVisible, setIsEncodedTextVisible] = useState(false);
     const [isEncodedChanneledTextVisible, setIsEncodedChannelTextVisible] = useState(false);
 
-    const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(false);
+    const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(true);
     const [matrixRows, setMatrixRows] = useState(4);
     const [matrixCols, setMatrixCols] = useState(7);
     const preinputtedMatrixData = [
@@ -97,6 +100,8 @@ export function SecondScenarioText() {
             const dataString = convertListToString(data.encodedMessage);
             setEncodedTextBinary(dataString);
             setOriginalTextBinaryLength(data.originalMessageBinaryLength);
+            const binaryString = convertListToString(data.originalMessageBinary);
+            setOriginalTextBinary(binaryString);
         }
         
     }
@@ -120,12 +125,27 @@ export function SecondScenarioText() {
             console.log(dataString);
             setEncodedTextChanneled(dataString);
         }
+
+        const binaryText = binaryVectorConverter(originalTextBinary);
+        
+        const nonEncodedRequestData = {
+            Type: "vector",
+            Matrix: binaryText,
+            errorPercentage: errorProbability/100
+        }
+        
+        const nonEncodedData = await channel(nonEncodedRequestData);
+        if (nonEncodedData) {
+            const dataString = convertListToString(nonEncodedData.matrix);
+            console.log(dataString);
+            setOriginalTextChanneled(dataString);
+        }
         
     }
 
-    const markErrors = () => {
-        return encodedTextChanneled.split("").map((bit, index) => {
-            if (encodedTextBinary[index] !== bit) {
+    const markErrors = (textChanneled, textBinary) => {
+        return textChanneled.split("").map((bit, index) => {
+            if (textBinary[index] !== bit) {
                 return <span key={index} className="error-bit">{bit}</span>
             }
             return bit;
@@ -203,51 +223,87 @@ export function SecondScenarioText() {
                     />
                 </div>
 
-                {encodedTextBinary && (
-                    <div className="output-area">
-                        <h4>Text successfully encoded!</h4>
-                        <button onClick={() => setIsEncodedTextVisible(!isEncodedTextVisible)}>
-                            {isEncodedTextVisible ? "Hide Encoded Text" : "Show Encoded Text"}
-                        </button>
-                        {isEncodedTextVisible && (
-                            <div className="encoded-text-box">
-                                <p>{encodedTextBinary}</p>
+                <div className="comparison-section">
+                    <div className="left-comparison">
+                        {encodedTextBinary && (
+                            <div className="output-area">
+                                <h4>Text successfully encoded!</h4>
+                                <button onClick={() => setIsEncodedTextVisible(!isEncodedTextVisible)}>
+                                    {isEncodedTextVisible ? "Hide Encoded Text" : "Show Encoded Text"}
+                                </button>
+                                {isEncodedTextVisible && (
+                                    <div className="encoded-text-box">
+                                        <p>{encodedTextBinary}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
-                )}
 
-                {encodedTextChanneled && (
-                    <div className="output-area">
-                        <h4>Text successfully channeled!</h4>
-                        
-                        <button onClick={() => setIsEncodedChannelTextVisible(!isEncodedChanneledTextVisible)}>
-                            {isEncodedChanneledTextVisible ? "Hide Channeled Text" : "Show Channeled Text"}
-                        </button>
-                        {isEncodedChanneledTextVisible && (
-                            <div className="encoded-text-box">
-                                <div>{markErrors()}</div>
+                        {encodedTextChanneled && (
+                            <div className="output-area">
+                                <h4>Text successfully channeled!</h4>
+
+                                <button onClick={() => setIsEncodedChannelTextVisible(!isEncodedChanneledTextVisible)}>
+                                    {isEncodedChanneledTextVisible ? "Hide Channeled Text" : "Show Channeled Text"}
+                                </button>
+                                {isEncodedChanneledTextVisible && (
+                                    <div className="encoded-text-box">
+                                        <div>{markErrors(encodedTextChanneled, encodedTextBinary)}</div>
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
 
-                )}
+                        {decodedText && (
+                            <div className="output-area">
+                                <h4>Text successfully decoded!</h4>
 
-                {decodedText && (
-                    <div className="output-area">
-                        <h4>Text successfully decoded!</h4>
-
-                        <div className="text-field">
+                                <div className="text-field">
                             <textarea
                                 value={decodedText}
                                 readOnly
                             />
-                        </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
 
 
+                    <div className="right-comparison">
+                        {originalText && (
+                            <div className="output-area">
+                                <h4>Original Text in Binary:</h4>
+                                <button onClick={() => setIsOriginalBinaryTextVisible(!isOriginalBinaryTextVisisble)}>
+                                    {isOriginalBinaryTextVisisble ? "Hide Original Text Binary" : "Show Original Text Binary"}
+                                </button>
+                                {isOriginalBinaryTextVisisble&& (
+                                    <div className="encoded-text-box">
+                                        <p>{originalTextBinary}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {originalTextChanneled && (
+                            <div className="output-area">
+                                <h4>Original Text Channeled:</h4>
+                                <button onClick={() => setIsOriginalChanneledTextVisible(!isOriginalChanneledTextVisible)}>
+                                    {isOriginalChanneledTextVisible ? "Hide Original Text Channeled" : "Show Original Text Channeled"}
+                                </button>
+                                {isOriginalChanneledTextVisible && (
+                                    <div className="encoded-text-box">
+                                        <p>{markErrors(originalTextChanneled, originalTextBinary)}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
+            
+
+
+
 
             <div className="right-section">
                 <div>
@@ -258,7 +314,7 @@ export function SecondScenarioText() {
                     />
                     <label>Use custom generator matrix?</label>
                 </div>
-
+        
                 <div>
                     <div className="matrix-dimensions">
                         <label> Parameters: </label>
@@ -267,48 +323,48 @@ export function SecondScenarioText() {
                         <input
                             type="number"
                             value={matrixRows}
-                            onChange={(e) => setMatrixRows(parseInt(e.target.value))}
-                            onBlur={handleMatrixDimensionsChange}
-                            min="1"
-                        />
-                        <br/>
-                        <span>Code length: </span>
-                        <input
-                            type="number"
-                            value={matrixCols}
-                            onChange={(e) => setMatrixCols(parseInt(e.target.value))}
-                            onBlur={handleMatrixDimensionsChange}
-                            min="1"
-                        />
-                    </div>
-
-
-                    {useCustomGeneratorMatrix && (
-                        <div>
-                            <div className="matrix-input">
-                                {generatorMatrix.map((row, rowIndex) => (
-                                    <div key={rowIndex} className="matrix-row">
-                                        {row.map((value, colIndex) => (
-                                            <input
-                                                key={`${rowIndex}-${colIndex}`}
-                                                type="text"
-                                                value={value.replace(/[^01]/g, "")}
-                                                onChange={(e) =>
-                                                    handleMatrixInputChange(rowIndex, colIndex, e.target.value)
-                                                }
-                                                className="matrix-cell"
-                                                maxLength="1"
-                                            />
-                                        ))}
+                                        onChange={(e) => setMatrixRows(parseInt(e.target.value))}
+                                        onBlur={handleMatrixDimensionsChange}
+                                        min="1"
+                                    />
+                                    <br/>
+                                    <span>Code length: </span>
+                                    <input
+                                        type="number"
+                                        value={matrixCols}
+                                        onChange={(e) => setMatrixCols(parseInt(e.target.value))}
+                                        onBlur={handleMatrixDimensionsChange}
+                                        min="1"
+                                    />
+                                </div>
+        
+        
+                                {useCustomGeneratorMatrix && (
+                                    <div>
+                                        <div className="matrix-input">
+                                            {generatorMatrix.map((row, rowIndex) => (
+                                                <div key={rowIndex} className="matrix-row">
+                                                    {row.map((value, colIndex) => (
+                                                        <input
+                                                            key={`${rowIndex}-${colIndex}`}
+                                                            type="text"
+                                                            value={value.replace(/[^01]/g, "")}
+                                                            onChange={(e) =>
+                                                                handleMatrixInputChange(rowIndex, colIndex, e.target.value)
+                                                            }
+                                                            className="matrix-cell"
+                                                            maxLength="1"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                ))}
+                                )}
                             </div>
+        
                         </div>
-                    )}
-                </div>
-
-            </div>
-        </div>
+                    </div>
     );
 
 }

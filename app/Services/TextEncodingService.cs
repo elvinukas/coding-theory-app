@@ -26,11 +26,13 @@ public class TextEncodingService : IEncodingService
                 new LinearEncodingAlgorithm(convertedText, gMatrix, gMatrix.Rows, gMatrix.Columns);
             Matrix encodedText = algorithm.EncodedMessage;
             List<List<int>> encodedTextList = MatrixConverter.ConvertTo2DList(encodedText);
+            List<List<int>> convertedTextList = MatrixConverter.ConvertTo2DList(convertedText);
 
             return new TextEncodeResponse
             {
                 EncodedMessage = encodedTextList,
                 OriginalMessageBinaryLength = convertedText.Columns,
+                OriginalMessageBinary = convertedTextList,
                 Message = "Text successfully encoded."
             };
         }
