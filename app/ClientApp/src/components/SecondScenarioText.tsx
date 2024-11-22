@@ -1,7 +1,7 @@
 import React, {useRef, useState} from "react";
 import "./SecondScenarioText.css";
 // @ts-ignore
-import { fetchGeneratorMatrix, encode, channel, decode} from "./ApiCallHandlers.ts";
+import { fetchGeneratorMatrix, encode, channel, decode, converter} from "./ApiCallHandlers.ts";
 
 export function SecondScenarioText() {
     const [originalText, setOriginalText] = useState("");
@@ -11,7 +11,7 @@ export function SecondScenarioText() {
     const [encodedTextBinary, setEncodedTextBinary] = useState("");
     const [encodedTextChanneled, setEncodedTextChanneled] = useState("");
     const [decodedText, setDecodedText] = useState("");
-    const [decodedTextChanneled, setDecodedTextChanneled] = useState("");
+    const [possiblyOriginalText, setPossiblyOriginalText] = useState("");
 
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [allowManualEdit, setAllowManualEdit] = useState(false);
@@ -19,7 +19,8 @@ export function SecondScenarioText() {
     const [isOriginalChanneledTextVisible, setIsOriginalChanneledTextVisible] = useState(false);
     const [isEncodedTextVisible, setIsEncodedTextVisible] = useState(false);
     const [isEncodedChanneledTextVisible, setIsEncodedChannelTextVisible] = useState(false);
-
+    const [isPossiblyOriginalTextVisible, setIsPossiblyOriginalTextVisible] = useState(false);
+    
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(true);
     const [matrixRows, setMatrixRows] = useState(4);
     const [matrixCols, setMatrixCols] = useState(7);
@@ -172,6 +173,19 @@ export function SecondScenarioText() {
             setDecodedText(data.message);
         }
         
+        // original part
+        const ogText = binaryVectorConverter(originalTextChanneled);
+        
+        
+        const converterRequest = {
+            Message: ogText
+        }
+        const converterData = await converter(converterRequest);
+        if (converterData) {
+            console.log(converterData.message);
+            setPossiblyOriginalText(converterData.message);
+        }
+        
     }
     
     return (
@@ -297,12 +311,26 @@ export function SecondScenarioText() {
                                 )}
                             </div>
                         )}
+
+                        {possiblyOriginalText && (
+                            <div className="output-area">
+                                <h4>Original Text Converted to Readable Form:</h4>
+                                <button
+                                    onClick={() => setIsPossiblyOriginalTextVisible(!isPossiblyOriginalTextVisible)}>
+                                    {isPossiblyOriginalTextVisible ? "Hide Possibly Original Text" : "Show Possibly Original Text"}
+                                </button>
+                                {isPossiblyOriginalTextVisible && (
+                                    <div className="encoded-text-box">
+                                        <p>{markErrors(possiblyOriginalText, originalText)}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+
                     </div>
                 </div>
             </div>
-            
-
-
 
 
             <div className="right-section">
@@ -314,7 +342,7 @@ export function SecondScenarioText() {
                     />
                     <label>Use custom generator matrix?</label>
                 </div>
-        
+
                 <div>
                     <div className="matrix-dimensions">
                         <label> Parameters: </label>

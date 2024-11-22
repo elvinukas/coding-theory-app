@@ -102,3 +102,24 @@ export const decode = async (requestData) => {
         alert("Failed to decode the vector: " + error.message);
     }
 }
+
+export const converter = async (requestData) => {
+    try {
+        console.log(requestData);
+        const response = await fetch('/api/Binary/toString/', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        if (response.ok) {
+            return await response.json();
+        } else {
+            alert("Failed to convert to string");
+        }
+    } catch (error) {
+        alert("Failed to convert to string." + error.message);
+    }
+}
