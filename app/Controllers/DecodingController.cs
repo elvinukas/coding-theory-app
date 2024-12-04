@@ -29,6 +29,9 @@ public class DecodingController : ControllerBase
                 case "vector":
                     request = JsonSerializer.Deserialize<VectorDecodeRequest>(requestJson.ToString());
                     break;
+                case "text":
+                    request = JsonSerializer.Deserialize<TextDecodeRequest>(requestJson.ToString());
+                    break;
                 default:
                     return BadRequest("Decoding type not supported.");
             }

@@ -49,91 +49,71 @@ public class StepByStepDecodingAlgorithm
         
     }
 
-    public Matrix Decode(Matrix receivedMessage)
+    private Matrix Decode(Matrix receivedMessagePart)
     {
-        int encodedMessageLength = receivedMessage.Columns;
         Matrix decodedMessage = null;
-        
-        
-            int[,] receivedMessagePartArray = new int[1, n];
-            for (int column = 0; column < n; ++column)
-            {
-                // receivedMessage[0, part * n + column] is a FieldElement object
-                // therefore .Value needs to be received so that the int[,] array can be filled
-                // matrix object can be created using the int[,] argument, not the FieldElement[,] argument,
-                // so that is why its easier just to use ints, later on when the matrix is created
-                // they are automatically turned to field elements
-                receivedMessagePartArray[0, column] = receivedMessage[0, 0 * n + column].Value;
-            }
+            
+        Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+        int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
+        int originalWeight = weights[index];
+        List<Matrix> normalBitFlipList = StandardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
             
             
-            Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
-            Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
-            int i = 0;
-            Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
-            //Matrix originalMessageSyndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
-            int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
-            int originalWeight = weights[index];
-            List<Matrix> normalBitFlipList = StandardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
-            
-            
-            
-            while (true)
-            {
+        int i = 0;
+        while (true)
+        {
 
-                //Matrix syndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
-                Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
-                int currentIndex = uniqueSyndromes.IndexOf(syndrome);
-                int currentWeight = weights[currentIndex];
+            //Matrix syndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
+            Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
+            int currentIndex = uniqueSyndromes.IndexOf(syndrome);
+            int currentWeight = weights[currentIndex];
                 
-                if (currentWeight == 0)
-                {
-                    decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
-                    break;
-                }
-                else
-                {
-                    Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
-                    //Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
-                    // Matrix possibleMessageSyndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, possibleMessage.Transpose()).Transpose();
-                    Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
-                    int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
+            if (currentWeight == 0)
+            {
+                decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
+                break;
+            }
+            else
+            {
+                Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
+                Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
+                int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
                     
-                    if (weights[syndromeIndex] < currentWeight)
-                    {
-                        receivedMessagePart = possibleMessage.Clone();
-                            //Console.Write("Error detected and possibly fixed! ");
-                        //i = -1;
-                    }
-
-                    ++i;
-
+                if (weights[syndromeIndex] < currentWeight)
+                {
+                    receivedMessagePart = possibleMessage.Clone();
+                    //Console.Write("Error detected and possibly fixed! ");
+                    //i = -1;
                 }
-                
-                
-            }
 
-            ++counter;
-            return decodedMessage;
+                ++i;
+
+            }
+                
+                
+        }
+
+        ++counter;
+        return decodedMessage;
+        
         
     }
     
-    public static Matrix Decode(Matrix generatorMatrix, Matrix receivedMessage, int originalMessageLength)
+    public Matrix DecodeMessage(Matrix receivedMessage)
     {
-        
         // H = [P^T I_{n-k}]
         
-        int k = generatorMatrix.Rows;
-        int n = generatorMatrix.Columns;
+        int k = GeneratorMatrix.Rows;
+        int n = GeneratorMatrix.Columns;
         
         // firstly, parityMatrix P needs to be constructed
-        Matrix parityMatrix = RetrieveParityMatrix(generatorMatrix);
+        Matrix parityMatrix = RetrieveParityMatrix(GeneratorMatrix);
         
         // then, it needs to be transposed
         Matrix transposedParityMatrix = parityMatrix.Transpose();
         
         // then, parity-check matrix H needs to be constructed
-        Matrix parityCheckMatrix = RetrieveParityCheckMatrix(generatorMatrix, transposedParityMatrix);
+        Matrix parityCheckMatrix = RetrieveParityCheckMatrix(GeneratorMatrix, transposedParityMatrix);
         
         // now syndrome needs to be calculated and the weight of each coset leader (as is in the provided literature)
         
@@ -141,14 +121,13 @@ public class StepByStepDecodingAlgorithm
         int encodedMessageLength = receivedMessage.Columns;
         int numberOfParts = encodedMessageLength / n;
         Matrix decodedMessage = null;
-        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
+        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(GeneratorMatrix);
         Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
 
         
         for (int part = 0; part < numberOfParts; ++part)
         {
             int[,] receivedMessagePartArray = new int[1, n];
-
             for (int column = 0; column < n; ++column)
             {
                 // receivedMessage[0, part * n + column] is a FieldElement object
@@ -158,71 +137,25 @@ public class StepByStepDecodingAlgorithm
                 // they are automatically turned to field elements
                 receivedMessagePartArray[0, column] = receivedMessage[0, part * n + column].Value;
             }
-            
-            
-            Matrix receivedMessagePart = new Matrix(receivedMessagePartArray);
-            List<Matrix> uniqueSyndromes;
-            List<Matrix> cosetLeaders;
-            List<int> weights;
 
-            (uniqueSyndromes, cosetLeaders, weights) =
-                standardArrayGenerator.GenerateListOfUniqueSyndromes(parityCheckMatrix);
+            Matrix messagePart = new Matrix(receivedMessagePartArray);
+            Matrix decodedPart = Decode(messagePart);
 
-            int i = 0;
-            //Matrix originalMessageSyndrome = receivedMessagePart * parityCheckMatrix.Transpose();
-            Matrix originalMessageSyndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
-            int index = uniqueSyndromes.IndexOf(originalMessageSyndrome);
-            int originalWeight = weights[index];
-            List<Matrix> normalBitFlipList = standardArrayGenerator.GenerateCosetLeadersUpToWeight(originalWeight);
-            
-            
-            while (true)
-            {
-
-                //Matrix syndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, receivedMessagePart.Transpose()).Transpose();
-                Matrix syndrome = (parityCheckMatrix * receivedMessagePart.Transpose()).Transpose();
-                int currentIndex = uniqueSyndromes.IndexOf(syndrome);
-                int currentWeight = weights[currentIndex];
-                
-                if (currentWeight == 0)
-                {
-                    decodedMessage = AppendDecodedMessage(decodedMessage, receivedMessagePart, k);
-                    break;
-                }
-                else
-                {
-                    Matrix possibleMessage = receivedMessagePart + normalBitFlipList[i];
-                    //Matrix possibleMessage = receivedMessagePart + cosetLeaders[i];
-                    //Matrix possibleMessageSyndrome = MultiplyCached(multiplicationCache,parityCheckMatrix, possibleMessage.Transpose()).Transpose();
-                    Matrix possibleMessageSyndrome = (parityCheckMatrix * possibleMessage.Transpose()).Transpose();
-                    int syndromeIndex = uniqueSyndromes.IndexOf(possibleMessageSyndrome);
-                    
-                    if (weights[syndromeIndex] < currentWeight)
-                    {
-                        receivedMessagePart = possibleMessage.Clone();
-                        //i = -1;
-                    }
-
-                    ++i;
-
-                }
-                
-                
-            }
-            
+            decodedMessage = AppendDecodedMessage(decodedMessage, decodedPart, k);
         }
         
-        Matrix fullyDecodedMessage;
+        
         try
         {
-            fullyDecodedMessage = TrimDecodedMessage(decodedMessage, originalMessageLength);
+            Matrix fullyDecodedMessage = TrimDecodedMessage(decodedMessage, originalMessageLength);
+            return fullyDecodedMessage;
+
         }
         catch (DecodingException e) // a decoding exception is thrown if the original message length is impossible to determine
         {
             throw new DecodingException(e.Message);
         }
         
-        return fullyDecodedMessage;
         
     }
 
@@ -454,10 +387,10 @@ public class StepByStepDecodingAlgorithm
         File.WriteAllBytes(outputFilePath, finalDecodedBytes);
 
         return finalDecodedBytes;
-
-
-
+        
     }
+    
+    
     
     
     

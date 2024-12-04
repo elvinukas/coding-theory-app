@@ -9,7 +9,8 @@ const context = [
   "/api/Encoding/",
   "/api/Channel/",
   "/api/Decoding/",
-  "/api/Matrix/"
+  "/api/Matrix/",
+  "/api/Binary/toString/"
 ];
 
 const onError = (err, req, resp, target) => {

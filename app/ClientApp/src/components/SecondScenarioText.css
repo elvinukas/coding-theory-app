@@ -1,7 +1,7 @@
 .container {
     display: flex;
-    justify-content: space-between; 
-    align-items: flex-start; 
+    justify-content: space-between;
+    align-items: flex-start;
     padding: 20px;
 }
 
@@ -15,7 +15,6 @@
 }
 
 
-
 .right-section {
     flex: 0 0 350px; /* Right section has a fixed width but is flexible in layout */
     max-width: 35%;
@@ -26,14 +25,25 @@
     border-radius: 8px;
 }
 
-.text-field {
-    margin-top: 20px; /* Add spacing between the sections */
-    background-color: #f9f9f9; /* Match the background of left-section */
-    padding: 15px; /* Same padding as left-section for consistency */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Same shadow as left-section */
-    border-radius: 8px; /* Rounded corners */
-    width: 100%; /* Ensure it spans the same width as left-section */
-    box-sizing: border-box; /* Include padding in width calculation */
+.text-field textarea {
+    width: 100%;
+    height: 120px; 
+    padding: 10px; 
+    border: 1px solid #ddd; 
+    border-radius: 5px; 
+    font-size: 16px; 
+    font-family: Arial, sans-serif; 
+    background-color: #ffffff; 
+    resize: vertical; 
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
+    outline: none; 
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+
+.text-field textarea:focus {
+    border-color: #4a90e2; 
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); 
 }
 
 .matrix-dimensions {
@@ -68,19 +78,19 @@
 }
 
 input[type="checkbox"]:disabled {
-    background-color: #ccc;  
-    border-color: #ccc;      
-    cursor: not-allowed;    
+    background-color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
 }
 
 input[type="checkbox"]:disabled + label {
-    color: #ccc; 
+    color: #ccc;
 }
 
 .encoded-vector-title {
     display: inline-flex;
     align-items: center;
-    position: relative; 
+    position: relative;
 }
 
 .warning-icon {
@@ -89,13 +99,13 @@ input[type="checkbox"]:disabled + label {
     color: #f39c12;
     cursor: pointer;
     transition: color 0.3s ease;
-    position: relative; 
+    position: relative;
 }
 
 .warning-icon:hover::after {
     content: attr(data-tooltip);
     position: absolute;
-    top: 25px; 
+    top: 25px;
     left: 0;
     padding: 5px;
     background-color: rgba(0, 0, 0, 0.7);
@@ -105,6 +115,16 @@ input[type="checkbox"]:disabled + label {
     white-space: nowrap;
     z-index: 10;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.encoded-text-box {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    white-space: pre-wrap; /* Ensures that whitespace is respected */
+    word-wrap: break-word; /* Breaks long words */
+    word-break: break-all; /* Breaks long words at any character */
 }
 
 

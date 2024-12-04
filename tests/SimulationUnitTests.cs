@@ -36,8 +36,11 @@ public class SimulationUnitTests
         Channel channel = new Channel(encodedMessage, 0.02);
         Matrix encodedMessageWithPossibleErrors = channel.ReceivedMessage;
 
+        
+        StepByStepDecodingAlgorithm decodingAlgorithm =
+            new StepByStepDecodingAlgorithm(retrievedGeneratorMatrix, linearEncodingAlgorithm.OriginalMessageLength);
         Matrix decodedMessage =
-            StepByStepDecodingAlgorithm.Decode(retrievedGeneratorMatrix, encodedMessageWithPossibleErrors, linearEncodingAlgorithm.OriginalMessageLength);
+            decodingAlgorithm.DecodeMessage(encodedMessageWithPossibleErrors);
         
         _testOutputHelper.WriteLine(originalMessage.ToString());
         _testOutputHelper.WriteLine(decodedMessage.ToString());
@@ -64,8 +67,10 @@ public class SimulationUnitTests
         Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 2);
         Matrix receivedMessage = encodedMessage + errorVector;
 
+        StepByStepDecodingAlgorithm decodingAlgorithm =
+            new StepByStepDecodingAlgorithm(generatorMatrix, algorithm.OriginalMessageLength);
         Matrix decodedMessage =
-            StepByStepDecodingAlgorithm.Decode(generatorMatrix, receivedMessage, algorithm.OriginalMessageLength);
+            decodingAlgorithm.DecodeMessage(receivedMessage);
 
         string retrievedMessage = TextConverter.ConvertToOriginalFormat(decodedMessage);
         _testOutputHelper.WriteLine(retrievedMessage);

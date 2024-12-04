@@ -8,8 +8,9 @@ namespace app.Services;
 
 public class VectorDecodingService : IDecodingService
 {
+    
     public bool CanHandle(DecodeRequest request) => request is VectorDecodeRequest;
-
+    
     public DecodeResponse Decode(DecodeRequest request)
     {
         var vectorRequest = (VectorDecodeRequest)request;
@@ -22,7 +23,8 @@ public class VectorDecodingService : IDecodingService
 
         try
         {
-            Matrix decodedMessage = StepByStepDecodingAlgorithm.Decode(gMatrix, messageMatrix, length);
+            StepByStepDecodingAlgorithm algorithm = new StepByStepDecodingAlgorithm(gMatrix, length);
+            Matrix decodedMessage = algorithm.DecodeMessage(messageMatrix);
             List<List<int>> decodedMessageList = MatrixConverter.ConvertTo2DList(decodedMessage);
 
             return new VectorDecodeResponse

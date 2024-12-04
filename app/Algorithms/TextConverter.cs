@@ -10,7 +10,6 @@ public class TextConverter : ISimilarity<string>
     {
         byte[] textBytes = Encoding.UTF8.GetBytes(message);
         return IConverter<string>.MakeMatrixFromByteArray(textBytes);
-
     }
 
     public static string ConvertToOriginalFormat(byte[] input, string path)

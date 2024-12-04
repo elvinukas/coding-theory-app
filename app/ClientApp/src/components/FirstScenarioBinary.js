@@ -74,7 +74,10 @@ export function FirstScenarioBinary() {
 
     // handler to set error probability
     const handleErrorProbabilityChange = (event) => {
-        setErrorProbability(parseFloat(event.target.value));
+        const value = parseFloat(event.target.value);
+        if (value >= 0 && value <= 100) {
+            setErrorProbability(value);
+        }
     };
 
     // function for encoding
@@ -154,7 +157,7 @@ export function FirstScenarioBinary() {
     }
 
     // function for channel error introduction 
-    const handleIntroduceErrors = async () => {
+    const handlePassThroughChannel = async () => {
         const messageBeforeErrors = binaryVectorConverter(encodedVector);
         
         const requestData = {
@@ -271,7 +274,7 @@ export function FirstScenarioBinary() {
                     value={errorProbability}
                     onChange={handleErrorProbabilityChange}
                     min="0"
-                    max="1"
+                    max="100"
                     step="0.000001"
                 />
             </div>
@@ -283,7 +286,7 @@ export function FirstScenarioBinary() {
                 >
                     Encode Vector
                 </button>
-                <button onClick={handleIntroduceErrors} disabled={!encodedVector}>Introduce Errors</button>
+                <button onClick={handlePassThroughChannel} disabled={!encodedVector}>Pass through channel</button>
                 <button onClick={handleDecode} disabled={!channelVector}>Decode Vector</button>
             </div>
 

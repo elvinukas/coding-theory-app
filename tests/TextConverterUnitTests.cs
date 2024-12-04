@@ -45,6 +45,27 @@ public class TextConverterUnitTests
         Assert.True(TextConverter.CalculateSimilarity(a, b) == similarity);
         
     }
+
+
+    [Fact]
+    public void ConvertToBinary_CheckIfConversionIsCorrect2()
+    {
+        string message = "abc";
+        Matrix convertedMessage = TextConverter.ConvertToBinaryMatrix(message);
+
+        Matrix utf8Message = new Matrix(new int[,]
+        {
+            {0,1,1,0,0,0,0,1,0,1,1,0,0,0,1,0,0,1,1,0,0,0,1,1}
+        });
+        
+        Assert.True(convertedMessage == utf8Message);
+
+
+
+    }
+    
+    
+    
     
     
 }
