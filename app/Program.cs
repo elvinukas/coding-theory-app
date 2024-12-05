@@ -1,8 +1,7 @@
 using app.Algorithms;
 using app.Math;
 using app.Services;
-
-
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,8 +24,18 @@ builder.Services.AddTransient<IGenerator, MatrixGenService>();
 builder.Services.AddSingleton<EncodingServiceFactory>();
 builder.Services.AddSingleton<ChannelServiceFactory>();
 builder.Services.AddSingleton<DecodingServiceFactory>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null;
+
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10);
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10);
+
+});
 
 var app = builder.Build();
 

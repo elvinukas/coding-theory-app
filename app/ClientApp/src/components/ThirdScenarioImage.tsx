@@ -77,6 +77,7 @@ export function ThirdScenarioImage() {
             setUploadedImage(file);
         }
     }
+    
 
     
     const handleEncode = async () => {
