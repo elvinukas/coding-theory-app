@@ -15,6 +15,7 @@ builder.Services.AddTransient<IEncodingService, ImageEncodingService>();
 
 builder.Services.AddTransient<IDecodingService, VectorDecodingService>();
 builder.Services.AddTransient<IDecodingService, TextDecodingService>();
+builder.Services.AddTransient<IDecodingService, ImageDecodingService>();
 
 builder.Services.AddTransient<IChannelService, VectorChannelService>();
 builder.Services.AddTransient<IChannelService, ImageChannelService>();
@@ -55,6 +56,7 @@ app.UseRouting();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<EncodingProgressHub>("/encodingProgressHub");
+    endpoints.MapHub<DecodingProgressHub>("/decodingProgressHub");
 });
 
 

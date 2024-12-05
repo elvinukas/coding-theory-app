@@ -11,7 +11,8 @@ const context = [
   "/api/Decoding/",
   "/api/Matrix/",
   "/api/Binary/toString/",
-  "/encodingProgressHub"
+  "/encodingProgressHub",
+  "/decodingProgressHub"
 ];
 
 const onError = (err, req, resp, target) => {

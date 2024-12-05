@@ -15,10 +15,12 @@ export function ThirdScenarioImage() {
     
     const [hubConnection, setHubConnection] = useState(null);
     const [encodingProgress, setEncodingProgress] = useState(0);
+    const [decodingProgress, setDecodingProgress] = useState(0);
 
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [isEncodingSuccessful, setIsEncodingSuccessful] = useState(false);
     const [isEncChannelingSuccessful, setIsEncChannelingSuccessful] = useState(false);
+    const [isDecodingSuccessful, setIsDecodingSuccessful] = useState(false);
 
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(true);
     const [matrixRows, setMatrixRows] = useState(4);
@@ -55,13 +57,7 @@ export function ThirdScenarioImage() {
             }
         });
     };
-
-    const binaryVectorConverter = (vector) => {
-        const messageMatrix = [
-            vector.split('').map(bit => parseInt(bit, 10))
-        ];
-        return messageMatrix;
-    }
+    
 
     const handleUseCustomMatrixToggle = (event) => {
         setUseCustomGeneratorMatrix(event.target.checked);
@@ -173,19 +169,58 @@ export function ThirdScenarioImage() {
         }
         
     }
-
-    const markErrors = (textChanneled, textBinary) => {
-        return textChanneled.split("").map((bit, index) => {
-            if (textBinary[index] !== bit) {
-                return <span key={index} className="error-bit">{bit}</span>
-            }
-            return bit;
-
-        });
-    };
+    
 
     const handleDecode = async () => {
+
+        // this is for the progress bar
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/decodingProgressHub")
+            .build();
+
+
+        connection.on("ReceiveDecodeProgress", (progress, total) => {
+            const progressPercentage = Math.round((progress / total) * 100);
+            setDecodingProgress(progressPercentage);
+
+            if (progressPercentage === 100) {
+                setIsDecodingSuccessful(true);
+            }
+        });
+
+
+        connection.start()
+            .then(() => {
+                console.log("SignalR Connected");
+                setHubConnection(connection);
+            })
+            .catch(err => console.error(err));
+
+        setInProgress(true);
         
+        
+        
+        try {
+            let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
+            
+            const fileName = uploadedImage.name.split('.')[0];
+            
+            const requestData = {
+                Type: "image",
+                FileName: fileName,
+                GeneratorMatrix: generatorMatrixArray
+            }
+            
+            const data = await decode(requestData);
+            if (data) {
+                console.log("Decoding was successful.");
+                setIsDecodingSuccessful(true);
+                connection.stop();
+            }
+        } catch (error) {
+            console.error("Error while decoding: ", error.message);
+            connection.stop();
+        }
 
     }
 
@@ -284,6 +319,34 @@ export function ThirdScenarioImage() {
                         {isEncChannelingSuccessful && (
                             <div className="output-area">
                                 <h4>Image successfully channeled!</h4>
+                            </div>
+                        )}
+
+                        {isDecodingSuccessful && (
+                            <div>
+                                <h4>Image sucessfully decoded!</h4>
+                            </div>
+                        )}
+
+                        {isEncChannelingSuccessful && (
+                            <div className="progress-bar-container" style={{
+                                width: '100%',
+                                backgroundColor: '#e0e0e0',
+                                borderRadius: '4px',
+                                marginTop: '10px'
+                            }}>
+                                <div
+                                    className="progress-bar"
+                                    style={{
+                                        width: `${decodingProgress}%`,
+                                        height: '20px',
+                                        backgroundColor: encodingProgress === 100 ? 'green' : 'blue',
+                                        borderRadius: '4px',
+                                        transition: 'width 0.5s ease-in-out'
+                                    }}
+                                >
+                                    {decodingProgress}%
+                                </div>
                             </div>
                         )}
 
