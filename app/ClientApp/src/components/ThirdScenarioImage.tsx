@@ -1,4 +1,5 @@
 import React, {useRef, useState} from "react";
+import * as signalR from "@microsoft/signalr";
 import "./ThirdScenarioImage.css";
 // @ts-ignore
 import { fetchGeneratorMatrix, encode, channel, decode, converter} from "./ApiCallHandlers.ts";
@@ -11,6 +12,9 @@ export function ThirdScenarioImage() {
     //const [encodedImage, setEncodedImage] = useState(null);
     //const [encodedChanneledImage, setEncodedChanelledImage] = useState(null);
     const [decodedImage, setDecodedImage] = useState(null);
+    
+    const [hubConnection, setHubConnection] = useState(null);
+    const [encodingProgress, setEncodingProgress] = useState(0);
 
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [isEncodingSuccessful, setIsEncodingSuccessful] = useState(false);
@@ -78,9 +82,32 @@ export function ThirdScenarioImage() {
         }
     }
     
-
+    
     
     const handleEncode = async () => {
+
+        // this is for the progress bar
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/encodingProgressHub")
+            .build();
+
+
+        connection.on("ReceiveEncodeProgress", (progress, total) => {
+            const progressPercentage = Math.round((progress / total) * 100);
+            setEncodingProgress(progressPercentage);
+
+            if (progressPercentage === 100) {
+                setIsEncodingSuccessful(true);
+            }
+        });
+
+
+        connection.start()
+            .then(() => {
+                console.log("SignalR Connected");
+                setHubConnection(connection);
+            })
+            .catch(err => console.error(err));
 
         setInProgress(true);
         
@@ -112,6 +139,7 @@ export function ThirdScenarioImage() {
             console.error("Error while encoding.", error.message);
         } finally {
             setInProgress(false);
+            connection.stop();
         }
         
 
@@ -204,21 +232,42 @@ export function ThirdScenarioImage() {
                 </div>
 
 
-            <div className="comparison-section">
-                <div className="left-comparison">
+                <div className="progress-bar-container" style={{
+                    width: '100%',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '4px',
+                    marginTop: '10px'
+                }}>
+                    <div
+                        className="progress-bar"
+                        style={{
+                            width: `${encodingProgress}%`,
+                            height: '20px',
+                            backgroundColor: encodingProgress === 100 ? 'green' : 'blue',
+                            borderRadius: '4px',
+                            transition: 'width 0.5s ease-in-out'
+                        }}
+                    >
+                        {encodingProgress}%
+                    </div>
+                </div>
 
-                    {isEncodingSuccessful && (
-                        <div className="output-area">
-                            <h4>Image successfully encoded!</h4>
-                        </div>
-                    )}
-                    
-                    
+
+                <div className="comparison-section">
+                    <div className="left-comparison">
+
+                        {isEncodingSuccessful && (
+                            <div className="output-area">
+                                <h4>Image successfully encoded!</h4>
+                            </div>
+                        )}
+
+
                     </div>
 
 
                     <div className="right-comparison">
-                        
+
                     </div>
                 </div>
             </div>

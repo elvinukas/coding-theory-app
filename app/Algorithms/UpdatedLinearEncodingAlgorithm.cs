@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
+using app.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace app.Algorithms;
 using app.Math;
@@ -13,10 +15,11 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
 
     }
 
-    public static void EncodeFile(string inputFilePath, string encodedFilePath, Matrix generatorMatrix)
+    public static void EncodeFile(string inputFilePath, string encodedFilePath, Matrix generatorMatrix,
+        IHubContext<EncodingProgressHub>? hubContext = null)
     {
         byte[] binaryData = File.ReadAllBytes(inputFilePath);
-        BitArray encodedBits = EncodeData(binaryData, generatorMatrix);
+        BitArray encodedBits = EncodeData(binaryData, generatorMatrix, hubContext);
         SaveBitsToFile(encodedBits, encodedFilePath);
     }
     
@@ -33,10 +36,11 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
         
         
     }
-    
-    
-    
-    private static BitArray EncodeData(byte[] binaryData, Matrix generatorMatrix)
+
+
+
+    private static BitArray EncodeData(byte[] binaryData, Matrix generatorMatrix,
+        IHubContext<EncodingProgressHub>? hubContext = null)
     {
         int k = generatorMatrix.Rows;
         int n = generatorMatrix.Columns;
@@ -87,8 +91,14 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
                         
                 ++counter;
                 if (part % 500000 == 0 || part == numberOfParts)
+                {
                     Console.WriteLine("Message part " + counter + "/" + numberOfParts + " encoded.");
+                    hubContext?.Clients.All.SendAsync("ReceiveEncodeProgress", counter, numberOfParts);
+                }
             }
+            
+            
+            
         });
 
         return encodedBits;

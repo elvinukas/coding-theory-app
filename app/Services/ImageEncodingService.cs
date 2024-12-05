@@ -3,6 +3,7 @@ using app.Controllers;
 using app.Exceptions;
 using app.Math;
 using app.Models.Encode;
+using Microsoft.AspNetCore.SignalR;
 using SixLabors.ImageSharp;
 
 namespace app.Services;
@@ -10,10 +11,12 @@ namespace app.Services;
 public class ImageEncodingService : IEncodingService
 {
     private readonly IWebHostEnvironment _environment;
+    private readonly IHubContext<EncodingProgressHub> _hubContext;
     
-    public ImageEncodingService(IWebHostEnvironment environment)
+    public ImageEncodingService(IWebHostEnvironment environment, IHubContext<EncodingProgressHub> hubContext)
     {
         _environment = environment;
+        _hubContext = hubContext;
     }
     
     public bool CanHandle(EncodeRequest request) => request is ImageEncodeRequest;
@@ -56,7 +59,7 @@ public class ImageEncodingService : IEncodingService
             FileInfo binaryFile = new FileInfo(imageBinPath);
             int originalMessageLength = (int)binaryFile.Length;
             Matrix gMatrix = new Matrix(MatrixConverter.ConvertToIntArray(imageRequest.Matrix));
-            UpdatedLinearEncodingAlgorithm.EncodeFile(imageBinPath, encodedBinPath, gMatrix);
+            UpdatedLinearEncodingAlgorithm.EncodeFile(imageBinPath, encodedBinPath, gMatrix, _hubContext);
 
 
             return new ImageEncodeResponse

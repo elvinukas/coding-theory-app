@@ -10,7 +10,8 @@ const context = [
   "/api/Channel/",
   "/api/Decoding/",
   "/api/Matrix/",
-  "/api/Binary/toString/"
+  "/api/Binary/toString/",
+  "/encodingProgressHub"
 ];
 
 const onError = (err, req, resp, target) => {
@@ -26,7 +27,7 @@ module.exports = function (app) {
     onError: onError,
     secure: false,
     // Uncomment this line to add support for proxying websockets
-    //ws: true, 
+    ws: true, 
     headers: {
       Connection: 'Keep-Alive'
     }

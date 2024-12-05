@@ -24,6 +24,7 @@ builder.Services.AddTransient<IGenerator, MatrixGenService>();
 builder.Services.AddSingleton<EncodingServiceFactory>();
 builder.Services.AddSingleton<ChannelServiceFactory>();
 builder.Services.AddSingleton<DecodingServiceFactory>();
+builder.Services.AddSignalR();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
@@ -49,6 +50,11 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<EncodingProgressHub>("/encodingProgressHub");
+});
 
 
 app.MapControllerRoute(
