@@ -7,12 +7,11 @@ import { fetchGeneratorMatrix, encode, channel, decode, converter} from "./ApiCa
 
 export function ThirdScenarioImage() {
     const [uploadedImage, setUploadedImage] = useState(null);
-    const [encodedImageUrl, setEncodedImageUrl] = useState("");
     const [inProgress, setInProgress] = useState(false);
-    //const [encodedImage, setEncodedImage] = useState(null);
-    //const [encodedChanneledImage, setEncodedChanelledImage] = useState(null);
     const [decodedImage, setDecodedImage] = useState(null);
     
+    const [originalImageUrl, setOriginalImageUrl] = useState("");
+    const [decodedImageUrl, setDecodedImageUrl] = useState("");
     const [hubConnection, setHubConnection] = useState(null);
     const [encodingProgress, setEncodingProgress] = useState(0);
     const [decodingProgress, setDecodingProgress] = useState(0);
@@ -136,6 +135,8 @@ export function ThirdScenarioImage() {
         } finally {
             setInProgress(false);
             connection.stop();
+            setOriginalImageUrl(await fetchImage(uploadedImage.name));
+            console.log(originalImageUrl);
         }
         
 
@@ -220,8 +221,32 @@ export function ThirdScenarioImage() {
         } catch (error) {
             console.error("Error while decoding: ", error.message);
             connection.stop();
+        } finally {
+            connection.stop();
+            setInProgress(false);
+            setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
+            console.log("Decoded image url: " + decodedImageUrl);
         }
 
+    }
+    
+    
+    const fetchImage = async (fileName: string) : Promise<string | null> => {
+        try {
+            const response = await fetch(`/api/image/${fileName}`);
+            if (response.ok) {
+                const imageBlob = await response.blob(); // required for image files, js binary files for images
+                const imageUrl = URL.createObjectURL(imageBlob);
+                return imageUrl;
+            } else {
+                console.error("Failed to retrieve image from the server.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Failed to retrieve image from the server.");
+            return null;
+        }
+        
     }
 
     return (
@@ -267,7 +292,13 @@ export function ThirdScenarioImage() {
 
                 <div className="buttons">
                     <button
-                        onClick={handleEncode}
+                        onClick={() => 
+                        {
+                            setIsEncodingSuccessful(false);
+                            setIsEncChannelingSuccessful(false);
+                            setIsDecodingSuccessful(false);
+                            handleEncode();
+                        }}
                     >
                         Encode Image
                     </button>
@@ -321,13 +352,7 @@ export function ThirdScenarioImage() {
                                 <h4>Image successfully channeled!</h4>
                             </div>
                         )}
-
-                        {isDecodingSuccessful && (
-                            <div>
-                                <h4>Image sucessfully decoded!</h4>
-                            </div>
-                        )}
-
+                        
                         {isEncChannelingSuccessful && (
                             <div className="progress-bar-container" style={{
                                 width: '100%',
@@ -340,7 +365,7 @@ export function ThirdScenarioImage() {
                                     style={{
                                         width: `${decodingProgress}%`,
                                         height: '20px',
-                                        backgroundColor: encodingProgress === 100 ? 'green' : 'blue',
+                                        backgroundColor: decodingProgress === 100 ? 'green' : 'blue',
                                         borderRadius: '4px',
                                         transition: 'width 0.5s ease-in-out'
                                     }}
@@ -350,12 +375,29 @@ export function ThirdScenarioImage() {
                             </div>
                         )}
 
+                        {isDecodingSuccessful && (
+                            <div>
+                                <h4>Image sucessfully decoded!</h4>
+                            </div>
+                        )}
 
                     </div>
 
 
                     <div className="right-comparison">
-
+                        {isDecodingSuccessful && (
+                            <div>
+                                <h4><b>Original Image</b></h4>
+                                {originalImageUrl && <img src={originalImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
+                            </div>
+                        )}
+                        
+                        {isDecodingSuccessful && (
+                            <div>
+                                <h4><b>Decoded Image</b></h4>
+                                {decodedImageUrl && <img src={decodedImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
