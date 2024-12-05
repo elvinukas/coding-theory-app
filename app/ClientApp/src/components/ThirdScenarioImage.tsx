@@ -151,8 +151,27 @@ export function ThirdScenarioImage() {
 
     const handlePassThroughChannel = async () => {
         
-        
+        try {
+            let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
 
+            const fileName = uploadedImage.name.split('.')[0];
+
+            const requestData = {
+                Type: "image",
+                FileName: fileName,
+                GeneratorMatrix: generatorMatrixArray,
+                ErrorPercentage: errorProbability / 100
+            };
+
+            const data = await channel(requestData);
+            if (data) {
+                console.log("Channeling was successful.");
+                setIsEncChannelingSuccessful(true);
+            } 
+        } catch (error) {
+            console.error("Error while channeling. ", error.message);
+        }
+        
     }
 
     const markErrors = (textChanneled, textBinary) => {
@@ -259,6 +278,12 @@ export function ThirdScenarioImage() {
                         {isEncodingSuccessful && (
                             <div className="output-area">
                                 <h4>Image successfully encoded!</h4>
+                            </div>
+                        )}
+
+                        {isEncChannelingSuccessful && (
+                            <div className="output-area">
+                                <h4>Image successfully channeled!</h4>
                             </div>
                         )}
 
