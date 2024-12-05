@@ -44,6 +44,9 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/second-scenario-text">Text coding scenario</NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className="text-dark" to="/third-scenario-image">Image coding scenario</NavLink>
+              </NavItem>
             </ul>
           </Collapse>
         </Navbar>

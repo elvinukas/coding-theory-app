@@ -3,6 +3,7 @@ import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import {FirstScenarioBinary} from "./components/FirstScenarioBinary";
 import {SecondScenarioText} from "./components/SecondScenarioText.tsx";
+import {ThirdScenarioImage} from "./components/ThirdScenarioImage.tsx";
 const AppRoutes = [
   {
     index: true,
@@ -23,6 +24,10 @@ const AppRoutes = [
   {
     path: '/second-scenario-text',
     element: <SecondScenarioText />
+  },
+  {
+    path: '/third-scenario-image',
+    element: <ThirdScenarioImage />
   }
 ];
 
