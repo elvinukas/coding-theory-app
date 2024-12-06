@@ -8,6 +8,9 @@ import { fetchGeneratorMatrix, encode, channel, decode, converter} from "./ApiCa
 export function ThirdScenarioImage() {
     const [uploadedImage, setUploadedImage] = useState(null);
     const [inProgress, setInProgress] = useState(false);
+    const [encodingInProgress, setEncodingInProgress] = useState(false);
+    const [channelingInProgress, setChannelingInProgress] = useState(false);
+    const [decodingInProgress, setDecodingInProgress] = useState(false);
     const [decodedImage, setDecodedImage] = useState(null);
     
     const [originalImageUrl, setOriginalImageUrl] = useState("");
@@ -83,30 +86,7 @@ export function ThirdScenarioImage() {
     
     const handleEncode = async () => {
 
-        // this is for the progress bar
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/encodingProgressHub")
-            .build();
-
-
-        connection.on("ReceiveEncodeProgress", (progress, total) => {
-            const progressPercentage = Math.round((progress / total) * 100);
-            setEncodingProgress(progressPercentage);
-
-            if (progressPercentage === 100) {
-                setIsEncodingSuccessful(true);
-            }
-        });
-
-
-        connection.start()
-            .then(() => {
-                console.log("SignalR Connected");
-                setHubConnection(connection);
-            })
-            .catch(err => console.error(err));
-
-        setInProgress(true);
+        setEncodingInProgress(true);
         
         try {
             // -- generator matrix portion
@@ -129,14 +109,13 @@ export function ThirdScenarioImage() {
             if (data) {
                 console.log("Encoding was successful.");
                 setIsEncodingSuccessful(true);
+                setEncodingInProgress(false);
             } else {
                 console.error("Encoding failed - no data received.")
             } 
         } catch (error) {
             console.error("Error while encoding.", error.message);
         } finally {
-            setInProgress(false);
-            connection.stop();
             setOriginalImageUrl(await fetchImage(uploadedImage.name));
             console.log(originalImageUrl);
         }
@@ -149,11 +128,12 @@ export function ThirdScenarioImage() {
     }
 
     const handlePassThroughChannel = async () => {
+        setChannelingInProgress(true);
         
         try {
             let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
 
-            const fileName = uploadedImage.name;
+            const fileName = uploadedImage.name.split('.')[0] + "._encoded.bin";
 
             const requestData = {
                 Type: "image",
@@ -179,7 +159,7 @@ export function ThirdScenarioImage() {
                 ErrorPercentage: errorProbability / 100
             }
             
-            //TODO: remove this
+            
             const otherData = await channel(originalData); // channel changes ogbinfile 
             if (otherData) {
                 console.log("Channeling original .bin was successful.");
@@ -187,9 +167,12 @@ export function ThirdScenarioImage() {
                 setOriginalChanneledImageUrl(await fetchImage(ogBinFileName));
             }
             
+            setChannelingInProgress(false);
+            
             
         } catch (error) {
             console.error("Error while channeling. ", error.message);
+            setChannelingInProgress(false);
         }
         
         
@@ -198,32 +181,8 @@ export function ThirdScenarioImage() {
     
 
     const handleDecode = async () => {
-
-        // this is for the progress bar
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/decodingProgressHub")
-            .build();
-
-
-        connection.on("ReceiveDecodeProgress", (progress, total) => {
-            const progressPercentage = Math.round((progress / total) * 100);
-            setDecodingProgress(progressPercentage);
-
-            if (progressPercentage === 100) {
-                setIsDecodingSuccessful(true);
-            }
-        });
-
-
-        connection.start()
-            .then(() => {
-                console.log("SignalR Connected");
-                setHubConnection(connection);
-            })
-            .catch(err => console.error(err));
-
-        setInProgress(true);
         
+        setDecodingInProgress(true);
         
         
         try {
@@ -241,17 +200,12 @@ export function ThirdScenarioImage() {
             if (data) {
                 console.log("Decoding was successful.");
                 setIsDecodingSuccessful(true);
-                connection.stop();
             }
         } catch (error) {
             console.error("Error while decoding: ", error.message);
-            connection.stop();
         } finally {
-            connection.stop();
-            setInProgress(false);
             setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
-            
-            
+            setDecodingInProgress(false);
         }
 
     }
@@ -342,8 +296,7 @@ export function ThirdScenarioImage() {
 
                 <div className="buttons">
                     <button
-                        onClick={() => 
-                        {
+                        onClick={() => {
                             setIsEncodingSuccessful(false);
                             setIsEncChannelingSuccessful(false);
                             setIsDecodingSuccessful(false);
@@ -367,25 +320,12 @@ export function ThirdScenarioImage() {
                 </div>
 
 
-                <div className="progress-bar-container" style={{
-                    width: '100%',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '4px',
-                    marginTop: '10px'
-                }}>
-                    <div
-                        className="progress-bar"
-                        style={{
-                            width: `${encodingProgress}%`,
-                            height: '20px',
-                            backgroundColor: encodingProgress === 100 ? 'green' : 'blue',
-                            borderRadius: '4px',
-                            transition: 'width 0.5s ease-in-out'
-                        }}
-                    >
-                        {encodingProgress}%
+                {encodingInProgress && (
+                    <div className="encoding-text">
+                        Encoding<span className="dot-1">.</span><span className="dot-2">.</span>
+                        <span className="dot-3">.</span>
                     </div>
-                </div>
+                )}
 
 
                 <div className="comparison-section">
@@ -402,26 +342,11 @@ export function ThirdScenarioImage() {
                                 <h4>Image successfully channeled!</h4>
                             </div>
                         )}
-                        
-                        {isEncChannelingSuccessful && (
-                            <div className="progress-bar-container" style={{
-                                width: '100%',
-                                backgroundColor: '#e0e0e0',
-                                borderRadius: '4px',
-                                marginTop: '10px'
-                            }}>
-                                <div
-                                    className="progress-bar"
-                                    style={{
-                                        width: `${decodingProgress}%`,
-                                        height: '20px',
-                                        backgroundColor: decodingProgress === 100 ? 'green' : 'blue',
-                                        borderRadius: '4px',
-                                        transition: 'width 0.5s ease-in-out'
-                                    }}
-                                >
-                                    {decodingProgress}%
-                                </div>
+
+                        {decodingInProgress && (
+                            <div className="decoding-text">
+                                Decoding<span className="dot-1">.</span><span className="dot-2">.</span>
+                                <span className="dot-3">.</span>
                             </div>
                         )}
 
@@ -435,12 +360,12 @@ export function ThirdScenarioImage() {
 
 
                     <div className="right-comparison">
-                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                             <div>
                                 <h4><b>Original Image</b></h4>
                                 {originalImageUrl && (
                                     <a href={originalImageUrl} target="_blank" rel="noopener noreferrer">
-                                        <img src={originalImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }} />
+                                        <img src={originalImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
                                     </a>
                                 )}
                             </div>
@@ -448,7 +373,7 @@ export function ThirdScenarioImage() {
                                 <h4><b>Decoded Image</b></h4>
                                 {decodedImageUrl && (
                                     <a href={decodedImageUrl} target="_blank" rel="noopener noreferrer">
-                                        <img src={decodedImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }} />
+                                        <img src={decodedImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
                                     </a>
                                 )}
                             </div>
@@ -457,7 +382,8 @@ export function ThirdScenarioImage() {
                                     <h4><b>Original Channeled Image</b></h4>
                                     {originalChanneledImageUrl && (
                                         <a href={originalChanneledImageUrl} target="_blank" rel="noopener noreferrer">
-                                            <img src={originalChanneledImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }} />
+                                            <img src={originalChanneledImageUrl}
+                                                 style={{maxWidth: '100%', maxHeight: '500px'}}/>
                                         </a>
                                     )}
                                 </div>

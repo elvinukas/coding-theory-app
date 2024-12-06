@@ -28,8 +28,4 @@
       <ProjectReference Include="..\app\app.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="test-images\" />
-    </ItemGroup>
-
 </Project>

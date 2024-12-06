@@ -7,7 +7,7 @@ public class Channel
     public RandomNumberGenerator RandomNumberGenerator { get; set; }
     public Matrix OriginalMessage { get; private set; } // original encoded message (m) without errors
     public Matrix ReceivedMessage { get; private set; } // received encoded message (m') with possible errors
-    public static int counter { get; private set; }
+    public int counter { get; set; }
 
     public Channel(Matrix encodedMessage, double probabilityOfError, RandomNumberGenerator? randomNumberGenerator = null)
     {
