@@ -22,7 +22,7 @@ public class ImageChannelService : IChannelService
         {
             ImageChannelRequest imageRequest = (ImageChannelRequest)request;
             string tempDirectory = Path.Combine(_environment.ContentRootPath, "temp");
-            string binaryPath = Path.Combine(tempDirectory, imageRequest.FileName + "._encoded.bin");
+            string binaryPath = Path.Combine(tempDirectory, imageRequest.FileName);
 
             List<List<int>> listMatrix = imageRequest.GeneratorMatrix;
             Matrix matrix = new Matrix(MatrixConverter.ConvertToIntArray(listMatrix));

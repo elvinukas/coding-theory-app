@@ -12,6 +12,7 @@ export function ThirdScenarioImage() {
     
     const [originalImageUrl, setOriginalImageUrl] = useState("");
     const [decodedImageUrl, setDecodedImageUrl] = useState("");
+    const [originalChanneledImageUrl, setOriginalChanneledImageUrl] = useState("");
     const [hubConnection, setHubConnection] = useState(null);
     const [encodingProgress, setEncodingProgress] = useState(0);
     const [decodingProgress, setDecodingProgress] = useState(0);
@@ -20,6 +21,7 @@ export function ThirdScenarioImage() {
     const [isEncodingSuccessful, setIsEncodingSuccessful] = useState(false);
     const [isEncChannelingSuccessful, setIsEncChannelingSuccessful] = useState(false);
     const [isDecodingSuccessful, setIsDecodingSuccessful] = useState(false);
+    const [isOgChannelingSuccessful, setIsOgChannelingSuccessful] = useState(false);
 
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(true);
     const [matrixRows, setMatrixRows] = useState(4);
@@ -151,7 +153,7 @@ export function ThirdScenarioImage() {
         try {
             let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
 
-            const fileName = uploadedImage.name.split('.')[0];
+            const fileName = uploadedImage.name;
 
             const requestData = {
                 Type: "image",
@@ -164,10 +166,32 @@ export function ThirdScenarioImage() {
             if (data) {
                 console.log("Channeling was successful.");
                 setIsEncChannelingSuccessful(true);
-            } 
+            }
+
+            // channeling non-encoded image for comparison
+            
+            const ogBinFileName = uploadedImage.name.split('.')[0] + ".bin";
+            
+            const originalData = {
+                Type: "image",
+                FileName: ogBinFileName,
+                GeneratorMatrix: generatorMatrixArray,
+                ErrorPercentage: errorProbability / 100
+            }
+            
+            const otherData = await channel(originalData);
+            if (otherData) {
+                console.log("Channeling original .bin was successful.");
+                setIsOgChannelingSuccessful(true);
+                setOriginalChanneledImageUrl(await fetchImage(ogBinFileName));
+            }
+            
+            
         } catch (error) {
             console.error("Error while channeling. ", error.message);
         }
+        
+        
         
     }
     
@@ -238,6 +262,14 @@ export function ThirdScenarioImage() {
             console.error("Decoded image url could not be retrieved.");
         }
     }, [decodedImageUrl]);
+
+    useEffect(() => {
+        if (originalChanneledImageUrl) {
+            console.log("Original channeled image url: " + originalChanneledImageUrl);
+        } else {
+            console.error("Original channeled image url could not be retrieved.");
+        }
+    }, [originalChanneledImageUrl]);
     
     
     const fetchImage = async (fileName: string) : Promise<string | null> => {
@@ -405,6 +437,13 @@ export function ThirdScenarioImage() {
                             <div>
                                 <h4><b>Decoded Image</b></h4>
                                 {decodedImageUrl && <img src={decodedImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
+                            </div>
+                        )}
+
+                        {isOgChannelingSuccessful && (
+                            <div>
+                                <h4><b>Original Channeled Image</b></h4>
+                                {originalChanneledImageUrl && <img src={originalChanneledImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
                             </div>
                         )}
                     </div>
