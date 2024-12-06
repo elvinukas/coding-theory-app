@@ -435,26 +435,34 @@ export function ThirdScenarioImage() {
 
 
                     <div className="right-comparison">
-                        {isDecodingSuccessful && (
+                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <div>
                                 <h4><b>Original Image</b></h4>
-                                {originalImageUrl && <img src={originalImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
+                                {originalImageUrl && (
+                                    <a href={originalImageUrl} target="_blank" rel="noopener noreferrer">
+                                        <img src={originalImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }} />
+                                    </a>
+                                )}
                             </div>
-                        )}
-                        
-                        {isDecodingSuccessful && (
                             <div>
                                 <h4><b>Decoded Image</b></h4>
-                                {decodedImageUrl && <img src={decodedImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
+                                {decodedImageUrl && (
+                                    <a href={decodedImageUrl} target="_blank" rel="noopener noreferrer">
+                                        <img src={decodedImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }} />
+                                    </a>
+                                )}
                             </div>
-                        )}
-
-                        {isOgChannelingSuccessful && (
-                            <div>
-                                <h4><b>Original Channeled Image</b></h4>
-                                {originalChanneledImageUrl && <img src={originalChanneledImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
-                            </div>
-                        )}
+                            {isOgChannelingSuccessful && (
+                                <div>
+                                    <h4><b>Original Channeled Image</b></h4>
+                                    {originalChanneledImageUrl && (
+                                        <a href={originalChanneledImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={originalChanneledImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }} />
+                                        </a>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
