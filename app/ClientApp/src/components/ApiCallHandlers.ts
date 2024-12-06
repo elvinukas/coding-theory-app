@@ -38,17 +38,25 @@ export const fetchGeneratorMatrix = async (useCustomGeneratorMatrix, generatorMa
     
 }
 
-export const encode = async (requestData) => {
+export const encode = async (requestData, isImage = false) => {
     try {
-        console.log(requestData);
-        const response = await fetch("/api/Encoding/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestData)
-        });
-
+        let response;
+        
+        if (isImage) {
+            response = await fetch("/api/Encoding/", {
+                method: "POST",
+                body: requestData
+            });
+        } else {
+            response = await fetch("/api/Encoding/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData)
+            });
+        }
+        
         if (response.ok) {
             return await response.json();
         } else {

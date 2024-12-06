@@ -18,29 +18,58 @@ public class EncodingController : ControllerBase
     }
     
     [HttpPost]
-    public IActionResult Encode([FromBody] JsonElement requestJson)
+    public IActionResult Encode()
     {
         try
         {
-            string type = requestJson.GetProperty("Type").GetString();
-            EncodeRequest request;
-            
-            switch (type.ToLower())
+            if (Request.HasFormContentType)
             {
-                case "vector":
-                    request = JsonSerializer.Deserialize<VectorEncodeRequest>(requestJson.ToString());
-                    break;
-                // ... and then text and image when they are implemented
-                case "text":
-                    request = JsonSerializer.Deserialize<TextEncodeRequest>(requestJson.ToString());
-                    break;
-                default:
-                    return BadRequest("Encoding type not supported.");
+                var form = Request.Form;
+                var imageFile = form.Files["image"];
+                var matrixJson = form["matrix"];
+                List<List<int>> matrix = JsonSerializer.Deserialize<List<List<int>>>(matrixJson);
+                
+                var imageRequest = new ImageEncodeRequest
+                {
+                    Image = imageFile,
+                    Matrix = matrix
+                };
+                
+                var service = _encodingServiceFactory.GetService(imageRequest);
+                var response = service.Encode(imageRequest);
+                return Ok(response);
             }
+            else
+            {
+                using var reader = new StreamReader(Request.Body);
+                var requestBody = reader.ReadToEndAsync().Result;
+                var requestJson = JsonSerializer.Deserialize<JsonElement>(requestBody);
 
-            var service = _encodingServiceFactory.GetService(request);
-            var response = service.Encode(request);
-            return Ok(response);
+                if (!requestJson.TryGetProperty("Type", out var typeProperty))
+                {
+                    return BadRequest("Invalid JSON data.");
+                }
+
+                string type = typeProperty.GetString()?.ToLower();
+                EncodeRequest request;
+            
+                switch (type.ToLower())
+                {
+                    case "vector":
+                        request = JsonSerializer.Deserialize<VectorEncodeRequest>(requestJson.ToString());
+                        break;
+                    case "text":
+                        request = JsonSerializer.Deserialize<TextEncodeRequest>(requestJson.ToString());
+                        break;
+                    default:
+                        return BadRequest("Encoding type not supported.");
+                }
+
+                var service = _encodingServiceFactory.GetService(request);
+                var response = service.Encode(request);
+                return Ok(response); 
+            }
+            
         }
         catch (Exception ex)
         {

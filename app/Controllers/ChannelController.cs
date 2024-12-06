@@ -30,7 +30,9 @@ public class ChannelController : ControllerBase
                 case "vector":
                     request = JsonSerializer.Deserialize<VectorChannelRequest>(requestJson.ToString());
                     break;
-                
+                case "image":
+                    request = JsonSerializer.Deserialize<ImageChannelRequest>(requestJson.ToString());
+                    break;
                 default:
                     return BadRequest("Channel type not supported.");
             }

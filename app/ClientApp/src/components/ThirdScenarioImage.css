@@ -27,23 +27,23 @@
 
 .text-field textarea {
     width: 100%;
-    height: 120px; 
-    padding: 10px; 
-    border: 1px solid #ddd; 
-    border-radius: 5px; 
-    font-size: 16px; 
-    font-family: Arial, sans-serif; 
-    background-color: #ffffff; 
-    resize: vertical; 
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
-    outline: none; 
+    height: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    resize: vertical;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    outline: none;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 
 .text-field textarea:focus {
-    border-color: #4a90e2; 
-    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); 
+    border-color: #4a90e2;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }
 
 .matrix-dimensions {
@@ -122,10 +122,11 @@ input[type="checkbox"]:disabled + label {
     overflow-y: auto;
     border: 1px solid #ccc;
     padding: 10px;
-    white-space: pre-wrap; /* Ensures that whitespace is respected */
-    word-wrap: break-word; /* Breaks long words */
-    word-break: break-all; /* Breaks long words at any character */
+    white-space: pre-wrap; 
+    word-wrap: break-word; /* breaking long words */
+    word-break: break-all; /* breaking long words at any character */
 }
+
 
 .right-comparison {
     display: flex;
@@ -146,4 +147,75 @@ input[type="checkbox"]:disabled + label {
     word-wrap: break-word;
 }
 
+.progress {
+    height: 30px;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    margin: 20px 0;
+}
 
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+
+.progress-bar.animated {
+    background-image: linear-gradient(
+            45deg,
+            rgba(255,255,255,0.15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255,255,255,0.15) 50%,
+            rgba(255,255,255,0.15) 75%,
+            transparent 75%,
+            transparent
+    );
+    background-size: 40px 40px;
+    animation: progress-bar-stripes 0.1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    0% { background-position: 40px 0; }
+    100% { background-position: 0 0; }
+}
+
+@keyframes dot-blink {
+    0%, 20% {
+        opacity: 1;
+    }
+    40% {
+        opacity: 0;
+    }
+    60% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.dot-1 {
+    animation: dot-blink 1.5s infinite 4s;
+}
+
+.dot-2 {
+    animation: dot-blink 3s infinite 2.5s;
+}
+
+.dot-3 {
+    animation: dot-blink 4.5s infinite 1s;
+}

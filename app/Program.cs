@@ -1,8 +1,7 @@
 using app.Algorithms;
 using app.Math;
 using app.Services;
-
-
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,12 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IEncodingService, VectorEncodingService>();
 builder.Services.AddTransient<IEncodingService, TextEncodingService>();
-//builder.Services.AddTransient<IEncodingService, ImageEncodingService>();
+builder.Services.AddTransient<IEncodingService, ImageEncodingService>();
 
 builder.Services.AddTransient<IDecodingService, VectorDecodingService>();
 builder.Services.AddTransient<IDecodingService, TextDecodingService>();
+builder.Services.AddTransient<IDecodingService, ImageDecodingService>();
 
 builder.Services.AddTransient<IChannelService, VectorChannelService>();
+builder.Services.AddTransient<IChannelService, ImageChannelService>();
 builder.Services.AddTransient<IMatrixGen, GeneratorMatrixGenerator>();
 builder.Services.AddTransient<INumGen, RandomNumberGenerator>();
 builder.Services.AddTransient<IGenerator, MatrixGenService>();
@@ -25,8 +26,19 @@ builder.Services.AddTransient<IGenerator, MatrixGenService>();
 builder.Services.AddSingleton<EncodingServiceFactory>();
 builder.Services.AddSingleton<ChannelServiceFactory>();
 builder.Services.AddSingleton<DecodingServiceFactory>();
+builder.Services.AddSignalR();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null;
+
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10);
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10);
+
+});
 
 var app = builder.Build();
 
@@ -40,6 +52,12 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<EncodingProgressHub>("/encodingProgressHub");
+    endpoints.MapHub<DecodingProgressHub>("/decodingProgressHub");
+});
 
 
 app.MapControllerRoute(

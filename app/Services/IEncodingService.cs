@@ -7,4 +7,7 @@ public interface IEncodingService
 {
     EncodeResponse Encode(EncodeRequest request);
     bool CanHandle(EncodeRequest request); // checking whether the service can handle the request
+    
+    
+    
 }

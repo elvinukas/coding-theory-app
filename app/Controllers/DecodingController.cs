@@ -32,6 +32,9 @@ public class DecodingController : ControllerBase
                 case "text":
                     request = JsonSerializer.Deserialize<TextDecodeRequest>(requestJson.ToString());
                     break;
+                case "image":
+                    request = JsonSerializer.Deserialize<ImageDecodeRequest>(requestJson.ToString());
+                    break;
                 default:
                     return BadRequest("Decoding type not supported.");
             }

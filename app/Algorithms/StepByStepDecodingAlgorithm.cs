@@ -1,4 +1,6 @@
 using System.Collections;
+using app.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace app.Algorithms;
 using app.Math;
@@ -27,9 +29,12 @@ public class StepByStepDecodingAlgorithm
     public List<Matrix> uniqueSyndromes { get; private set; }
     public List<Matrix> cosetLeaders { get; private set; }
     public List<int> weights { get; private set; }
-    
-    
-    public StepByStepDecodingAlgorithm(Matrix generatorMatrix, int originalMessageLength)
+
+    private readonly IHubContext<DecodingProgressHub>? _hubContext;
+
+
+    public StepByStepDecodingAlgorithm(Matrix generatorMatrix, int originalMessageLength,
+        IHubContext<DecodingProgressHub>? hubContext = null)
     {
         this.GeneratorMatrix = generatorMatrix;
         this.k = generatorMatrix.Rows;
@@ -45,8 +50,9 @@ public class StepByStepDecodingAlgorithm
         this.StandardArrayGenerator = new StandardArrayGenerator(GeneratorMatrix);
         (uniqueSyndromes, cosetLeaders, weights) =
             StandardArrayGenerator.GenerateListOfUniqueSyndromes(parityCheckMatrix);
-        
-        
+        _hubContext = hubContext;
+
+
     }
 
     private Matrix Decode(Matrix receivedMessagePart)
@@ -140,6 +146,11 @@ public class StepByStepDecodingAlgorithm
 
             Matrix messagePart = new Matrix(receivedMessagePartArray);
             Matrix decodedPart = Decode(messagePart);
+
+            if (part % 5000 == 0 | (part - 1 == numberOfParts))
+            {
+                Console.WriteLine("Decoded: " + (part) + "/" + numberOfParts);
+            }
 
             decodedMessage = AppendDecodedMessage(decodedMessage, decodedPart, k);
         }
@@ -366,6 +377,7 @@ public class StepByStepDecodingAlgorithm
                 lock (Console.Out)
                 {
                     Console.WriteLine("Message part " + counter + "/" + numberOfParts + " decoded.");
+                    _hubContext?.Clients.All.SendAsync("ReceiveDecodeProgress", counter, numberOfParts);
                 }
                 
             }

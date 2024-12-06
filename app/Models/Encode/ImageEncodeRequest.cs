@@ -2,5 +2,6 @@ namespace app.Models.Encode;
 
 public class ImageEncodeRequest : EncodeRequest
 {
-    public byte[] ImageData { get; set; }
+    public IFormFile Image { get; set; }
+    public List<List<int>> Matrix { get; set; }
 }
