@@ -179,7 +179,8 @@ export function ThirdScenarioImage() {
                 ErrorPercentage: errorProbability / 100
             }
             
-            const otherData = await channel(originalData);
+            //TODO: remove this
+            const otherData = await channel(originalData); // channel changes ogbinfile 
             if (otherData) {
                 console.log("Channeling original .bin was successful.");
                 setIsOgChannelingSuccessful(true);
@@ -255,6 +256,14 @@ export function ThirdScenarioImage() {
 
     }
 
+    useEffect(() => {
+        if (originalImageUrl) {
+            console.log("Original image url: " + originalImageUrl);
+        } else {
+            console.error("Original image url could not be retrieved.");
+        }
+    }, [originalImageUrl]);
+    
     useEffect(() => {
         if (decodedImageUrl) {
             console.log("Decoded image url: " + decodedImageUrl);

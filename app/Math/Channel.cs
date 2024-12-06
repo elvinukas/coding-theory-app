@@ -9,7 +9,7 @@ public class Channel
     public Matrix ReceivedMessage { get; private set; } // received encoded message (m') with possible errors
     public static int counter { get; private set; }
 
-    public Channel(Matrix encodedMessage, double probabilityOfError, RandomNumberGenerator randomNumberGenerator = null)
+    public Channel(Matrix encodedMessage, double probabilityOfError, RandomNumberGenerator? randomNumberGenerator = null)
     {
         if (probabilityOfError is > 1 or < 0) // ide recommended this approach, same as || 
         {
@@ -30,7 +30,7 @@ public class Channel
     }
 
     // introducing errors to a file
-    public Channel(string filePath, double probabilityOfError, int k, int n, RandomNumberGenerator randomNumberGenerator = null)
+    public Channel(string filePath, double probabilityOfError, int k, int n, RandomNumberGenerator? randomNumberGenerator = null)
     {
         
         if (probabilityOfError is > 1 or < 0) // ide recommended this approach, same as || 
@@ -46,7 +46,14 @@ public class Channel
 
         this.ProbabilityOfError = probabilityOfError;
         this.OriginalMessage = null; // when errors are made to a file, no matrix is needed
-        this.RandomNumberGenerator = randomNumberGenerator ?? new RandomNumberGenerator();
+        if (randomNumberGenerator == null)
+        {
+            this.RandomNumberGenerator = new RandomNumberGenerator();
+        }
+        else
+        {
+            this.RandomNumberGenerator = randomNumberGenerator;
+        }
         this.ReceivedMessage = null;
         
         MakeErrorsInFile(filePath, k, n);
@@ -63,20 +70,36 @@ public class Channel
 
     }
 
-    private byte[] ModifyBytes(byte[] originalBytes, int k, int n)
+    private byte[] ModifyBytes(byte[] originalBytes, double k, double n)
     {
+        
         byte[] receivedBytes = new byte[originalBytes.Length];
 
         for (int i = 0; i < originalBytes.Length; ++i)
         {
-            // 54 is the size of the header of .bmp file in bytes
-            if (i <= (int) ((54+2) * ((double)n / k)))
+            if (k == 0)
             {
-                receivedBytes[i] = originalBytes[i];
-            } else
-            {
-                receivedBytes[i] = IntroduceErrorsToByte(originalBytes[i]);
+                if (i <= 54) // 54 bytes is the header for .bmp
+                {
+                    receivedBytes[i] = originalBytes[i];
+                } else
+                {
+                    receivedBytes[i] = IntroduceErrorsToByte(originalBytes[i]);
+                } 
+                
             }
+            else
+            {
+                // 54 is the size of the header of .bmp file in bytes, we need to adjust for encoding
+                if (i <= (int) ((54+2) * ((double)n / k)))
+                {
+                    receivedBytes[i] = originalBytes[i];
+                } else
+                {
+                    receivedBytes[i] = IntroduceErrorsToByte(originalBytes[i]);
+                } 
+            }
+            
         }
             
         

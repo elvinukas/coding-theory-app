@@ -24,12 +24,22 @@ public class ImageChannelService : IChannelService
             string tempDirectory = Path.Combine(_environment.ContentRootPath, "temp");
             string binaryPath = Path.Combine(tempDirectory, imageRequest.FileName);
 
-            List<List<int>> listMatrix = imageRequest.GeneratorMatrix;
-            Matrix matrix = new Matrix(MatrixConverter.ConvertToIntArray(listMatrix));
-            int k = matrix.Rows;
-            int n = matrix.Columns;
-
+            int k, n;
             double errorPercentage = imageRequest.ErrorPercentage;
+            if (imageRequest.GeneratorMatrix != null)
+            {
+                List<List<int>> listMatrix = imageRequest.GeneratorMatrix;
+                Matrix matrix = new Matrix(MatrixConverter.ConvertToIntArray(listMatrix));
+                k = matrix.Rows;
+                n = matrix.Columns;
+                
+            }
+            else
+            {
+                k = 0;
+                n = 0;
+            }
+            
 
             Channel channel = new Channel(binaryPath, errorPercentage, k, n);
 
