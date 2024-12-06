@@ -147,6 +147,11 @@ public class StepByStepDecodingAlgorithm
             Matrix messagePart = new Matrix(receivedMessagePartArray);
             Matrix decodedPart = Decode(messagePart);
 
+            if (part % 5000 == 0 | (part - 1 == numberOfParts))
+            {
+                Console.WriteLine("Decoded: " + (part) + "/" + numberOfParts);
+            }
+
             decodedMessage = AppendDecodedMessage(decodedMessage, decodedPart, k);
         }
         

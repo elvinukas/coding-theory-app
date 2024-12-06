@@ -116,7 +116,7 @@ export function ThirdScenarioImage() {
         } catch (error) {
             console.error("Error while encoding.", error.message);
         } finally {
-            setOriginalImageUrl(await fetchImage(uploadedImage.name));
+            //setOriginalImageUrl(await fetchImage(uploadedImage.name));
             console.log(originalImageUrl);
         }
         
@@ -164,7 +164,7 @@ export function ThirdScenarioImage() {
             if (otherData) {
                 console.log("Channeling original .bin was successful.");
                 setIsOgChannelingSuccessful(true);
-                setOriginalChanneledImageUrl(await fetchImage(ogBinFileName));
+                //setOriginalChanneledImageUrl(await fetchImage(ogBinFileName));
             }
             
             setChannelingInProgress(false);
@@ -204,8 +204,9 @@ export function ThirdScenarioImage() {
         } catch (error) {
             console.error("Error while decoding: ", error.message);
         } finally {
-            setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
+            //setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
             setDecodingInProgress(false);
+            await handleImages();
         }
 
     }
@@ -251,6 +252,12 @@ export function ThirdScenarioImage() {
             return null;
         }
         
+    }
+    
+    const handleImages = async () => {
+        setOriginalImageUrl(await fetchImage(uploadedImage.name))
+        setOriginalChanneledImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + ".bin"));
+        setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
     }
 
     return (
@@ -360,36 +367,38 @@ export function ThirdScenarioImage() {
 
 
                     <div className="right-comparison">
-                        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <div>
-                                <h4><b>Original Image</b></h4>
-                                {originalImageUrl && (
-                                    <a href={originalImageUrl} target="_blank" rel="noopener noreferrer">
-                                        <img src={originalImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
-                                    </a>
-                                )}
-                            </div>
-                            <div>
-                                <h4><b>Decoded Image</b></h4>
-                                {decodedImageUrl && (
-                                    <a href={decodedImageUrl} target="_blank" rel="noopener noreferrer">
-                                        <img src={decodedImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
-                                    </a>
-                                )}
-                            </div>
-                            {isOgChannelingSuccessful && (
+                        {isDecodingSuccessful && (
+                            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <div>
-                                    <h4><b>Original Channeled Image</b></h4>
-                                    {originalChanneledImageUrl && (
-                                        <a href={originalChanneledImageUrl} target="_blank" rel="noopener noreferrer">
-                                            <img src={originalChanneledImageUrl}
-                                                 style={{maxWidth: '100%', maxHeight: '500px'}}/>
+                                    <h4><b>Original Image</b></h4>
+                                    {originalImageUrl && (
+                                        <a href={originalImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={originalImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
                                         </a>
                                     )}
                                 </div>
-                            )}
+                                <div>
+                                    <h4><b>Decoded Image</b></h4>
+                                    {decodedImageUrl && (
+                                        <a href={decodedImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={decodedImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
+                                        </a>
+                                    )}
+                                </div>
+                                {isOgChannelingSuccessful && (
+                                    <div>
+                                        <h4><b>Original Channeled Image</b></h4>
+                                        {originalChanneledImageUrl && (
+                                            <a href={originalChanneledImageUrl} target="_blank"
+                                               rel="noopener noreferrer">
+                                                <img src={originalChanneledImageUrl}
+                                                     style={{maxWidth: '100%', maxHeight: '500px'}}/>
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
+                            </div>)}
                         </div>
-                    </div>
                 </div>
             </div>
 
