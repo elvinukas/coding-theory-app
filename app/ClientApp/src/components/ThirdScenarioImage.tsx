@@ -79,22 +79,30 @@ export function ThirdScenarioImage() {
         }
     }
     
+    useEffect(() => {
+    }, [encodingProgress]);
+    
+    useEffect(() => {
+    }, [decodingProgress]);
+    
     
     
     const handleEncode = async () => {
 
         // this is for the progress bar
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/encodingProgressHub")
+            .withUrl('/encodingProgressHub')
+            .withAutomaticReconnect() // Auto-reconnect logic
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
 
         connection.on("ReceiveEncodeProgress", (progress, total) => {
             const progressPercentage = Math.round((progress / total) * 100);
-            setEncodingProgress(progressPercentage);
+            setDecodingProgress(progressPercentage);
 
             if (progressPercentage === 100) {
-                setIsEncodingSuccessful(true);
+                setIsDecodingSuccessful(true);
             }
         });
 
@@ -106,6 +114,8 @@ export function ThirdScenarioImage() {
             })
             .catch(err => console.error(err));
 
+        // this is for the progress bar
+        
         setInProgress(true);
         
         try {
@@ -136,7 +146,6 @@ export function ThirdScenarioImage() {
             console.error("Error while encoding.", error.message);
         } finally {
             setInProgress(false);
-            connection.stop();
             setOriginalImageUrl(await fetchImage(uploadedImage.name));
             console.log(originalImageUrl);
         }
@@ -184,6 +193,7 @@ export function ThirdScenarioImage() {
                 console.log("Channeling original .bin was successful.");
                 setIsOgChannelingSuccessful(true);
                 setOriginalChanneledImageUrl(await fetchImage(ogBinFileName));
+                console.log("sending name: " + ogBinFileName);
             }
             
             
@@ -200,7 +210,9 @@ export function ThirdScenarioImage() {
 
         // this is for the progress bar
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/decodingProgressHub")
+            .withUrl('/decodingProgressHub')
+            .withAutomaticReconnect() // Auto-reconnect logic
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
 
@@ -249,7 +261,7 @@ export function ThirdScenarioImage() {
             connection.stop();
             setInProgress(false);
             setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
-            
+            console.log("sending name: " + uploadedImage.name.split('.')[0] + "_decoded.bmp");
             
         }
 
@@ -393,7 +405,7 @@ export function ThirdScenarioImage() {
                                 <h4>Image successfully channeled!</h4>
                             </div>
                         )}
-                        
+
                         {isEncChannelingSuccessful && (
                             <div className="progress-bar-container" style={{
                                 width: '100%',
@@ -427,26 +439,39 @@ export function ThirdScenarioImage() {
 
                     <div className="right-comparison">
                         {isDecodingSuccessful && (
-                            <div>
-                                <h4><b>Original Image</b></h4>
-                                {originalImageUrl && <img src={originalImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
-                            </div>
-                        )}
-                        
-                        {isDecodingSuccessful && (
-                            <div>
-                                <h4><b>Decoded Image</b></h4>
-                                {decodedImageUrl && <img src={decodedImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
-                            </div>
-                        )}
-
-                        {isOgChannelingSuccessful && (
-                            <div>
-                                <h4><b>Original Channeled Image</b></h4>
-                                {originalChanneledImageUrl && <img src={originalChanneledImageUrl} style={{ maxWidth: '100%', maxHeight: '500px' }}/>}
+                            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <div>
+                                    <h4><b>Original Image</b></h4>
+                                    {originalImageUrl && (
+                                        <a href={originalImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={originalImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
+                                        </a>
+                                    )}
+                                </div>
+                                <div>
+                                    <h4><b>Decoded Image</b></h4>
+                                    {decodedImageUrl && (
+                                        <a href={decodedImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={decodedImageUrl} style={{maxWidth: '100%', maxHeight: '500px'}}/>
+                                        </a>
+                                    )}
+                                </div>
+                                {isOgChannelingSuccessful && (
+                                    <div>
+                                        <h4><b>Original Channeled Image</b></h4>
+                                        {originalChanneledImageUrl && (
+                                            <a href={originalChanneledImageUrl} target="_blank"
+                                               rel="noopener noreferrer">
+                                                <img src={originalChanneledImageUrl}
+                                                     style={{maxWidth: '100%', maxHeight: '500px'}}/>
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
+
                 </div>
             </div>
 

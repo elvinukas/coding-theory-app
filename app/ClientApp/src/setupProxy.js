@@ -23,16 +23,22 @@ const onError = (err, req, resp, target) => {
 module.exports = function (app) {
   const appProxy = createProxyMiddleware(context, {
     proxyTimeout: 100000000,
+    timeout: 100000000,
     target: target,
     // Handle errors to prevent the proxy middleware from crashing when
     // the ASP NET Core webserver is unavailable
     onError: onError,
     secure: false,
     // Uncomment this line to add support for proxying websockets
-    ws: true, 
+    ws: true,
     headers: {
       Connection: 'Keep-Alive'
-    }
+    },
+    onProxyReqWs: (proxyReq, req, socket) => {
+      // Handle WebSocket request upgrades
+      console.log(`Upgrading WebSocket connection to ${target}`);
+      socket.setTimeout(100000000); // WebSocket-specific timeout
+    },
   });
 
   app.use(appProxy);
