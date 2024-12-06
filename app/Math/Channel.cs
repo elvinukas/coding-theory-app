@@ -70,7 +70,7 @@ public class Channel
         for (int i = 0; i < originalBytes.Length; ++i)
         {
             // 54 is the size of the header of .bmp file in bytes
-            if (i <= (int) (54 * ((double)n / k)))
+            if (i <= (int) ((54+2) * ((double)n / k)))
             {
                 receivedBytes[i] = originalBytes[i];
             } else

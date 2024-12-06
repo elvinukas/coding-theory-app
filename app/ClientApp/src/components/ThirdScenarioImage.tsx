@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useRef, useState, useEffect} from "react";
 import * as signalR from "@microsoft/signalr";
 import "./ThirdScenarioImage.css";
 // @ts-ignore
@@ -225,10 +225,19 @@ export function ThirdScenarioImage() {
             connection.stop();
             setInProgress(false);
             setDecodedImageUrl(await fetchImage(uploadedImage.name.split('.')[0] + "_decoded.bmp"));
-            console.log("Decoded image url: " + decodedImageUrl);
+            
+            
         }
 
     }
+
+    useEffect(() => {
+        if (decodedImageUrl) {
+            console.log("Decoded image url: " + decodedImageUrl);
+        } else {
+            console.error("Decoded image url could not be retrieved.");
+        }
+    }, [decodedImageUrl]);
     
     
     const fetchImage = async (fileName: string) : Promise<string | null> => {
