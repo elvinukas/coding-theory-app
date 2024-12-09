@@ -5,17 +5,33 @@ namespace app.Math;
 // kad tas kodas nevisada gales istaisyti klaidas (arba ju visai neistaisys)
 // BET, as pasistengsiu, kad kodas turetu dideli atstuma (jei pavyks)
 
+/// <summary>
+/// A generator for standard generator matrices.
+/// <remarks>By relying on this class the user takes responsibility, that the generator matrix may not be optimal for encoding.</remarks>
+/// </summary>
 public class GeneratorMatrixGenerator : IMatrixGen
 {
 
     private readonly INumGen _randomNumberGenerator; 
 
     // this constructor is mainly for mock unit tests
+    /// <summary>
+    /// Constructor for the class. Does not automatically generate a matrix.
+    /// </summary>
+    /// <param name="randomNumberGenerator">Takes in a <c>INumGen</c> interface. Can be easily used for mock tests.</param>
     public GeneratorMatrixGenerator(INumGen randomNumberGenerator)
     {
         _randomNumberGenerator = randomNumberGenerator;
     }
 
+    /// <summary>
+    /// Generates a random matrix.
+    /// </summary>
+    /// <param name="k">Dimension.</param>
+    /// <param name="n">Code length.</param>
+    /// <returns>Randomized <c>Matrix</c></returns>
+    /// <exception cref="ArgumentException"><c>n</c> (the number of bits in each codeword) cannot be smaller or equal
+    /// to the number of bits in the original message (<c>k</c>)</exception>
     public Matrix GenerateMatrix(int k, int n)
     {
         if (k >= n)
