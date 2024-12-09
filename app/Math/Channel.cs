@@ -1,5 +1,10 @@
 namespace app.Math;
 
+
+/// <summary>
+/// This class is used as a channel simulator.
+/// <para> Data is passed through this channel and it has a selected probability of flipping a bit in a matrix. </para>
+/// </summary>
 public class Channel
 {
     // each symbol (or bit in my case) has an independent probabilityOfError 
@@ -9,6 +14,14 @@ public class Channel
     public Matrix ReceivedMessage { get; private set; } // received encoded message (m') with possible errors
     public int counter { get; set; }
 
+    /// <summary>
+    /// This is the standard Channel constructor.
+    /// <para>Once initiated, the Channel automatically channels the data. The channeled result is in <see cref="ReceivedMessage"/></para>
+    /// </summary>
+    /// <param name="encodedMessage">The message that will be passed through the channel.</param>
+    /// <param name="probabilityOfError">Probability of a single bit flipping. Must be between <c>0</c> and <c>1</c>.</param>
+    /// <param name="randomNumberGenerator">Optional argument if desirable to have one specific random generator.</param>
+    /// <exception cref="ArgumentException">Throws exception if arguments are incorrect</exception>
     public Channel(Matrix encodedMessage, double probabilityOfError, RandomNumberGenerator? randomNumberGenerator = null)
     {
         if (probabilityOfError is > 1 or < 0) // ide recommended this approach, same as || 
@@ -28,8 +41,17 @@ public class Channel
         // passing through channel
         this.ReceivedMessage = GetReceivedMessage();
     }
-
-    // introducing errors to a file
+    
+    /// <summary>
+    /// This is a Channel constructor for channeling data in file.
+    /// <para>Once initiated, the Channel automatically channels the data from file. The channeled result is in the specified file path.</para>
+    /// </summary>
+    /// <param name="filePath">The file path of data which is to be channeled. Result of channeling is set in the same file.</param>
+    /// <param name="probabilityOfError">Probability of a single bit flipping. Must be between <c>0</c> and <c>1</c>.</param>
+    /// <param name="k">Dimension.</param>
+    /// <param name="n">Code length.</param>
+    /// <param name="randomNumberGenerator">Optional argument if desirable to have one specific random generator.</param>
+    /// <exception cref="ArgumentException">Throws exception if arguments are incorrect, file does not exist</exception>
     public Channel(string filePath, double probabilityOfError, int k, int n, RandomNumberGenerator? randomNumberGenerator = null)
     {
         
@@ -59,6 +81,12 @@ public class Channel
         MakeErrorsInFile(filePath, k, n);
     }
 
+    /// <summary>
+    /// Makes errors in file.
+    /// </summary>
+    /// <param name="filePath">The file path of data which is to be channeled. Result of channeling is set in the same file.</param>
+    /// <param name="k">Dimension.</param>
+    /// <param name="n">Code length.</param>
     public void MakeErrorsInFile(string filePath, int k, int n)
     {
         byte[] originalBytes = File.ReadAllBytes(filePath);
@@ -70,6 +98,13 @@ public class Channel
 
     }
 
+    /// <summary>
+    /// Modifies the original bytes. Mostly used for accounting the .bmp file header (the first 54 bytes of a file are not channeled).
+    /// </summary>
+    /// <param name="originalBytes">The bytes that will be channeled.</param>
+    /// <param name="k">Dimension.</param>
+    /// <param name="n">Code length.</param>
+    /// <returns>Modified bytes: <c>byte[]</c></returns>
     private byte[] ModifyBytes(byte[] originalBytes, double k, double n)
     {
         
@@ -110,7 +145,11 @@ public class Channel
 
     }
 
-
+    /// <summary>
+    /// Introduces an error(-s) to the byte by flipping them according to the probability provided in the constructor.
+    /// </summary>
+    /// <param name="originalByte">The byte that will be channeled.</param>
+    /// <returns>Modified <c>byte</c></returns>
     private byte IntroduceErrorsToByte(byte originalByte)
     {
         byte receivedByte = originalByte;
@@ -129,8 +168,10 @@ public class Channel
     }
     
 
-
-    // message that gets passed through a channel with a probability of errors
+    /// <summary>
+    /// Retrieving the message that gets passed through a channel with a probability of errors
+    /// </summary>
+    /// <returns>Channeled <c>Matrix</c></returns>
     private Matrix GetReceivedMessage()
     {
         int messageLength = OriginalMessage.Columns;
@@ -152,7 +193,12 @@ public class Channel
         
     }
     
-
+    /// <summary>
+    /// Static method to introduce a specified number of errors inside a vector.
+    /// </summary>
+    /// <param name="sentMessage">Message to be modified.</param>
+    /// <param name="numberOfErrors"></param>
+    /// <returns>Modified <c>Matrix</c></returns>
     public static Matrix GetSpecifiedNumOfErrorVector(Matrix sentMessage, int numberOfErrors)
     {
         int columns = sentMessage.Columns;
