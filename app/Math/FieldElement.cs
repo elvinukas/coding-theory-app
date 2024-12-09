@@ -3,6 +3,10 @@ using System.Text.RegularExpressions;
 
 namespace app.Math;
 
+/// <summary>
+/// This class represents the actual field element (certain value with field).
+/// <example>Can be used to compute operations with elements from non-standard fields, such as <c>base 5</c></example>
+/// </summary>
 public struct FieldElement
 {
     public Field field;
@@ -11,6 +15,13 @@ public struct FieldElement
     
     // checking if the group element is correct, and if not fixing it according to the group size
     // [0, 1, 2] -> 6 / 3 = 2, tada 2 + 3 = 5 % 3 = 2
+    
+    /// <summary>
+    /// Constructor for FieldElement.
+    /// <para>Checks if the group element is correct and if not fixes it according to the group size.</para>
+    /// </summary>
+    /// <param name="value">The value that will be turned into a field element by checking with the linked field.</param>
+    /// <param name="field">Field that will define <see cref="Value"/></param>
     public FieldElement(int value, Field field)
     {
         this.field = field;
@@ -25,7 +36,12 @@ public struct FieldElement
         
     }
 
-
+    /// <summary>
+    /// Equality operator for <c>FieldElement</c> objects.
+    /// </summary>
+    /// <param name="firstElement"><c>FieldElement</c> object</param>
+    /// <param name="secondElement"><c>FieldElement</c> object</param>
+    /// <returns></returns>
     public static bool operator ==(FieldElement firstElement, FieldElement secondElement)
     {
         if (!(firstElement != secondElement))
@@ -36,6 +52,12 @@ public struct FieldElement
         return false;
     }
 
+    /// <summary>
+    /// Inequality operator for <c>FieldElement</c> objects.
+    /// </summary>
+    /// <param name="firstElement"><c>FieldElement</c> object</param>
+    /// <param name="secondElement"><c>FieldElement</c> object</param>
+    /// <returns></returns>
     public static bool operator !=(FieldElement firstElement, FieldElement secondElement)
     {
         if (ReferenceEquals(firstElement, null) && ReferenceEquals(firstElement, null))
@@ -64,6 +86,12 @@ public struct FieldElement
 
     
     // overloading + (addition) operator
+    /// <summary>
+    /// Addition operator for <c>FieldElement</c> objects.
+    /// </summary>
+    /// <param name="firstElement"><c>FieldElement</c> object</param>
+    /// <param name="secondElement"><c>FieldElement</c> object</param>
+    /// <returns></returns>
     public static FieldElement operator +(FieldElement firstElement, FieldElement secondElement)
     {
         if (firstElement.field.q != secondElement.field.q)
@@ -76,6 +104,12 @@ public struct FieldElement
     }
 
     // overloading * (multiplication) operator
+    /// <summary>
+    /// Multiplication operator for <c>FieldElement</c> objects.
+    /// </summary>
+    /// <param name="firstElement"><c>FieldElement</c> object</param>
+    /// <param name="secondElement"><c>FieldElement</c> object</param>
+    /// <returns></returns>
     public static FieldElement operator *(FieldElement firstElement, FieldElement secondElement)
     {
         if (firstElement.field.q != secondElement.field.q)
@@ -89,6 +123,12 @@ public struct FieldElement
     
     
     // overloading - (subtraction) operator
+    /// <summary>
+    /// Subtraction operator for <c>FieldElement</c> objects.
+    /// </summary>
+    /// <param name="firstElement"><c>FieldElement</c> object</param>
+    /// <param name="secondElement"><c>FieldElement</c> object</param>
+    /// <returns></returns>
     public static FieldElement operator -(FieldElement firstElement, FieldElement secondElement)
     {
         if (firstElement.field.q != secondElement.field.q)
