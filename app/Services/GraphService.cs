@@ -30,21 +30,33 @@ public class GraphService : IGraphService
         double[] encodedSimilarities = errorPercentages.Select(x => x[3]).ToArray();
         
         (double? crossValue, int? crossIndex) = FindWhereLinesFirstCross(encodedSimilarities, linearGraph);
+        (double? lossValue, int? lossIndex) = FindWhereNoLossEncoding(encodedSimilarities);
 
         Plot plt = new Plot();
-        
-        if (crossIndex != null && crossValue != null)
         {
-           var line = plt.Add.VerticalLine(xValues[(int)crossIndex]);
-           line.Text = "Encoding becomes less effective after " + xValues[(int)crossIndex].ToString("F3");
-           line.LineWidth = 5;
-           line.LabelOppositeAxis = true;
+            if (crossIndex != null && crossValue != null)
+            {
+                var line = plt.Add.VerticalLine(xValues[(int)crossIndex]);
+                line.Text = "Encoding becomes less effective after " + xValues[(int)crossIndex].ToString("F3");
+                line.LineWidth = 5;
+                line.LabelFontSize = 9;
+                line.LabelOppositeAxis = true;
+            }
         }
-
+        {
+            if (lossIndex != null && lossValue != null)
+            {
+                var line = plt.Add.VerticalLine(xValues[(int)lossIndex]);
+                line.Text = "Encoding cannot losslessly decode after " + xValues[(int)lossIndex].ToString("F3");
+                line.LineWidth = 5;
+                line.LabelFontSize = 9;
+                line.LabelOppositeAxis = true;
+            }
+        }
         //var a = plt.Add.SignalXY(xValues, ogSimilarities);
         var a = plt.Add.SignalXY(xValues, linearGraph);
         a.LineWidth = 3;
-        a.LegendText = "Similarity with no encoding";
+        a.LegendText = "Ideal Similarity with no encoding";
         var b = plt.Add.SignalXY(xValues,encodedSimilarities);
         b.LineWidth = 3;
         b.LegendText = "Similarity with encoding";
@@ -56,14 +68,15 @@ public class GraphService : IGraphService
         plt.Axes.SetLimitsX(0, 1);
         plt.Axes.SetLimitsY(0, 100);
         plt.ShowLegend(Alignment.UpperRight, Orientation.Horizontal);
-
-        plt.SavePng(request.FilePath, 800, 600);
+        
+        string filePath = $"../../../test-images/graph_similarity_{Guid.NewGuid()}.png";
+        plt.SavePng(filePath, 1200, 800);
         
 
         return new GraphResponse
         {
             Message = "Graph encoded successfully.",
-            FileName = "graph.png",
+            FileName = filePath,
             CrossErrorPercentage = crossValue
         };
 
@@ -121,7 +134,7 @@ public class GraphService : IGraphService
     private (double?, int?) FindWhereLinesFirstCross(double[] array1, double[] array2) {
         // index1 and index2 mean what type of info 
         // from list is being checked (for example lineargraph and encodedSimilarity) 
-        for (int i = 0; i < array1.Length; i++)
+        for (int i = 0; i < array1.Length; ++i)
         {
             if (array1[i] < array2[i])
             {
@@ -131,6 +144,19 @@ public class GraphService : IGraphService
         return (null, null);
 
 
+    }
+
+    private (double?, int?) FindWhereNoLossEncoding(double[] array)
+    {
+        for (int i = 0; i < array.Length; ++i)
+        {
+            if (array[i] != 100)
+            {
+                return (array[i], i);
+            }
+        }
+
+        return (null, null);
     }
     
 }
