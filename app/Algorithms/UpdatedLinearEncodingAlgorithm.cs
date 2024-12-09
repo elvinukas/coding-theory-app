@@ -6,7 +6,15 @@ using Microsoft.AspNetCore.SignalR;
 namespace app.Algorithms;
 using app.Math;
 
+// warning! the encoding algorithm works with only binary digits!
+// since appending the length of the message is in binary, a matrix with different field elements would be created
 
+// the length of the original message is considered to be industry-based (known) information, which is not needed
+// to be sent through the original vector
+
+/// <summary>
+/// This class uses static methods to encode binary vectors using a linear encoding algorithm.
+/// </summary>
 public class UpdatedLinearEncodingAlgorithm : IEncoding
 {
     public static Matrix Encode(Matrix originalMessage, Matrix gMatrix)

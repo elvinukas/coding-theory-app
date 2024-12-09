@@ -56,28 +56,33 @@ public interface IConverter<T>
 
     
     // previously 1.654s
+    // works only on vectors 
     static byte[] MakeByteArrayFromMatrix(Matrix matrix)
     {
-        int numberOfBytes = matrix.Columns / 8;
+        int numberOfBytes = (int)System.Math.Ceiling(matrix.Columns / 8.0);
         byte[] bytes = new byte[numberOfBytes];
 
+        int bitPosition = 0;
         
-        // iterating through each byte
-        
-        for (int i = 0; i < numberOfBytes; ++i)
+        for (int row = 0; row < matrix.Rows; row++)
         {
-            byte textByte = 0; // current byte value
-            int column = i * 8; // resolves race condition with multithreading
-
-            for (int bit = 7; bit >= 0; --bit)
+            for (int col = 0; col < matrix.Columns; col++)
             {
-                textByte += (byte)(matrix[0, column].Value * (int)System.Math.Pow(2, bit));
-                ++column;
-            }
+                // calculating which bit is currently being accessed
+                int byteIndex = bitPosition / 8;
+                int bitInByte = 7 - (bitPosition % 8);
 
-            bytes[i] = textByte;
+                
+                int bitValue = matrix[row, col].Value;
+                
+                if (bitValue == 1)
+                {
+                    bytes[byteIndex] |= (byte)(1 << bitInByte);
+                }
+                
+                bitPosition++;
+            }
         }
-            
 
         return bytes;
     }

@@ -10,6 +10,9 @@ using app.Math;
 // to be sent through the original vector
 
 
+/// <summary>
+/// 
+/// </summary>
 public class LinearEncodingAlgorithm
 {
     private Matrix OriginalMessage { get; }

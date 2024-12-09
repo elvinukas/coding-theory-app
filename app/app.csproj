@@ -17,6 +17,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.16"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="ScottPlot" Version="5.0.47" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
     </ItemGroup>
 
@@ -28,7 +29,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="ClientApp\backend\" />
       <Folder Include="temp\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="ClientApp\build\asset-manifest.json" />
+      <_ContentIncludedByDefault Remove="ClientApp\build\manifest.json" />
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
