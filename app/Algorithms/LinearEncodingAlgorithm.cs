@@ -11,8 +11,14 @@ using app.Math;
 
 /// <summary>
 /// This class is the primary encoding algorithm class, used for vector and text encoding.
+/// <para><b>Should not be used for image encoding.
+/// Use <see cref="ImageLinearEncodingAlgorithm"/> for image encoding.</b></para>
+/// The methods there are more suited for it.
+/// <br></br>
+/// <para>The length of the original message is considered to be industry-based (known) information, which is not needed
+/// to be sent through the original vector</para>
 ///
-/// Warning! The encoding algorithm works with only binary digits!
+/// <b>Warning!</b> The encoding algorithm works with only binary digits!
 /// 
 /// </summary>
 public class LinearEncodingAlgorithm

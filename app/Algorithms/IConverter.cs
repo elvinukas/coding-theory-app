@@ -108,7 +108,7 @@ public interface IConverter<T>
     }
     
     /// <summary>
-    /// Makes a matrix from a bit array. Used in <see cref="UpdatedLinearEncodingAlgorithm"/> for image encoding/decoding.
+    /// Makes a matrix from a bit array. Used in <see cref="ImageLinearEncodingAlgorithm"/> for image encoding/decoding.
     /// </summary>
     /// <param name="bitArray">Bit array.</param>
     /// <returns><c>Matrix</c></returns>

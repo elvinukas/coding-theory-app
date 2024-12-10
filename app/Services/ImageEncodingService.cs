@@ -59,7 +59,7 @@ public class ImageEncodingService : IEncodingService
             FileInfo binaryFile = new FileInfo(imageBinPath);
             int originalMessageLength = (int)binaryFile.Length;
             Matrix gMatrix = new Matrix(MatrixConverter.ConvertToIntArray(imageRequest.Matrix));
-            UpdatedLinearEncodingAlgorithm.EncodeFile(imageBinPath, encodedBinPath, gMatrix, _hubContext);
+            ImageLinearEncodingAlgorithm.EncodeFile(imageBinPath, encodedBinPath, gMatrix, _hubContext);
 
 
             return new ImageEncodeResponse

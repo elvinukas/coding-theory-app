@@ -21,7 +21,7 @@ public class VectorEncodingService : IEncodingService
         
         try
         {
-            Matrix encodedMessage = UpdatedLinearEncodingAlgorithm.Encode(messageMatrix, gMatrix);
+            Matrix encodedMessage = ImageLinearEncodingAlgorithm.Encode(messageMatrix, gMatrix);
             List<List<int>> encodedMessageList = MatrixConverter.ConvertTo2DList(encodedMessage);
             
             return new VectorEncodeResponse

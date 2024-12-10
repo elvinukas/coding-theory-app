@@ -14,15 +14,31 @@ using app.Math;
 
 /// <summary>
 /// This class uses static methods to encode binary vectors using a linear encoding algorithm.
+/// <para><b>Should only be used for image encoding!
+/// Use <see cref="LinearEncodingAlgorithm"/> for other types of encoding. </b></para>
+/// <para>This class incorporates more methods specificly designed for image encoding. </para>
 /// </summary>
-public class UpdatedLinearEncodingAlgorithm : IEncoding
+public class ImageLinearEncodingAlgorithm : IEncoding
 {
+    /// <summary>
+    /// Static method which encodes an original message by multiplying it and the generator matrix.
+    /// </summary>
+    /// <param name="originalMessage">original message</param>
+    /// <param name="gMatrix">generator <c>Matrix</c></param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix Encode(Matrix originalMessage, Matrix gMatrix)
     {
         return originalMessage * gMatrix;
 
     }
 
+    /// <summary>
+    /// Static method designed for encoding files.
+    /// </summary>
+    /// <param name="inputFilePath">The file path where to-be-encoded binary data is stored.</param>
+    /// <param name="encodedFilePath">The output file path where the encoded binary data is to be stored.</param>
+    /// <param name="generatorMatrix">Generator <c>Matrix</c></param>
+    /// <param name="hubContext">Optional argument that can be used to output the progress of encoding.</param>
     public static void EncodeFile(string inputFilePath, string encodedFilePath, Matrix generatorMatrix,
         IHubContext<EncodingProgressHub>? hubContext = null)
     {
@@ -31,22 +47,13 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
         SaveBitsToFile(encodedBits, encodedFilePath);
     }
     
-    public static Matrix Encode(Matrix originalMessage, Matrix generatorMatrix, bool divide)
-    {
-        if (divide)
-        {
-            byte[] binaryData = IConverter<TextConverter>.MakeByteArrayFromMatrix(originalMessage);
-            BitArray encodedBits = EncodeData(binaryData, generatorMatrix);
-            return IConverter<TextConverter>.MakeMatrixFromBitArray(encodedBits);
-        }
-        
-        return UpdatedLinearEncodingAlgorithm.Encode(originalMessage, generatorMatrix);
-        
-        
-    }
-
-
-
+    /// <summary>
+    /// Private helper method to encode data that has been converted to <c>byte[]</c>.
+    /// </summary>
+    /// <param name="binaryData">file data converted to <c>byte[]</c></param>
+    /// <param name="generatorMatrix">generator <c>Matrix</c></param>
+    /// <param name="hubContext">Optional argument that can be used to output the progress of encoding.</param>
+    /// <returns></returns>
     private static BitArray EncodeData(byte[] binaryData, Matrix generatorMatrix,
         IHubContext<EncodingProgressHub>? hubContext = null)
     {
@@ -113,7 +120,11 @@ public class UpdatedLinearEncodingAlgorithm : IEncoding
     }
     
     
-    
+    /// <summary>
+    /// Method to save bits to a specified file.
+    /// </summary>
+    /// <param name="bits"><c>BitArray</c> which is to be stored.</param>
+    /// <param name="filePath">File path where bits will be stored.</param>
     private static void SaveBitsToFile(BitArray bits, string filePath)
     {
         int totalBytes = (bits.Length + 7) / 8; // calculating the amount of bytes needed
