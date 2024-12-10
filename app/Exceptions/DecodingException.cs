@@ -1,6 +1,9 @@
 namespace app.Exceptions;
 
 
+/// <summary>
+/// This is an exception class for anything related to decoding.
+/// </summary>
 public class DecodingException : Exception
 {
     public DecodingException() {}

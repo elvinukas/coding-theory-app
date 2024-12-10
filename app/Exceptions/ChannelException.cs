@@ -1,5 +1,8 @@
 namespace app.Exceptions;
 
+/// <summary>
+/// This is an exception class for anything related to <c>Channel</c>'ing.
+/// </summary>
 public class ChannelException : Exception
 {
     public ChannelException() {}
