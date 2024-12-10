@@ -12,12 +12,20 @@ using app.Math;
 /// 
 /// </summary>
 
+[Obsolete("Deprecated, since no longer required for this assignment. " +
+          "Untouched for a long time and no guarantee that it will work.")]
 public static class StandardArrayDecodingAlgorithm
 {
     // firstly, all valid codewords need to be generated and listed
     // for them to be generated, it is crutial that n and k is known
     // the amount of valid messages is 2^k
 
+    /// <summary>
+    /// Method that retrieves the original encoded message.
+    /// </summary>
+    /// <param name="generatorMatrix">Generator matrix.</param>
+    /// <param name="receivedMessage">Received message.</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix GetOriginalEncodedMessage(Matrix generatorMatrix, Matrix receivedMessage)
     {
         int k = generatorMatrix.Rows;

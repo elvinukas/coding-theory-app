@@ -4,13 +4,15 @@ using app.Math;
 
 
 // warning! the encoding algorithm works with only binary digits!
-// since appending the length of the message is in binary, a matrix with different field elements would be created
 
 // the length of the original message is considered to be industry-based (known) information, which is not needed
 // to be sent through the original vector
 
 
 /// <summary>
+/// This class is the primary encoding algorithm class, used for vector and text encoding.
+///
+/// Warning! The encoding algorithm works with only binary digits!
 /// 
 /// </summary>
 public class LinearEncodingAlgorithm
@@ -22,6 +24,17 @@ public class LinearEncodingAlgorithm
     public Field field { get; private set; }
     public int k; // dimensija (how long each divided up part should be)
     
+    /// <summary>
+    /// Main constructor for the linear encoding algorithm.
+    /// Automatically upon creation stores the encoded message in <see cref="EncodedMessage"/>.
+    /// </summary>
+    /// <param name="originalMessage">Original matrix message which is to be encoded.</param>
+    /// <param name="generatorMatrix">Generator matrix used for the encoding.</param>
+    /// <param name="dimension">Dimension of the generator matrix.</param>
+    /// <param name="n">Code length.</param>
+    /// <param name="matrixGenerator">It is possible to specify a custom generator matrix generator
+    /// if same random algorithm is to be used for many encodings</param>
+    /// <exception cref="ArgumentException">Throws if the message isn't a vector and if dimension count is less or eq. to 0.</exception>
     public LinearEncodingAlgorithm(Matrix originalMessage, Matrix generatorMatrix, int dimension, int n,
         GeneratorMatrixGenerator matrixGenerator = null)
     // a custom matrix generator can be assigned, mostly for mock unit testing
@@ -62,7 +75,18 @@ public class LinearEncodingAlgorithm
         this.EncodedMessage = EncodeMessage();
     }
     
-
+    /// <summary>
+    /// Gets the correct message size for encoding (ensures padding).
+    /// <remarks>
+    /// The problem is that n may not always be divisible by k.
+    /// That is why there can be leftover bits that are not in a split message group.
+    /// To counter this, additional 0 need to be added to the end of the message so that they can
+    /// be encoded with the same generative matrix as all other sections
+    /// later on in the decoding process this 0-filling will need to be accounted for
+    /// </remarks>
+    /// </summary>
+    /// <returns>2D <c>int[,]</c> array</returns>
+    /// <exception cref="ArgumentException">Throws if dimension count is larger than vector length.</exception>
     public int[,] GetCorrectSizeMessageForEncoding()
     {
         int length = OriginalMessage.Columns; // columns represent the lenght of the vector
@@ -114,6 +138,11 @@ public class LinearEncodingAlgorithm
         return totalMessage;
     }
     
+    /// <summary>
+    /// Method to encode a message. Uses properties of the algorithm.
+    /// <para>Recommend just using <see cref="EncodedMessage"/> instead.</para>.
+    /// </summary>
+    /// <returns><c>Matrix</c></returns>
     public Matrix EncodeMessage()
     {
         // the entire message with a correct size for encoding
@@ -164,6 +193,13 @@ public class LinearEncodingAlgorithm
 
     }
     
+    /// <summary>
+    /// Method to store multiplication results in a cache. Used for to enhance the speed of the encoding algorithm
+    /// </summary>
+    /// <param name="multiplicationCache">Dictionary which stores the multiplied matrix results.</param>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix MultiplyCached(Dictionary<(Matrix, Matrix), Matrix> multiplicationCache, Matrix a, Matrix b)
     {
         var key = (a, b);

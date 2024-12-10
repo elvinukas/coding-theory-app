@@ -20,7 +20,6 @@ namespace app.Math;
 ///
 
 // wasted much time, this is not the decoding method that I need :)
-[Obsolete("Should only be used in addition to other decoding methods")]
 public class StandardArrayGenerator
 {
     public readonly Matrix GeneratorMatrix;

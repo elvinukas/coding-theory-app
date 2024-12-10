@@ -7,6 +7,7 @@ using app.Math;
 using app.Exceptions;
 
 /// <summary>
+/// This class implements the step-by-step decoding algorithm.
 /// The step-by-step decoding algorithm depends on matrix transposition, parity matrix and the generator matrix structure.
 /// <br></br>
 /// Each generator matrix has an identity matrix within it and some additional bits for adapting the message to the desired length.
@@ -14,7 +15,6 @@ using app.Exceptions;
 /// G * H^T = 0, where T is transposition applied to the matrix.
 /// Now H is constructed by using transposition on the additional bits in the generator matrix for adapting the message to the desired length.
 /// </summary>
-
 
 public class StepByStepDecodingAlgorithm
 {
@@ -32,7 +32,12 @@ public class StepByStepDecodingAlgorithm
 
     private readonly IHubContext<DecodingProgressHub>? _hubContext;
 
-
+    /// <summary>
+    /// Default constructor for the algorithm. Decoding does not start automatically.
+    /// </summary>
+    /// <param name="generatorMatrix">generator <c>Matrix</c></param>
+    /// <param name="originalMessageLength">the length of the original message <b>without padding</b></param>
+    /// <param name="hubContext">optional argument to output progress to a hub context</param>
     public StepByStepDecodingAlgorithm(Matrix generatorMatrix, int originalMessageLength,
         IHubContext<DecodingProgressHub>? hubContext = null)
     {
@@ -55,6 +60,11 @@ public class StepByStepDecodingAlgorithm
 
     }
 
+    /// <summary>
+    /// Method to decode one non-split message. Cannot split messages, used only for single vector decoding.
+    /// </summary>
+    /// <param name="receivedMessagePart"><c>Matrix</c> vector of length <c>k</c></param>
+    /// <returns>Decoded <c>Matrix</c></returns>
     private Matrix Decode(Matrix receivedMessagePart)
     {
         Matrix decodedMessage = null;
@@ -105,6 +115,15 @@ public class StepByStepDecodingAlgorithm
         
     }
     
+    
+    /// <summary>
+    /// Method to decode a matrix message (a message that is longer than <c>k</c>).
+    /// <para>Introduces padding, splits up the message into smaller vectors of length <c>k</c>,
+    /// decodes them, merges all vectors into one and finally trims the output to match the original message length.</para>
+    /// </summary>
+    /// <param name="receivedMessage"><c>Matrix</c> that is to be decoded</param>
+    /// <returns><c>Matrix</c></returns>
+    /// <exception cref="DecodingException">Throws if the original message length is impossible to determine</exception>
     public Matrix DecodeMessage(Matrix receivedMessage)
     {
         // H = [P^T I_{n-k}]
@@ -170,6 +189,13 @@ public class StepByStepDecodingAlgorithm
         
     }
 
+    /// <summary>
+    /// Method to store multiplication results in a cache.
+    /// </summary>
+    /// <param name="multiplicationCache">Dictionary of matrices where multiplications are to be stored</param>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix MultiplyCached(Dictionary<(Matrix, Matrix), Matrix> multiplicationCache, Matrix a, Matrix b)
     {
         var key = (a, b);
@@ -183,6 +209,14 @@ public class StepByStepDecodingAlgorithm
         return result;
     }
 
+    /// <summary>
+    /// Appends one matrix to another.
+    /// </summary>
+    /// <param name="decodedMessage">The result <c>matrix</c> that will have another matrix appended to it.</param>
+    /// <param name="receivedMessagePart">The <c>matrix</c> that will be appended.</param>
+    /// <param name="k">Specifies how many elements are of the original message content. Corresponds to the dimension <c>k</c>.</param>
+    /// <returns></returns>
+    /// <seealso cref="app.Math.Matrix.MergeMatrices"/>
     private static Matrix AppendDecodedMessage(Matrix decodedMessage, Matrix receivedMessagePart, int k)
     {
         int[,] originalMessagePartElements = new int[1, k];
@@ -210,7 +244,11 @@ public class StepByStepDecodingAlgorithm
     
     
 
-
+    /// <summary>
+    /// Static method to retrieve a parity matrix from a generator matrix.
+    /// </summary>
+    /// <param name="generatorMatrix">Generator <c>Matrix</c></param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix RetrieveParityMatrix(Matrix generatorMatrix)
     {
         // this generates an empty parity matrix template
@@ -244,6 +282,14 @@ public class StepByStepDecodingAlgorithm
 
     }
 
+    /// <summary>
+    /// Static method that retrieves a parity check matrix based on a generator matrix and a transposed parity matrix.
+    /// </summary>
+    /// <param name="generatorMatrix">Generator <c>Matrix</c></param>
+    /// <param name="transposedParityMatrix">Parity check matrix <see cref="RetrieveParityMatrix"/>
+    /// that has been transposed using <see cref="app.Math.Matrix.Transpose"/></param>
+    /// <returns><c>Matrix</c></returns>
+
     public static Matrix RetrieveParityCheckMatrix(Matrix generatorMatrix, Matrix transposedParityMatrix)
     {
         // H = [P^T I_{n-k}]
@@ -265,28 +311,12 @@ public class StepByStepDecodingAlgorithm
         return Matrix.MergeMatrices(transposedParityMatrix, identityMatrix);
         
     }
-
-
     
-    public static bool DoErrorsExistWithSyndrome(Matrix syndrome)
-    {
-        FieldElement zero = new FieldElement(0, new Field(2));
-        
-        for (int row = 0; row < syndrome.Rows; ++row)
-        {
-            for (int column = 0; column < syndrome.Columns; ++column)
-            {
-                if (syndrome[row, column] != zero)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-
-    }
-
+    /// <summary>
+    /// Static method to get weight of a matrix.
+    /// </summary>
+    /// <param name="matrix"><c>Matrix</c></param>
+    /// <returns><c>int</c> weight of the matrix</returns>
     public static int GetWeight(Matrix matrix)
     {
         int weight = 0;
@@ -306,6 +336,15 @@ public class StepByStepDecodingAlgorithm
 
     }
     
+    /// <summary>
+    /// Trims a decoded vector to its original length.
+    /// <para>While decoding, it is most likely that padding will be required in the end of the message
+    /// to make sure the decoding is successful. After decoding has completed, it is crucial to restore the original message
+    /// according to its original length by removing the padding.</para>
+    /// </summary>
+    /// <param name="decodedMessage">Decoded <c>Matrix</c> that will be trimmed</param>
+    /// <param name="originalMessageLength">The original length of the message vector</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix TrimDecodedMessage(Matrix decodedMessage, int originalMessageLength)
     {
         int[,] trimmedMessageArray = new int[1, originalMessageLength];
@@ -318,6 +357,13 @@ public class StepByStepDecodingAlgorithm
         return new Matrix(trimmedMessageArray, decodedMessage[0, 0].field.q);
     }
 
+    /// <summary>
+    /// Static method to find the minimal code length of a generator matrix.
+    /// <para>Not used in decoding in any sort of way, just a useful method
+    /// to determine how efficient the generator matrix is at decoding.</para>
+    /// </summary>
+    /// <param name="generatorMatrix">Generator <c>Matrix</c></param>
+    /// <returns><c>int</c> minimal code length</returns>
     public static int GetMinimalCodeLength(Matrix generatorMatrix)
     {
         StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(generatorMatrix);
@@ -338,7 +384,13 @@ public class StepByStepDecodingAlgorithm
     }
 
 
-
+    /// <summary>
+    /// Method to decode an encoded binary file.
+    /// </summary>
+    /// <param name="inputFilePath">File path of the encoded message binary</param>
+    /// <param name="outputFilePath">Output file path where the decoded message binary should be stored</param>
+    /// <returns>Returns <c>byte[]</c>, but most of the time can be used without storing the returned output, since the
+    /// vectors will be decoded in a file. The return can be useful sometimes.</returns>
     public byte[] DecodeFile(string inputFilePath, string outputFilePath)
     {
         int n = GeneratorMatrix.Columns;
