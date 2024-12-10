@@ -6,11 +6,24 @@ using app.Models.Decode;
 
 namespace app.Services;
 
+/// <summary>
+/// Class implementing a decoding service for vectors.
+/// </summary>
 public class VectorDecodingService : IDecodingService
 {
     
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="DecodeRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(DecodeRequest request) => request is VectorDecodeRequest;
     
+    /// <summary>
+    /// Method to decode data.
+    /// </summary>
+    /// <param name="request"><see cref="DecodeRequest"/></param>
+    /// <returns><see cref="DecodeResponse"/></returns>
     public DecodeResponse Decode(DecodeRequest request)
     {
         var vectorRequest = (VectorDecodeRequest)request;

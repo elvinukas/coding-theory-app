@@ -5,17 +5,35 @@ using app.Models;
 
 namespace app.Services;
 
+/// <summary>
+/// Class implementing a channel service for images.
+/// </summary>
 public class ImageChannelService : IChannelService
 {
     private readonly IWebHostEnvironment _environment;
 
+    /// <summary>
+    /// Constructor for the image channel service.
+    /// </summary>
+    /// <param name="environment"><see cref="IWebHostEnvironment"/></param>
     public ImageChannelService(IWebHostEnvironment environment)
     {
         _environment = environment;
     }
     
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="ChannelRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(ChannelRequest request) => request is ImageChannelRequest;
 
+    
+    /// <summary>
+    /// Method to pass data through a channel.
+    /// </summary>
+    /// <param name="request"><see cref="ChannelRequest"/></param>
+    /// <returns><see cref="ChannelResponse"/></returns>
     public ChannelResponse PassThrough(ChannelRequest request)
     {
         try

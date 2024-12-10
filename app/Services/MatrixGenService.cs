@@ -6,15 +6,28 @@ using app.Models.Matrix;
 
 namespace app.Services;
 
+/// <summary>
+/// This class is a service that generates matrices.
+/// </summary>
 public class MatrixGenService : IGenerator
 {
     private readonly INumGen _numGen;
     
+    /// <summary>
+    /// Constructor for the class.
+    /// </summary>
+    /// <param name="numGen"><see cref="INumGen"/>any number generator can be inputted</param>
     public MatrixGenService(INumGen numGen)
     {
         _numGen = numGen;
     }
     
+    /// <summary>
+    /// Method to generate a matrix.
+    /// </summary>
+    /// <param name="request"><see cref="MatrixRequest"/></param>
+    /// <returns><see cref="MatrixResponse"/></returns>
+    /// <exception cref="GeneratorException">Throws if unable to generate random matrix.</exception>
     public MatrixResponse GenerateMatrix(MatrixRequest request)
     {
         try

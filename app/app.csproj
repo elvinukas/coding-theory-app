@@ -12,6 +12,8 @@
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
         <ImplicitUsings>enable</ImplicitUsings>
         <Optimize>true</Optimize>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>bin/Debug/net6.0/app.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

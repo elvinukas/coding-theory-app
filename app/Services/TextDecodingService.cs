@@ -6,10 +6,23 @@ using app.Models.Decode;
 
 namespace app.Services;
 
+/// <summary>
+/// This class is used for text decoding and implements the <see cref="IDecodingService"/>.
+/// </summary>
 public class TextDecodingService : IDecodingService
 {
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="DecodeRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(DecodeRequest request) => request is TextDecodeRequest;
 
+    /// <summary>
+    /// Method to decode data.
+    /// </summary>
+    /// <param name="request"><see cref="DecodeRequest"/></param>
+    /// <returns><see cref="DecodeResponse"/></returns>
     public DecodeResponse Decode(DecodeRequest request)
     {
         var textRequest = (TextDecodeRequest)request;
