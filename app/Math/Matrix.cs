@@ -4,6 +4,11 @@ using app.Algorithms;
 
 namespace app.Math;
 
+/// <summary>
+/// This class represents a mathematical matrix.
+/// <para>Can be used to perform mathematical operations on <c>FieldElements</c>.
+/// Works with non-standard <c>Fields</c>.</para>
+/// </summary>
 public class Matrix : ISimilarity<Matrix>
 {
     private FieldElement[,] matrix; // holds a two dimensional array [,]
@@ -12,6 +17,12 @@ public class Matrix : ISimilarity<Matrix>
     
     // creating a matrix filled with zeroes
     // standard
+    /// <summary>
+    /// Constructor to create a <c>q = 2</c> field matrix filled with zeroes.
+    /// </summary>
+    /// <param name="rows">Number of rows.</param>
+    /// <param name="columns">Number of columns.</param>
+    /// <param name="q">Default field parameter set to <c>2</c>.</param>
     public Matrix(int rows, int columns, int q = 2)
     {
         this.Rows = rows;
@@ -30,7 +41,13 @@ public class Matrix : ISimilarity<Matrix>
         
     }
 
-    // converting a 2d array into a GroupElement matrix
+    // converting a 2d array into a FieldElement matrix
+    /// <summary>
+    /// Constructor converting a 2D array <c>int[,]</c> into a <c>FieldElement</c> object based matrix.
+    /// <para>This constructor is the primary constructor to easily create desired matrices.</para>
+    /// </summary>
+    /// <param name="elements">2D <c>int[,]</c> array designed to replicate a matrix.</param>
+    /// <param name="q">Default field parameter set to <c>2</c>.</param>
     public Matrix(int[,] elements, int q = 2)
     {
         // creating an empty matrix with measurements taken from elements 2d array
@@ -115,6 +132,11 @@ public class Matrix : ISimilarity<Matrix>
     }
 
     // copy constructor for the .Clone()
+    /// <summary>
+    /// Copy constructor for <c>.Clone()</c>.
+    /// </summary>
+    /// <param name="originalMatrix"><c>Matrix</c> which is to be cloned.</param>
+    /// <param name="q">Default field parameter set to <c>2</c>.</param>
     public Matrix(Matrix originalMatrix, int q = 2)
     {
         this.Rows = originalMatrix.Rows;
@@ -131,24 +153,35 @@ public class Matrix : ISimilarity<Matrix>
         }
 
     }
-
-    // Clone() method for cloning a matrix
+    
+    /// <summary>
+    /// Clone() method for cloning a matrix
+    /// </summary>
+    /// <returns><c>Matrix</c></returns>
     public Matrix Clone()
     {
         return new Matrix(this);
     }
     
     
-    // creating a method for accessing GroupElements from matrix
+    /// <summary>
+    /// Method for accessing FieldElements from matrix
+    /// </summary>
+    /// <param name="i">Indicating row of matrix.</param>
+    /// <param name="j">Indicating column of matrix.</param>
     public FieldElement this[int i, int j]
     {
         get => matrix[i, j];
         set => matrix[i, j] = value;
     }
 
-    /// matrix operations
     
     
+    /// <summary>
+    /// Overridden Equals() operator. Uses <c>operator ==</c> instead.
+    /// </summary>
+    /// <param name="obj">Checked object.</param>
+    /// <returns><c>bool</c></returns>
     public override bool Equals(object obj)
     {
         if (obj is Matrix matrix)
@@ -158,11 +191,23 @@ public class Matrix : ISimilarity<Matrix>
         return false;
     }
 
+    /// <summary>
+    /// Retrieves the hash code of the Matrix. The hash code is the same for all matrices
+    /// so that hashtable uses <c>.Equals()</c> as its comparison
+    /// <remarks>Was needed for hashtable comparisons.</remarks>
+    /// </summary>
+    /// <returns></returns>
     public override int GetHashCode()
     {
         return 400; // the hash code is the same for all matrices, so that the hashtable uses .Equals() as its comparison
     }
 
+    /// <summary>
+    /// Equality operator for matrices.
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>bool</c></returns>
     public static bool operator ==(Matrix a, Matrix b)
     {
         if (!(a != b))
@@ -175,6 +220,12 @@ public class Matrix : ISimilarity<Matrix>
     }
 
 
+    /// <summary>
+    /// Inequality operator for matrices.
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>bool</c></returns>
     public static bool operator !=(Matrix a, Matrix b)
     {
         if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
@@ -212,6 +263,15 @@ public class Matrix : ISimilarity<Matrix>
     
     
     // merging two vectors into one matrix
+    
+    /// <summary>
+    /// Merges two matrices into one matrix.
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>Matrix</c></returns>
+    /// <exception cref="ArgumentException">Throws if matrices with not the same amount of rows are inputed,
+    /// or field sizes differ.</exception>
     public static Matrix MergeMatrices(Matrix a, Matrix b)
     {
         if (a.Rows != b.Rows)
@@ -256,6 +316,13 @@ public class Matrix : ISimilarity<Matrix>
     
     
     // matrix addition
+    
+    /// <summary>
+    /// Addition operator for matrices.
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix operator +(Matrix a, Matrix b)
     {
         // checking if the matrixes can be added together
@@ -290,6 +357,12 @@ public class Matrix : ISimilarity<Matrix>
     }
     
     // matrix subtraction
+    /// <summary>
+    /// Subtraction operator for matrices.
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix operator -(Matrix a, Matrix b)
     {
         // checking if matrixes can be subtracted
@@ -326,6 +399,13 @@ public class Matrix : ISimilarity<Matrix>
     }
     
     // matrix multiplication
+    /// <summary>
+    /// Multiplication operator for matrices.
+    /// <remarks>Heavily used for encoding/decoding messages.</remarks>
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>Matrix</c></returns>
     public static Matrix operator *(Matrix a, Matrix b)
     {
         // checking if matrix multiplication is possible
@@ -410,7 +490,11 @@ public class Matrix : ISimilarity<Matrix>
         
     }
     
-    // Transpose() method is required for the step by step decoding algorithm
+    /// <summary>
+    /// Transposes a matrix.
+    /// <remarks>Transpose() method is required for the step by step decoding algorithm.</remarks>
+    /// </summary>
+    /// <returns><c>Matrix</c></returns>
     public Matrix Transpose()
     {
         // a transposed matrix has reversed number of columns and rows, thats why the order is different
@@ -428,7 +512,10 @@ public class Matrix : ISimilarity<Matrix>
 
     }
     
-
+    /// <summary>
+    /// Overridden ToString() method to format Matrix into string correctly.
+    /// </summary>
+    /// <returns><c>string</c></returns>
     public override string ToString()
     {
         StringBuilder result = new StringBuilder();
@@ -444,6 +531,12 @@ public class Matrix : ISimilarity<Matrix>
     }
 
 
+    /// <summary>
+    /// Calculates the similarity between two matrices.
+    /// </summary>
+    /// <param name="a">First matrix</param>
+    /// <param name="b">Second matrix</param>
+    /// <returns><c>double</c> value between <c>0</c> and <c>100</c>.</returns>
     public static double CalculateSimilarity(Matrix a, Matrix b)
     {
         if (a.Rows != b.Rows || a.Columns != b.Columns)
@@ -467,19 +560,6 @@ public class Matrix : ISimilarity<Matrix>
 
         double similarity = 1.0 - (double)differenceCounter / totalElements;
         return similarity * 100;
-    }
-
-    public int[,] ToIntArray()
-    {
-        int[,] result = new int[Rows, Columns];
-        for (int i = 0; i < Rows; i++)
-        {
-            for (int j = 0; j < Columns; j++)
-            {
-                result[i, j] = this[i, j].Value;
-            }
-        }
-        return result;
     }
 
 }
