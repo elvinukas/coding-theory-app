@@ -1,0 +1,1398 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>app</name>
+    </assembly>
+    <members>
+        <member name="T:app.Algorithms.IConverter`1">
+            <summary>
+            Interface for all converter algorithms.
+            </summary>
+            <typeparam name="T">Generic type which specifies the type of converter created.</typeparam>
+        </member>
+        <member name="M:app.Algorithms.IConverter`1.MakeMatrixFromByteArray(System.Byte[])">
+            <summary>
+            Static method from this interface to make a matrix from a byte array. Useful while image encoding/decoding.
+            </summary>
+            <param name="array">byte array</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.IConverter`1.MakeMatrixFromByteFile(System.String)">
+            <summary>
+            Method to make a matrix from a byte file. No longer required for decoding, search for alternatives in decoding algorithms.
+            </summary>
+            <param name="filePath">File path from which a matrix will be made.</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.IConverter`1.MakeByteArrayFromMatrix(app.Math.Matrix)">
+            <summary>
+            Method to make a byte array from a specified matrix. Useful for image encoding/decoding.
+            </summary>
+            <param name="matrix">Matrix, which will be made into a byte array.</param>
+            <returns><c>byte[]</c></returns>
+        </member>
+        <member name="M:app.Algorithms.IConverter`1.MakeMatrixFromBitArray(System.Collections.BitArray)">
+            <summary>
+            Makes a matrix from a bit array. Used in <see cref="T:app.Algorithms.ImageLinearEncodingAlgorithm"/> for image encoding/decoding.
+            </summary>
+            <param name="bitArray">Bit array.</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="T:app.Algorithms.IEncoding">
+            <summary>
+            Interface for encoding algorithms.
+            </summary>
+        </member>
+        <member name="M:app.Algorithms.IEncoding.Encode(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Abstract method to encode a matrix with a generator matrix.
+            </summary>
+            <param name="originalMessage">Original message matrix.</param>
+            <param name="gMatrix">Generator matrix</param>
+            <returns>Encoded <c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.IEncoding.EncodeFile(System.String,System.String,app.Math.Matrix,Microsoft.AspNetCore.SignalR.IHubContext{app.Services.EncodingProgressHub})">
+            <summary>
+            Abstract method to encode a file with given generator matrix.
+            </summary>
+            <param name="filePath">Path to a file which stores the original message.</param>
+            <param name="encodedFilePath">Path to which the encoded message will be stored.</param>
+            <param name="gMatrix">Generator matrix.</param>
+            <param name="hubContext">Can be possible to hook up to a hub context for progress displaying.</param>
+        </member>
+        <member name="T:app.Algorithms.ImageConverter">
+            <summary>
+            This class converts images into other formats. Uses an external library for image processing to binary.
+            <para>Allows for checking similarity between images, since it implements <c>ISimilarity</c> interface.</para>
+            </summary>
+        </member>
+        <member name="M:app.Algorithms.ImageConverter.ConvertToBinaryArray(SixLabors.ImageSharp.Image,System.String)">
+            <summary>
+            Converts to a binary array.
+            </summary>
+            <param name="image">Image object.</param>
+            <param name="binaryFileLocation">Path to the image file.</param>
+            <returns><c>byte[]</c></returns>
+        </member>
+        <member name="M:app.Algorithms.ImageConverter.ConvertToOriginalFormat(System.Byte[],System.String)">
+            <summary>
+            Converts <c>byte[]</c> to the image format.
+            </summary>
+            <param name="input"><c>byte[]</c> input which will turn into a file</param>
+            <param name="filePath">Image storage file path.</param>
+            <returns><c>Image</c> object.</returns>
+        </member>
+        <member name="M:app.Algorithms.ImageConverter.SaveImage(System.String,System.String)">
+            <summary>
+            Saves an image to a specified path.
+            </summary>
+            <param name="pathToBinary">Path to the image binaries.</param>
+            <param name="savePath">Save path for the image. Saves in .bmp format.</param>
+        </member>
+        <member name="M:app.Algorithms.ImageConverter.CalculateSimilarity(System.String,System.String)">
+            <summary>
+            Implements similarity calculations.
+            </summary>
+            <param name="image1Location">path to first image</param>
+            <param name="image2Location">path to second image</param>
+            <returns><c>double</c> between <c>0</c> and <c>100</c>.</returns>
+        </member>
+        <member name="T:app.Algorithms.ImageLinearEncodingAlgorithm">
+            <summary>
+            This class uses static methods to encode binary vectors using a linear encoding algorithm.
+            <para><b>Should only be used for image encoding!
+            Use <see cref="T:app.Algorithms.LinearEncodingAlgorithm"/> for other types of encoding. </b></para>
+            <para>This class incorporates more methods specificly designed for image encoding. </para>
+            </summary>
+        </member>
+        <member name="M:app.Algorithms.ImageLinearEncodingAlgorithm.Encode(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Static method which encodes an original message by multiplying it and the generator matrix.
+            </summary>
+            <param name="originalMessage">original message</param>
+            <param name="gMatrix">generator <c>Matrix</c></param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.ImageLinearEncodingAlgorithm.EncodeFile(System.String,System.String,app.Math.Matrix,Microsoft.AspNetCore.SignalR.IHubContext{app.Services.EncodingProgressHub})">
+            <summary>
+            Static method designed for encoding files.
+            </summary>
+            <param name="inputFilePath">The file path where to-be-encoded binary data is stored.</param>
+            <param name="encodedFilePath">The output file path where the encoded binary data is to be stored.</param>
+            <param name="generatorMatrix">Generator <c>Matrix</c></param>
+            <param name="hubContext">Optional argument that can be used to output the progress of encoding.</param>
+        </member>
+        <member name="M:app.Algorithms.ImageLinearEncodingAlgorithm.EncodeData(System.Byte[],app.Math.Matrix,Microsoft.AspNetCore.SignalR.IHubContext{app.Services.EncodingProgressHub})">
+            <summary>
+            Private helper method to encode data that has been converted to <c>byte[]</c>.
+            </summary>
+            <param name="binaryData">file data converted to <c>byte[]</c></param>
+            <param name="generatorMatrix">generator <c>Matrix</c></param>
+            <param name="hubContext">Optional argument that can be used to output the progress of encoding.</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Algorithms.ImageLinearEncodingAlgorithm.SaveBitsToFile(System.Collections.BitArray,System.String)">
+            <summary>
+            Method to save bits to a specified file.
+            </summary>
+            <param name="bits"><c>BitArray</c> which is to be stored.</param>
+            <param name="filePath">File path where bits will be stored.</param>
+        </member>
+        <member name="T:app.Algorithms.ISimilarity`1">
+            <summary>
+            Interface to calculate simularity between objects.
+            </summary>
+            <typeparam name="T">Object which is to be compared by similarity.</typeparam>
+        </member>
+        <member name="M:app.Algorithms.ISimilarity`1.CalculateSimilarity(`0,`0)">
+            <summary>
+            Abstract method to calculate similarity.
+            </summary>
+            <param name="entity">Object which is to be compared by similarity.</param>
+            <param name="secondEntity">Object which is to be compared by similarity.</param>
+            <returns><c>double</c></returns>
+        </member>
+        <member name="T:app.Algorithms.LinearEncodingAlgorithm">
+             <summary>
+             This class is the primary encoding algorithm class, used for vector and text encoding.
+             <para><b>Should not be used for image encoding.
+             Use <see cref="T:app.Algorithms.ImageLinearEncodingAlgorithm"/> for image encoding.</b></para>
+             The methods there are more suited for it.
+             <br></br>
+             <para>The length of the original message is considered to be industry-based (known) information, which is not needed
+             to be sent through the original vector</para>
+            
+             <b>Warning!</b> The encoding algorithm works with only binary digits!
+             
+             </summary>
+        </member>
+        <member name="M:app.Algorithms.LinearEncodingAlgorithm.#ctor(app.Math.Matrix,app.Math.Matrix,System.Int32,System.Int32,app.Math.GeneratorMatrixGenerator)">
+            <summary>
+            Main constructor for the linear encoding algorithm.
+            Automatically upon creation stores the encoded message in <see cref="P:app.Algorithms.LinearEncodingAlgorithm.EncodedMessage"/>.
+            </summary>
+            <param name="originalMessage">Original matrix message which is to be encoded.</param>
+            <param name="generatorMatrix">Generator matrix used for the encoding.</param>
+            <param name="dimension">Dimension of the generator matrix.</param>
+            <param name="n">Code length.</param>
+            <param name="matrixGenerator">It is possible to specify a custom generator matrix generator
+            if same random algorithm is to be used for many encodings</param>
+            <exception cref="T:System.ArgumentException">Throws if the message isn't a vector and if dimension count is less or eq. to 0.</exception>
+        </member>
+        <member name="M:app.Algorithms.LinearEncodingAlgorithm.GetCorrectSizeMessageForEncoding">
+            <summary>
+            Gets the correct message size for encoding (ensures padding).
+            <remarks>
+            The problem is that n may not always be divisible by k.
+            That is why there can be leftover bits that are not in a split message group.
+            To counter this, additional 0 need to be added to the end of the message so that they can
+            be encoded with the same generative matrix as all other sections
+            later on in the decoding process this 0-filling will need to be accounted for
+            </remarks>
+            </summary>
+            <returns>2D <c>int[,]</c> array</returns>
+            <exception cref="T:System.ArgumentException">Throws if dimension count is larger than vector length.</exception>
+        </member>
+        <member name="M:app.Algorithms.LinearEncodingAlgorithm.EncodeMessage">
+            <summary>
+            Method to encode a message. Uses properties of the algorithm.
+            <para>Recommend just using <see cref="P:app.Algorithms.LinearEncodingAlgorithm.EncodedMessage"/> instead.</para>.
+            </summary>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.LinearEncodingAlgorithm.MultiplyCached(System.Collections.Generic.Dictionary{System.ValueTuple{app.Math.Matrix,app.Math.Matrix},app.Math.Matrix},app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Method to store multiplication results in a cache. Used for to enhance the speed of the encoding algorithm
+            </summary>
+            <param name="multiplicationCache">Dictionary which stores the multiplied matrix results.</param>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="T:app.Algorithms.StandardArrayDecodingAlgorithm">
+            <summary>
+            A table needs to be implemented (standard array) that will help us decode messages.
+            The table is structured in such a way that the first row contains all the valid codewords
+            and each first element in each row is the coset leader (the most likely error).
+            <br></br>
+            <br></br>
+            <b> If we receive a code that is included in a particular "coset" (as described in literature)
+            then it is likely that the message belongs to a coset leader + error vector </b>
+            
+            </summary>
+        </member>
+        <member name="M:app.Algorithms.StandardArrayDecodingAlgorithm.GetOriginalEncodedMessage(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Method that retrieves the original encoded message.
+            </summary>
+            <param name="generatorMatrix">Generator matrix.</param>
+            <param name="receivedMessage">Received message.</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="T:app.Algorithms.StepByStepDecodingAlgorithm">
+            <summary>
+            This class implements the step-by-step decoding algorithm.
+            The step-by-step decoding algorithm depends on matrix transposition, parity matrix and the generator matrix structure.
+            <br></br>
+            Each generator matrix has an identity matrix within it and some additional bits for adapting the message to the desired length.
+            Now, the parity matrix H (the matrix which is used to check the encoded codeword) is generated like this:
+            G * H^T = 0, where T is transposition applied to the matrix.
+            Now H is constructed by using transposition on the additional bits in the generator matrix for adapting the message to the desired length.
+            </summary>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.#ctor(app.Math.Matrix,System.Int32,Microsoft.AspNetCore.SignalR.IHubContext{app.Services.DecodingProgressHub})">
+            <summary>
+            Default constructor for the algorithm. Decoding does not start automatically.
+            </summary>
+            <param name="generatorMatrix">generator <c>Matrix</c></param>
+            <param name="originalMessageLength">the length of the original message <b>without padding</b></param>
+            <param name="hubContext">optional argument to output progress to a hub context</param>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.Decode(app.Math.Matrix)">
+            <summary>
+            Method to decode one non-split message. Cannot split messages, used only for single vector decoding.
+            </summary>
+            <param name="receivedMessagePart"><c>Matrix</c> vector of length <c>k</c></param>
+            <returns>Decoded <c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.DecodeMessage(app.Math.Matrix)">
+            <summary>
+            Method to decode a matrix message (a message that is longer than <c>k</c>).
+            <para>Introduces padding, splits up the message into smaller vectors of length <c>k</c>,
+            decodes them, merges all vectors into one and finally trims the output to match the original message length.</para>
+            </summary>
+            <param name="receivedMessage"><c>Matrix</c> that is to be decoded</param>
+            <returns><c>Matrix</c></returns>
+            <exception cref="T:app.Exceptions.DecodingException">Throws if the original message length is impossible to determine</exception>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.MultiplyCached(System.Collections.Generic.Dictionary{System.ValueTuple{app.Math.Matrix,app.Math.Matrix},app.Math.Matrix},app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Method to store multiplication results in a cache.
+            </summary>
+            <param name="multiplicationCache">Dictionary of matrices where multiplications are to be stored</param>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.AppendDecodedMessage(app.Math.Matrix,app.Math.Matrix,System.Int32)">
+            <summary>
+            Appends one matrix to another.
+            </summary>
+            <param name="decodedMessage">The result <c>matrix</c> that will have another matrix appended to it.</param>
+            <param name="receivedMessagePart">The <c>matrix</c> that will be appended.</param>
+            <param name="k">Specifies how many elements are of the original message content. Corresponds to the dimension <c>k</c>.</param>
+            <returns></returns>
+            <seealso cref="M:app.Math.Matrix.MergeMatrices(app.Math.Matrix,app.Math.Matrix)"/>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.RetrieveParityMatrix(app.Math.Matrix)">
+            <summary>
+            Static method to retrieve a parity matrix from a generator matrix.
+            </summary>
+            <param name="generatorMatrix">Generator <c>Matrix</c></param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.RetrieveParityCheckMatrix(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Static method that retrieves a parity check matrix based on a generator matrix and a transposed parity matrix.
+            </summary>
+            <param name="generatorMatrix">Generator <c>Matrix</c></param>
+            <param name="transposedParityMatrix">Parity check matrix <see cref="M:app.Algorithms.StepByStepDecodingAlgorithm.RetrieveParityMatrix(app.Math.Matrix)"/>
+            that has been transposed using <see cref="M:app.Math.Matrix.Transpose"/></param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.GetWeight(app.Math.Matrix)">
+            <summary>
+            Static method to get weight of a matrix.
+            </summary>
+            <param name="matrix"><c>Matrix</c></param>
+            <returns><c>int</c> weight of the matrix</returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.TrimDecodedMessage(app.Math.Matrix,System.Int32)">
+            <summary>
+            Trims a decoded vector to its original length.
+            <para>While decoding, it is most likely that padding will be required in the end of the message
+            to make sure the decoding is successful. After decoding has completed, it is crucial to restore the original message
+            according to its original length by removing the padding.</para>
+            </summary>
+            <param name="decodedMessage">Decoded <c>Matrix</c> that will be trimmed</param>
+            <param name="originalMessageLength">The original length of the message vector</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.GetMinimalCodeLength(app.Math.Matrix)">
+            <summary>
+            Static method to find the minimal code length of a generator matrix.
+            <para>Not used in decoding in any sort of way, just a useful method
+            to determine how efficient the generator matrix is at decoding.</para>
+            </summary>
+            <param name="generatorMatrix">Generator <c>Matrix</c></param>
+            <returns><c>int</c> minimal code length</returns>
+        </member>
+        <member name="M:app.Algorithms.StepByStepDecodingAlgorithm.DecodeFile(System.String,System.String)">
+            <summary>
+            Method to decode an encoded binary file.
+            </summary>
+            <param name="inputFilePath">File path of the encoded message binary</param>
+            <param name="outputFilePath">Output file path where the decoded message binary should be stored</param>
+            <returns>Returns <c>byte[]</c>, but most of the time can be used without storing the returned output, since the
+            vectors will be decoded in a file. The return can be useful sometimes.</returns>
+        </member>
+        <member name="T:app.Algorithms.TextConverter">
+            <summary>
+            Converter that converts strings to many other types. Implements <see cref="T:app.Algorithms.ISimilarity`1"/> for comparing texts.
+            </summary>
+        </member>
+        <member name="M:app.Algorithms.TextConverter.ConvertToBinaryMatrix(System.String)">
+            <summary>
+            Converting a string message to a binary matrix. Uses UTF-8 encoding.
+            </summary>
+            <param name="message">Message that is to be converted.</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Algorithms.TextConverter.ConvertToOriginalFormat(System.Byte[])">
+            <summary>
+            Converts <c>byte[]</c> into <c>string</c>.
+            </summary>
+            <param name="input">Byte array input</param>
+            <returns><c>string</c></returns>
+        </member>
+        <member name="M:app.Algorithms.TextConverter.ConvertToOriginalFormat(app.Math.Matrix)">
+            <summary>
+            Converting a <c>Matrix</c> back to a string. Uses UTF-8 decoding.
+            </summary>
+            <param name="message"><c>Matrix</c> that will be turned into a string</param>
+            <returns><c>string</c> converted message</returns>
+        </member>
+        <member name="M:app.Algorithms.TextConverter.CalculateSimilarity(System.String,System.String)">
+            <summary>
+            Implementation of <see cref="T:app.Algorithms.ISimilarity`1"/> interface. Calculates similarity between two strings.
+            </summary>
+            <param name="a">first string</param>
+            <param name="b">second string</param>
+            <returns><c>double</c></returns>
+        </member>
+        <member name="T:app.Controllers.ChannelController">
+            <summary>
+            Controller class which is used to call the <c>Channel</c> class through an API.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.ChannelController.#ctor(app.Services.ChannelServiceFactory)">
+            <summary>
+            Constructor for the controller. Controller uses the factory design pattern to determine which service is used.
+            </summary>
+            <param name="channelServiceFactory">Takes in a channel service factory.</param>
+        </member>
+        <member name="M:app.Controllers.ChannelController.PassThroughChannel(System.Text.Json.JsonElement)">
+            <summary>
+            HTTP-POST request method that allows passing matrix through a channel.
+            Responds with <see cref="T:app.Models.ChannelResponse"/> or any of its child classes.
+            </summary>
+            <param name="requestJson">
+            Takes in <see cref="T:app.Models.ChannelRequest"/> or any of its child classes.
+            </param>
+            <returns><c>IActionResult</c></returns>
+            <seealso cref="T:app.Models.VectorChannelRequest"/>
+            <seealso cref="T:app.Models.ImageChannelRequest"/>
+            <seealso cref="T:app.Models.VectorChannelResponse"/>
+            <seealso cref="T:app.Models.ImageChannelResponse"/>
+        </member>
+        <member name="T:app.Controllers.DecodingController">
+            <summary>
+            Controller class which is used to decode matrices through an API.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.DecodingController.#ctor(app.Services.DecodingServiceFactory)">
+            <summary>
+            Constructor for the decoding controller. The controller uses the factory design pattern to determine which
+            service to use for decoding.
+            </summary>
+            <param name="decodingServiceFactory"><see cref="T:app.Services.DecodingServiceFactory"/></param>
+        </member>
+        <member name="M:app.Controllers.DecodingController.Decode(System.Text.Json.JsonElement)">
+            <summary>
+            HTTP-POST request method to decode matrices.
+            </summary>
+            <param name="requestJson"><c>DecodeRequest</c> or its children classes</param>
+            <returns></returns>
+        </member>
+        <member name="T:app.Controllers.EncodingController">
+            <summary>
+            Controller class which is used to encode matrices through an API.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.EncodingController.#ctor(app.Services.EncodingServiceFactory)">
+            <summary>
+            Constructor for the encoding controller. The controller uses the factory design pattern to determine which
+            service to use for encoding.
+            </summary>
+            <param name="encodingServiceFactory"><see cref="T:app.Services.EncodingServiceFactory"/></param>
+        </member>
+        <member name="M:app.Controllers.EncodingController.Encode">
+            <summary>
+            HTTP-POST request to encode matrices or files.
+            <para>Can be sent a json file, or in the case of image encoding -
+            image files through <c>Request.Form</c>.</para>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:app.Controllers.GraphController">
+            <summary>
+            Controller class which is used to draw graphs for encoding/decoding testing through an API.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.GraphController.#ctor(app.Services.IGraphService)">
+            <summary>
+            Contructor method which accepts the graph service which will paint the graph.
+            </summary>
+            <param name="service"><see cref="T:app.Services.IGraphService"/></param>
+        </member>
+        <member name="M:app.Controllers.GraphController.Paint(app.Models.Graph.GraphRequest)">
+            <summary>
+            Method to paint a graph based on the requested data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Graph.GraphRequest"/></param>
+            <returns><see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/></returns>
+        </member>
+        <member name="T:app.Controllers.ImageController">
+            <summary>
+            Controller class which is used to retrieve images from the backend using an API.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.ImageController.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Constructor which takes in a web host environment.
+            </summary>
+            <param name="environment"><see cref="T:Microsoft.AspNetCore.Hosting.IWebHostEnvironment"/></param>
+        </member>
+        <member name="M:app.Controllers.ImageController.GetImage(System.String)">
+            <summary>
+            Method to retrieve an image from the temporary saved files.
+            </summary>
+            <param name="fileName">Name of the file being retrieved.</param>
+            <returns><see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/></returns>
+        </member>
+        <member name="M:app.Controllers.ImageController.GetExtensionType(System.String)">
+            <summary>
+            Method to retrieve the extension type from a file name.
+            </summary>
+            <param name="fileName">File name.</param>
+            <returns><c>string</c>, which represents the extension type.</returns>
+            <example>When file name is "hi.bmp", returns ".bmp".</example>
+        </member>
+        <member name="T:app.Controllers.MatrixController">
+            <summary>
+            Controller class to retrieve random generator matrices from the backend using an API.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.MatrixController.#ctor(app.Services.IGenerator)">
+            <summary>
+            Constructor which can be provided an interface for generating matrices.
+            </summary>
+            <param name="generator"><see cref="T:app.Services.IGenerator"/></param>
+        </member>
+        <member name="M:app.Controllers.MatrixController.GetRandomGenMatrix(app.Models.Matrix.MatrixRequest)">
+            <summary>
+            HTTP-POST method to return a randomly generated matrix.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Matrix.MatrixRequest"/></param>
+            <returns></returns>
+        </member>
+        <member name="T:app.Controllers.MatrixConverter">
+            <summary>
+            This class acts as a converter for matrices of many types (2D list matrices, <see cref="T:app.Math.Matrix"/> matrices and more)
+            </summary>
+        </member>
+        <member name="M:app.Controllers.MatrixConverter.ConvertToIntArray(System.Collections.Generic.List{System.Collections.Generic.List{System.Int32}})">
+            <summary>
+            Converts a 2D list matrix into a <c>int[,]</c> array.
+            The frontend can easily support a 2D list sent through JSON, but <see cref="T:app.Math.Matrix"/> constructor can only take in
+            <c>int[,]</c> data, so for easy creation this method can be used.
+            </summary>
+            <param name="matrix">2D LIST of a matrix represented by <c>int</c> values</param>
+            <returns><c>int[,]</c></returns>
+        </member>
+        <member name="M:app.Controllers.MatrixConverter.ConvertTo2DList(app.Math.Matrix)">
+            <summary>
+            Converts a <see cref="T:app.Math.Matrix"/> to a 2D LISt
+            </summary>
+            <param name="matrix"><see cref="T:app.Math.Matrix"/></param>
+            <returns>2D List</returns>
+        </member>
+        <member name="T:app.Controllers.BinaryController">
+            <summary>
+            Controller to convert a matrix into a binary array or vice versa.
+            </summary>
+        </member>
+        <member name="M:app.Controllers.BinaryController.ConvertToString(app.Models.Matrix.BinaryConverterRequest)">
+            <summary>
+            HTTP-POST request to convert a matrix to a string.
+            </summary>
+            <param name="request"></param>
+            <returns><see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/></returns>
+        </member>
+        <member name="T:app.Exceptions.ChannelException">
+            <summary>
+            This is an exception class for anything related to <c>Channel</c>'ing.
+            </summary>
+        </member>
+        <member name="T:app.Exceptions.DecodingException">
+            <summary>
+            This is an exception class for anything related to decoding.
+            </summary>
+        </member>
+        <member name="T:app.Exceptions.EncodingException">
+            <summary>
+            This is an exception class for anything related to encoding.
+            </summary>
+        </member>
+        <member name="T:app.Exceptions.GeneratorException">
+            <summary>
+            This is an exception class for anything related to generating data.
+            </summary>
+        </member>
+        <member name="T:app.Math.Channel">
+            <summary>
+            This class is used as a channel simulator.
+            <para> Data is passed through this channel and it has a selected probability of flipping a bit in a matrix. </para>
+            </summary>
+        </member>
+        <member name="M:app.Math.Channel.#ctor(app.Math.Matrix,System.Double,app.Math.RandomNumberGenerator)">
+            <summary>
+            This is the standard Channel constructor.
+            <para>Once initiated, the Channel automatically channels the data. The channeled result is in <see cref="P:app.Math.Channel.ReceivedMessage"/></para>
+            </summary>
+            <param name="encodedMessage">The message that will be passed through the channel.</param>
+            <param name="probabilityOfError">Probability of a single bit flipping. Must be between <c>0</c> and <c>1</c>.</param>
+            <param name="randomNumberGenerator">Optional argument if desirable to have one specific random generator.</param>
+            <exception cref="T:System.ArgumentException">Throws exception if arguments are incorrect</exception>
+        </member>
+        <member name="M:app.Math.Channel.#ctor(System.String,System.Double,System.Int32,System.Int32,app.Math.RandomNumberGenerator)">
+            <summary>
+            This is a Channel constructor for channeling data in file.
+            <para>Once initiated, the Channel automatically channels the data from file. The channeled result is in the specified file path.</para>
+            </summary>
+            <param name="filePath">The file path of data which is to be channeled. Result of channeling is set in the same file.</param>
+            <param name="probabilityOfError">Probability of a single bit flipping. Must be between <c>0</c> and <c>1</c>.</param>
+            <param name="k">Dimension.</param>
+            <param name="n">Code length.</param>
+            <param name="randomNumberGenerator">Optional argument if desirable to have one specific random generator.</param>
+            <exception cref="T:System.ArgumentException">Throws exception if arguments are incorrect, file does not exist</exception>
+        </member>
+        <member name="M:app.Math.Channel.MakeErrorsInFile(System.String,System.Int32,System.Int32)">
+            <summary>
+            Makes errors in file.
+            </summary>
+            <param name="filePath">The file path of data which is to be channeled. Result of channeling is set in the same file.</param>
+            <param name="k">Dimension.</param>
+            <param name="n">Code length.</param>
+        </member>
+        <member name="M:app.Math.Channel.ModifyBytes(System.Byte[],System.Double,System.Double)">
+            <summary>
+            Modifies the original bytes. Mostly used for accounting the .bmp file header (the first 54 bytes of a file are not channeled).
+            </summary>
+            <param name="originalBytes">The bytes that will be channeled.</param>
+            <param name="k">Dimension.</param>
+            <param name="n">Code length.</param>
+            <returns>Modified bytes: <c>byte[]</c></returns>
+        </member>
+        <member name="M:app.Math.Channel.IntroduceErrorsToByte(System.Byte)">
+            <summary>
+            Introduces an error(-s) to the byte by flipping them according to the probability provided in the constructor.
+            </summary>
+            <param name="originalByte">The byte that will be channeled.</param>
+            <returns>Modified <c>byte</c></returns>
+        </member>
+        <member name="M:app.Math.Channel.GetReceivedMessage">
+            <summary>
+            Retrieving the message that gets passed through a channel with a probability of errors
+            </summary>
+            <returns>Channeled <c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Math.Channel.GetSpecifiedNumOfErrorVector(app.Math.Matrix,System.Int32)">
+            <summary>
+            Static method to introduce a specified number of errors inside a vector.
+            </summary>
+            <param name="sentMessage">Message to be modified.</param>
+            <param name="numberOfErrors"></param>
+            <returns>Modified <c>Matrix</c></returns>
+        </member>
+        <member name="T:app.Math.Field">
+            <summary>
+            This class is used to simulate a Field (the value q).
+            <example>While working with binary matrices, the value of field is always <c>q = 2</c></example>
+            </summary>
+        </member>
+        <member name="M:app.Math.Field.#ctor(System.Int32)">
+            <summary>
+            Standard Field constructor.
+            </summary>
+            <param name="size">Specifying the field size.</param>
+        </member>
+        <member name="M:app.Math.Field.SetFieldSize(System.Int32)">
+            <summary>
+            Method to set the field size.
+            </summary>
+            <param name="value">Value of the field. Must be a prime number.</param>
+            <exception cref="T:System.ArgumentException">Throws if the value is not a prime number.</exception>
+        </member>
+        <member name="M:app.Math.Field.IsPrime(System.Int32)">
+            <summary>
+            Checking if number is prime.
+            </summary>
+            <param name="number">Checked number.</param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Math.Field.op_Equality(app.Math.Field,app.Math.Field)">
+            <summary>
+            Equality operator between two fields.
+            </summary>
+            <param name="a"><c>Field</c> object.</param>
+            <param name="b"><c>Field</c> object.</param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Math.Field.op_Inequality(app.Math.Field,app.Math.Field)">
+            <summary>
+            Inequality operator between two fields.
+            </summary>
+            <param name="a"><c>Field</c> object.</param>
+            <param name="b"><c>Field</c> object.</param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="T:app.Math.FieldElement">
+            <summary>
+            This class represents the actual field element (certain value with field).
+            <example>Can be used to compute operations with elements from non-standard fields, such as <c>base 5</c></example>
+            </summary>
+        </member>
+        <member name="M:app.Math.FieldElement.#ctor(System.Int32,app.Math.Field)">
+            <summary>
+            Constructor for FieldElement.
+            <para>Checks if the group element is correct and if not fixes it according to the group size.</para>
+            </summary>
+            <param name="value">The value that will be turned into a field element by checking with the linked field.</param>
+            <param name="field">Field that will define <see cref="P:app.Math.FieldElement.Value"/></param>
+        </member>
+        <member name="M:app.Math.FieldElement.op_Equality(app.Math.FieldElement,app.Math.FieldElement)">
+            <summary>
+            Equality operator for <c>FieldElement</c> objects.
+            </summary>
+            <param name="firstElement"><c>FieldElement</c> object</param>
+            <param name="secondElement"><c>FieldElement</c> object</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.FieldElement.op_Inequality(app.Math.FieldElement,app.Math.FieldElement)">
+            <summary>
+            Inequality operator for <c>FieldElement</c> objects.
+            </summary>
+            <param name="firstElement"><c>FieldElement</c> object</param>
+            <param name="secondElement"><c>FieldElement</c> object</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.FieldElement.op_Addition(app.Math.FieldElement,app.Math.FieldElement)">
+            <summary>
+            Addition operator for <c>FieldElement</c> objects.
+            </summary>
+            <param name="firstElement"><c>FieldElement</c> object</param>
+            <param name="secondElement"><c>FieldElement</c> object</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.FieldElement.op_Multiply(app.Math.FieldElement,app.Math.FieldElement)">
+            <summary>
+            Multiplication operator for <c>FieldElement</c> objects.
+            </summary>
+            <param name="firstElement"><c>FieldElement</c> object</param>
+            <param name="secondElement"><c>FieldElement</c> object</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.FieldElement.op_Subtraction(app.Math.FieldElement,app.Math.FieldElement)">
+            <summary>
+            Subtraction operator for <c>FieldElement</c> objects.
+            </summary>
+            <param name="firstElement"><c>FieldElement</c> object</param>
+            <param name="secondElement"><c>FieldElement</c> object</param>
+            <returns></returns>
+        </member>
+        <member name="T:app.Math.GeneratorMatrixGenerator">
+            <summary>
+            A generator for standard generator matrices.
+            <remarks>By relying on this class the user takes responsibility, that the generator matrix may not be optimal for encoding.</remarks>
+            </summary>
+        </member>
+        <member name="M:app.Math.GeneratorMatrixGenerator.#ctor(app.Math.INumGen)">
+            <summary>
+            Constructor for the class. Does not automatically generate a matrix.
+            </summary>
+            <param name="randomNumberGenerator">Takes in a <c>INumGen</c> interface. Can be easily used for mock tests.</param>
+        </member>
+        <member name="M:app.Math.GeneratorMatrixGenerator.GenerateMatrix(System.Int32,System.Int32)">
+            <summary>
+            Generates a random matrix.
+            </summary>
+            <param name="k">Dimension.</param>
+            <param name="n">Code length.</param>
+            <returns>Randomized <c>Matrix</c></returns>
+            <exception cref="T:System.ArgumentException"><c>n</c> (the number of bits in each codeword) cannot be smaller or equal
+            to the number of bits in the original message (<c>k</c>)</exception>
+        </member>
+        <member name="T:app.Math.IMatrixGen">
+            <summary>
+            Interface for any matrix generator.
+            </summary>
+        </member>
+        <member name="M:app.Math.IMatrixGen.GenerateMatrix(System.Int32,System.Int32)">
+            <summary>
+            Defined method to generate a matrix.
+            </summary>
+            <param name="rows">Matrix rows.</param>
+            <param name="cols">Matrix columns.</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="T:app.Math.INumGen">
+            <summary>
+            Interface for a number generator.
+            </summary>
+        </member>
+        <member name="M:app.Math.INumGen.GenerateNumber">
+            <summary>
+            Defined method to generate a number.
+            </summary>
+            <returns><c>double</c></returns>
+        </member>
+        <member name="T:app.Math.Matrix">
+            <summary>
+            This class represents a mathematical matrix.
+            <para>Can be used to perform mathematical operations on <c>FieldElements</c>.
+            Works with non-standard <c>Fields</c>.</para>
+            </summary>
+        </member>
+        <member name="M:app.Math.Matrix.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Constructor to create a <c>q = 2</c> field matrix filled with zeroes.
+            </summary>
+            <param name="rows">Number of rows.</param>
+            <param name="columns">Number of columns.</param>
+            <param name="q">Default field parameter set to <c>2</c>.</param>
+        </member>
+        <member name="M:app.Math.Matrix.#ctor(System.Int32[0:,0:],System.Int32)">
+            <summary>
+            Constructor converting a 2D array <c>int[,]</c> into a <c>FieldElement</c> object based matrix.
+            <para>This constructor is the primary constructor to easily create desired matrices.</para>
+            </summary>
+            <param name="elements">2D <c>int[,]</c> array designed to replicate a matrix.</param>
+            <param name="q">Default field parameter set to <c>2</c>.</param>
+        </member>
+        <member name="M:app.Math.Matrix.#ctor(app.Math.Matrix,System.Int32)">
+            <summary>
+            Copy constructor for <c>.Clone()</c>.
+            </summary>
+            <param name="originalMatrix"><c>Matrix</c> which is to be cloned.</param>
+            <param name="q">Default field parameter set to <c>2</c>.</param>
+        </member>
+        <member name="M:app.Math.Matrix.Clone">
+            <summary>
+            Clone() method for cloning a matrix
+            </summary>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="P:app.Math.Matrix.Item(System.Int32,System.Int32)">
+            <summary>
+            Method for accessing FieldElements from matrix
+            </summary>
+            <param name="i">Indicating row of matrix.</param>
+            <param name="j">Indicating column of matrix.</param>
+        </member>
+        <member name="M:app.Math.Matrix.Equals(System.Object)">
+            <summary>
+            Overridden Equals() operator. Uses <c>operator ==</c> instead.
+            </summary>
+            <param name="obj">Checked object.</param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.GetHashCode">
+            <summary>
+            Retrieves the hash code of the Matrix. The hash code is the same for all matrices
+            so that hashtable uses <c>.Equals()</c> as its comparison
+            <remarks>Was needed for hashtable comparisons.</remarks>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.Matrix.op_Equality(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Equality operator for matrices.
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.op_Inequality(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Inequality operator for matrices.
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.MergeMatrices(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Merges two matrices into one matrix.
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>Matrix</c></returns>
+            <exception cref="T:System.ArgumentException">Throws if matrices with not the same amount of rows are inputed,
+            or field sizes differ.</exception>
+        </member>
+        <member name="M:app.Math.Matrix.op_Addition(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Addition operator for matrices.
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.op_Subtraction(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Subtraction operator for matrices.
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.op_Multiply(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Multiplication operator for matrices.
+            <remarks>Heavily used for encoding/decoding messages.</remarks>
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.Transpose">
+            <summary>
+            Transposes a matrix.
+            <remarks>Transpose() method is required for the step by step decoding algorithm.</remarks>
+            </summary>
+            <returns><c>Matrix</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.ToString">
+            <summary>
+            Overridden ToString() method to format Matrix into string correctly.
+            </summary>
+            <returns><c>string</c></returns>
+        </member>
+        <member name="M:app.Math.Matrix.CalculateSimilarity(app.Math.Matrix,app.Math.Matrix)">
+            <summary>
+            Calculates the similarity between two matrices.
+            </summary>
+            <param name="a">First matrix</param>
+            <param name="b">Second matrix</param>
+            <returns><c>double</c> value between <c>0</c> and <c>100</c>.</returns>
+        </member>
+        <member name="T:app.Math.RandomNumberGenerator">
+            <summary>
+            This class implements the <c>INumGen</c> interface to generate random numbers.
+            </summary>
+        </member>
+        <member name="M:app.Math.RandomNumberGenerator.#ctor">
+            <summary>
+            Constructor which generates a random number stored in <see cref="F:app.Math.RandomNumberGenerator.random"/>
+            </summary>
+        </member>
+        <member name="M:app.Math.RandomNumberGenerator.GenerateNumber">
+            <summary>
+            Method to generate a number.
+            <remarks>This method is virtual, so that later on in the mock tests it is able to be overriden.</remarks>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:app.Math.StandardArrayGenerator">
+             <summary>
+             <remarks>This class should not be used for decoding. It was created a long time ago before I realized the mistake that
+             this is not the correct decoding algorithm for my assignment.
+             <para>It has useful methods and features for other decoder class, that is why it has not been deleted.</para>
+             </remarks>
+             
+             A table needs to be implemented (standard array) that will help us decode messages.
+             The table is structured in such a way that the first row contains all the valid codewords
+             and each first element in each row is the coset leader (the most likely error).
+            
+            
+             <br></br>
+             <br></br>
+             <b> If we receive a code that is included in a particular "coset" (as described in literature)
+             then it is likely that the message belongs to a coset leader + error vector </b>
+             
+             </summary>
+            
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.#ctor(app.Math.Matrix)">
+            <summary>
+            Generates a standard array based on a generator matrix.
+            </summary>
+            <param name="generatorMatrix">generator <c>Matrix</c></param>
+            <exception cref="T:System.ArgumentException">Throws if generator matrix is <c>null</c>.</exception>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateStandardArray">
+            <summary>
+            Generates a standard array.
+            </summary>
+            <returns>A list of a list of matrices.</returns>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateListOfUniqueSyndromes(app.Math.Matrix)">
+            <summary>
+            This method is used for creating unique syndromes.
+            Very useful while decoding in <see cref="T:app.Algorithms.StepByStepDecodingAlgorithm"/>.
+            </summary>
+            <param name="parityCheckMatrix">A parity check matrix. This matrix is derived
+            from the <see cref="T:app.Algorithms.StepByStepDecodingAlgorithm"/> instructions.</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GetWeight(app.Math.Matrix)">
+            <summary>
+            Retrieves weight of a matrix (how many <c>1</c> are there).
+            </summary>
+            <param name="matrix">Weighed matrix.</param>
+            <returns><c>int</c></returns>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateCosetLeaders(System.Int32)">
+            <summary>
+            Generates the coset leaders of specified weight. Required for the <see cref="T:app.Algorithms.StepByStepDecodingAlgorithm"/>.
+            </summary>
+            <param name="weight">weight of the coset leaders <seealso cref="M:app.Math.StandardArrayGenerator.GetWeight(app.Math.Matrix)"/>.</param>
+            <returns></returns>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateCosetLeadersUpToWeight(System.Int32)">
+            <summary>
+            Generating coset leaders up to a certain weight.
+            </summary>
+            <param name="maxWeight">The maximum weight up to which coset leaders will be generated. Inclusive.</param>
+            <returns></returns>
+            <seealso cref="M:app.Math.StandardArrayGenerator.GetWeight(app.Math.Matrix)"/>
+            <seealso cref="M:app.Math.StandardArrayGenerator.GenerateCosetLeaders(System.Int32)"/>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateCosetLeadersRecursive(System.Collections.Generic.List{app.Math.Matrix},System.Int32[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Recursive method which generates coset leaders.
+            <para>Quite complicated, looking at implementation recommended.</para>
+            </summary>
+            <param name="cosetLeaders">The list of generated coset leaders. Results come here.</param>
+            <param name="currentLeader">Marks the current leader.</param>
+            <param name="start">Start weight. Changes each time recursively.</param>
+            <param name="depth">"How many 1's have been set so far?". Must equal weight to add cosetLeader to the list.</param>
+            <param name="weight">Weight of a desired coset leader.</param>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateAllCodewords">
+            <summary>
+            Method to generate all codewords. 
+            <remarks>Was used to decode vectors.</remarks>
+            </summary>
+            <returns>List of matrices.</returns>
+        </member>
+        <member name="M:app.Math.StandardArrayGenerator.GenerateMessages(System.Int32[],System.Int32,System.Collections.Generic.List{System.Int32[]})">
+            <summary>
+            Takes in an array and recursively calls the function. Adds each message possibility into the messages list.
+            </summary>
+            <param name="current">Current array.</param>
+            <param name="position">Position within the array.</param>
+            <param name="messages">The list of messages that are generated.</param>
+        </member>
+        <member name="T:app.Services.ChannelServiceFactory">
+            <summary>
+            This class represents the channel service factory, which picks out the required services based on the request.
+            </summary>
+        </member>
+        <member name="M:app.Services.ChannelServiceFactory.#ctor(System.Collections.Generic.IEnumerable{app.Services.IChannelService})">
+            <summary>
+            Constructor which receives an enumerable list of channel services which can be used
+            </summary>
+            <param name="channelServices">Enumerable generic list of classes that implement the channel service interface</param>
+        </member>
+        <member name="M:app.Services.ChannelServiceFactory.GetService(app.Models.ChannelRequest)">
+            <summary>
+            Method which retrieves the correct <see cref="T:app.Services.IChannelService"/> based
+            on the retrieved <see cref="T:app.Models.ChannelRequest"/> child class
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/> child object</param>
+            <returns><see cref="T:app.Services.IChannelService"/></returns>
+            <exception cref="T:app.Exceptions.ChannelException">Throws an exception if
+            there is no channel service available for the request.</exception>
+        </member>
+        <member name="T:app.Services.DecodingProgressHub">
+            <summary>
+            Class to send progress updates of decoding processes to the front end. Child class of <see cref="T:Microsoft.AspNetCore.SignalR.Hub"/>.
+            </summary>
+        </member>
+        <member name="T:app.Services.DecodingServiceFactory">
+            <summary>
+            This class represents the decoding service factory, which is used to determine which <see cref="T:app.Services.IDecodingService"/>
+            to use based on the request.
+            </summary>
+        </member>
+        <member name="M:app.Services.DecodingServiceFactory.#ctor(System.Collections.Generic.IEnumerable{app.Services.IDecodingService})">
+            <summary>
+            Constructor which receives an enumerable list of decoding services which can be used
+            </summary>
+            <param name="decodingServices">Enumerable generic list of classes that implement the decoding service interface</param>
+        </member>
+        <member name="M:app.Services.DecodingServiceFactory.GetService(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Method which retrieves the correct <see cref="T:app.Services.IDecodingService"/> based
+            on the retrieved <see cref="T:app.Models.Decode.DecodeRequest"/> child class
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/> child object</param>
+            <returns><see cref="T:app.Services.IDecodingService"/></returns>
+            <exception cref="T:app.Exceptions.DecodingException">Throws an exception if
+            there is no decoding service available for the request.</exception>
+        </member>
+        <member name="T:app.Services.EncodingProgressHub">
+            <summary>
+            Class to send progress updates of encoding processes to the front end. Child class of <see cref="T:Microsoft.AspNetCore.SignalR.Hub"/>.
+            </summary>
+        </member>
+        <member name="T:app.Services.EncodingServiceFactory">
+            <summary>
+            This class represents the decoding service factory, which is used to determine which <see cref="T:app.Services.IEncodingService"/>
+            to use based on the request.
+            </summary>
+        </member>
+        <member name="M:app.Services.EncodingServiceFactory.#ctor(System.Collections.Generic.IEnumerable{app.Services.IEncodingService})">
+            <summary>
+            Constructor which receives an enumerable list of encoding services which can be used
+            </summary>
+            <param name="encodingServices">Enumerable generic list of classes
+            that implement the encoding service interface</param>
+        </member>
+        <member name="M:app.Services.EncodingServiceFactory.GetService(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Method which retrieves the correct <see cref="T:app.Services.IEncodingService"/> based
+            on the retrieved <see cref="T:app.Models.Encode.EncodeRequest"/> child class
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/> child object</param>
+            <returns><see cref="T:app.Services.IEncodingService"/></returns>
+            <exception cref="T:app.Exceptions.EncodingException">Throws an exception if
+            there is no encoding service available for the request.</exception>
+        </member>
+        <member name="T:app.Services.GraphService">
+            <summary>
+            This class implements the <see cref="T:app.Services.IGraphService"/> interface and is responsible for painting graphs.
+            </summary>
+        </member>
+        <member name="M:app.Services.GraphService.#ctor(System.Double)">
+            <summary>
+            Constructor for the graph service.
+            </summary>
+            <param name="frequency">Between <c>0</c> and <c>1</c>. Represents by what value does each entry get represented.</param>
+            <example>If <see cref="P:app.Services.GraphService.Frequency"/> is 0.01, then the graph would have 100 entries.</example>
+        </member>
+        <member name="M:app.Services.GraphService.Paint(app.Models.Graph.GraphRequest)">
+            <summary>
+            Paints a graph based on a <see cref="T:app.Models.Graph.GraphRequest"/>.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Graph.GraphRequest"/></param>
+            <returns><see cref="T:app.Models.Graph.GraphResponse"/></returns>
+        </member>
+        <member name="M:app.Services.GraphService.GetData(app.Models.Graph.GraphRequest)">
+            <summary>
+            Method that retrieves data from a graph request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Graph.GraphRequest"/></param>
+        </member>
+        <member name="M:app.Services.GraphService.FindWhereLinesFirstCross(System.Double[],System.Double[])">
+            <summary>
+            Finding where two lines first cross. Checking is not with <c>==</c>, but with less operator, since it is possible
+            that similarities are cross even though they are not the same.
+            </summary>
+            <param name="array1"></param>
+            <param name="array2"></param>
+            <returns><c>(y, x)</c></returns>
+        </member>
+        <member name="M:app.Services.GraphService.FindWhereNoLossEncoding(System.Double[])">
+            <summary>
+            Finds where similarity stops being at 100%.
+            </summary>
+            <param name="array"></param>
+            <returns>(y, x)</returns>
+        </member>
+        <member name="T:app.Services.IChannelService">
+            <summary>
+            Interface for implementing a channel service.
+            </summary>
+        </member>
+        <member name="M:app.Services.IChannelService.PassThrough(app.Models.ChannelRequest)">
+            <summary>
+            Method to pass data through a channel.
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/></param>
+            <returns><see cref="T:app.Models.ChannelResponse"/></returns>
+        </member>
+        <member name="M:app.Services.IChannelService.CanHandle(app.Models.ChannelRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="T:app.Services.IDecodingService">
+            <summary>
+            Interface for implementing a decoding service.
+            </summary>
+        </member>
+        <member name="M:app.Services.IDecodingService.Decode(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Method to decode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><see cref="T:app.Models.Decode.DecodeResponse"/></returns>
+        </member>
+        <member name="M:app.Services.IDecodingService.CanHandle(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="T:app.Services.IEncodingService">
+            <summary>
+            Interface for implementing an encoding service.
+            </summary>
+        </member>
+        <member name="M:app.Services.IEncodingService.Encode(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Method to encode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><see cref="T:app.Models.Encode.EncodeResponse"/></returns>
+        </member>
+        <member name="M:app.Services.IEncodingService.CanHandle(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="T:app.Services.IGenerator">
+            <summary>
+            Interface for implementing a generator.
+            </summary>
+        </member>
+        <member name="M:app.Services.IGenerator.GenerateMatrix(app.Models.Matrix.MatrixRequest)">
+            <summary>
+            Method to generate a matrix.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Matrix.MatrixRequest"/></param>
+            <returns><see cref="T:app.Models.Matrix.MatrixResponse"/></returns>
+        </member>
+        <member name="T:app.Services.IGraphService">
+            <summary>
+            Interface for implementing a graph painter.
+            </summary>
+        </member>
+        <member name="M:app.Services.IGraphService.Paint(app.Models.Graph.GraphRequest)">
+            <summary>
+            Method to paint a graph.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Graph.GraphRequest"/></param>
+            <returns><see cref="T:app.Models.Graph.GraphResponse"/></returns>
+        </member>
+        <member name="T:app.Services.ImageChannelService">
+            <summary>
+            Class implementing a channel service for images.
+            </summary>
+        </member>
+        <member name="M:app.Services.ImageChannelService.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Constructor for the image channel service.
+            </summary>
+            <param name="environment"><see cref="T:Microsoft.AspNetCore.Hosting.IWebHostEnvironment"/></param>
+        </member>
+        <member name="M:app.Services.ImageChannelService.CanHandle(app.Models.ChannelRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.ImageChannelService.PassThrough(app.Models.ChannelRequest)">
+            <summary>
+            Method to pass data through a channel.
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/></param>
+            <returns><see cref="T:app.Models.ChannelResponse"/></returns>
+        </member>
+        <member name="T:app.Services.ImageDecodingService">
+            <summary>
+            Class implementing a decoding service for images.
+            </summary>
+        </member>
+        <member name="M:app.Services.ImageDecodingService.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.SignalR.IHubContext{app.Services.DecodingProgressHub})">
+            <summary>
+            Constructor for the image decoding service.
+            </summary>
+            <param name="environment"><see cref="T:Microsoft.AspNetCore.Hosting.IWebHostEnvironment"/></param>
+            <param name="hubContext">Can be used to link progress of decoding to the front end</param>
+        </member>
+        <member name="M:app.Services.ImageDecodingService.CanHandle(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.ImageDecodingService.Decode(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Method to decode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><see cref="T:app.Models.Decode.DecodeResponse"/></returns>
+            <exception cref="T:app.Exceptions.DecodingException">Throws if decoding fails.</exception>
+        </member>
+        <member name="T:app.Services.ImageEncodingService">
+            <summary>
+            Class implementing an encoding service for images.
+            </summary>
+        </member>
+        <member name="M:app.Services.ImageEncodingService.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.SignalR.IHubContext{app.Services.EncodingProgressHub})">
+            <summary>
+            Constructor for the image encoding service.
+            </summary>
+            <param name="environment"><see cref="T:Microsoft.AspNetCore.Hosting.IWebHostEnvironment"/></param>
+            <param name="hubContext">Can be used to link progress of decoding to the front end</param>
+        </member>
+        <member name="M:app.Services.ImageEncodingService.CanHandle(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.ImageEncodingService.Encode(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Method to encode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><see cref="T:app.Models.Encode.EncodeResponse"/></returns>
+            <seealso cref="M:app.Services.ImageEncodingService.EncodeAsync(app.Models.Encode.EncodeRequest)"/>
+        </member>
+        <member name="M:app.Services.ImageEncodingService.EncodeAsync(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Private method which encodes data with async.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns>Returns a task with <see cref="T:app.Models.Encode.EncodeResponse"/></returns>
+            <exception cref="T:app.Exceptions.EncodingException">Throws if encoding failed</exception>
+        </member>
+        <member name="T:app.Services.MatrixGenService">
+            <summary>
+            This class is a service that generates matrices.
+            </summary>
+        </member>
+        <member name="M:app.Services.MatrixGenService.#ctor(app.Math.INumGen)">
+            <summary>
+            Constructor for the class.
+            </summary>
+            <param name="numGen"><see cref="T:app.Math.INumGen"/>any number generator can be inputted</param>
+        </member>
+        <member name="M:app.Services.MatrixGenService.GenerateMatrix(app.Models.Matrix.MatrixRequest)">
+            <summary>
+            Method to generate a matrix.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Matrix.MatrixRequest"/></param>
+            <returns><see cref="T:app.Models.Matrix.MatrixResponse"/></returns>
+            <exception cref="T:app.Exceptions.GeneratorException">Throws if unable to generate random matrix.</exception>
+        </member>
+        <member name="T:app.Services.TextDecodingService">
+            <summary>
+            This class is used for text decoding and implements the <see cref="T:app.Services.IDecodingService"/>.
+            </summary>
+        </member>
+        <member name="M:app.Services.TextDecodingService.CanHandle(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.TextDecodingService.Decode(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Method to decode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><see cref="T:app.Models.Decode.DecodeResponse"/></returns>
+        </member>
+        <member name="T:app.Services.TextEncodingService">
+            <summary>
+            This class is used for text encoding and implements the <see cref="T:app.Services.IEncodingService"/>.
+            </summary>
+        </member>
+        <member name="M:app.Services.TextEncodingService.CanHandle(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.TextEncodingService.Encode(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Method to encode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><see cref="T:app.Models.Encode.EncodeResponse"/></returns>
+        </member>
+        <member name="T:app.Services.VectorChannelService">
+            <summary>
+            Class implementing a channel service for vectors. Can be used for text too, if it is converted to vectors.
+            </summary>
+        </member>
+        <member name="M:app.Services.VectorChannelService.CanHandle(app.Models.ChannelRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.VectorChannelService.PassThrough(app.Models.ChannelRequest)">
+            <summary>
+            Method to pass data through a channel.
+            </summary>
+            <param name="request"><see cref="T:app.Models.ChannelRequest"/></param>
+            <returns><see cref="T:app.Models.ChannelResponse"/></returns>
+        </member>
+        <member name="T:app.Services.VectorDecodingService">
+            <summary>
+            Class implementing a decoding service for vectors.
+            </summary>
+        </member>
+        <member name="M:app.Services.VectorDecodingService.CanHandle(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.VectorDecodingService.Decode(app.Models.Decode.DecodeRequest)">
+            <summary>
+            Method to decode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Decode.DecodeRequest"/></param>
+            <returns><see cref="T:app.Models.Decode.DecodeResponse"/></returns>
+        </member>
+        <member name="T:app.Services.VectorEncodingService">
+            <summary>
+            Class implementing an encoding service for vectors.
+            </summary>
+        </member>
+        <member name="M:app.Services.VectorEncodingService.CanHandle(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Checking whether the service can handle the request.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><c>bool</c></returns>
+        </member>
+        <member name="M:app.Services.VectorEncodingService.Encode(app.Models.Encode.EncodeRequest)">
+            <summary>
+            Method to encode data.
+            </summary>
+            <param name="request"><see cref="T:app.Models.Encode.EncodeRequest"/></param>
+            <returns><see cref="T:app.Models.Encode.EncodeResponse"/></returns>
+        </member>
+    </members>
+</doc>
