@@ -9,15 +9,28 @@ using SixLabors.ImageSharp.Metadata.Profiles.Icc;
 
 namespace app.Services;
 
+/// <summary>
+/// This class implements the <see cref="IGraphService"/> interface and is responsible for painting graphs.
+/// </summary>
 public class GraphService : IGraphService
 {
     public double Frequency { get; set; }
 
+    /// <summary>
+    /// Constructor for the graph service.
+    /// </summary>
+    /// <param name="frequency">Between <c>0</c> and <c>1</c>. Represents by what value does each entry get represented.</param>
+    /// <example>If <see cref="Frequency"/> is 0.01, then the graph would have 100 entries.</example>
     public GraphService(double frequency)
     {
         Frequency = frequency;
     }
 
+    /// <summary>
+    /// Paints a graph based on a <see cref="GraphRequest"/>.
+    /// </summary>
+    /// <param name="request"><see cref="GraphRequest"/></param>
+    /// <returns><see cref="GraphResponse"/></returns>
     public GraphResponse Paint(GraphRequest request)
     {
         List<List<double>> errorPercentages = GetData(request);
@@ -82,6 +95,10 @@ public class GraphService : IGraphService
 
     }
 
+    /// <summary>
+    /// Method that retrieves data from a graph request.
+    /// </summary>
+    /// <param name="request"><see cref="GraphRequest"/></param>
     private List<List<double>> GetData(GraphRequest request)
     {
         Matrix gMatrix = new Matrix(MatrixConverter.ConvertToIntArray(request.GeneratorMatrix));
@@ -131,6 +148,13 @@ public class GraphService : IGraphService
 
     }
 
+    /// <summary>
+    /// Finding where two lines first cross. Checking is not with <c>==</c>, but with less operator, since it is possible
+    /// that similarities are cross even though they are not the same.
+    /// </summary>
+    /// <param name="array1"></param>
+    /// <param name="array2"></param>
+    /// <returns><c>(y, x)</c></returns>
     private (double?, int?) FindWhereLinesFirstCross(double[] array1, double[] array2) {
         // index1 and index2 mean what type of info 
         // from list is being checked (for example lineargraph and encodedSimilarity) 
@@ -146,6 +170,11 @@ public class GraphService : IGraphService
 
     }
 
+    /// <summary>
+    /// Finds where similarity stops being at 100%.
+    /// </summary>
+    /// <param name="array"></param>
+    /// <returns>(y, x)</returns>
     private (double?, int?) FindWhereNoLossEncoding(double[] array)
     {
         for (int i = 0; i < array.Length; ++i)

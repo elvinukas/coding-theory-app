@@ -5,10 +5,23 @@ using app.Models;
 
 namespace app.Services;
 
+/// <summary>
+/// Class implementing a channel service for vectors. Can be used for text too, if it is converted to vectors.
+/// </summary>
 public class VectorChannelService : IChannelService
 {
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="ChannelRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(ChannelRequest request) => request is VectorChannelRequest;
     
+    /// <summary>
+    /// Method to pass data through a channel.
+    /// </summary>
+    /// <param name="request"><see cref="ChannelRequest"/></param>
+    /// <returns><see cref="ChannelResponse"/></returns>
     public ChannelResponse PassThrough(ChannelRequest request)
     {
         try

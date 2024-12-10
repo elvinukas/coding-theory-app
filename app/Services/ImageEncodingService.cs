@@ -8,25 +8,50 @@ using SixLabors.ImageSharp;
 
 namespace app.Services;
 
+/// <summary>
+/// Class implementing an encoding service for images.
+/// </summary>
 public class ImageEncodingService : IEncodingService
 {
     private readonly IWebHostEnvironment _environment;
     private readonly IHubContext<EncodingProgressHub> _hubContext;
     
+    /// <summary>
+    /// Constructor for the image encoding service.
+    /// </summary>
+    /// <param name="environment"><see cref="IWebHostEnvironment"/></param>
+    /// <param name="hubContext">Can be used to link progress of decoding to the front end</param>
     public ImageEncodingService(IWebHostEnvironment environment, IHubContext<EncodingProgressHub> hubContext)
     {
         _environment = environment;
         _hubContext = hubContext;
     }
     
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(EncodeRequest request) => request is ImageEncodeRequest;
 
+    /// <summary>
+    /// Method to encode data.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns><see cref="EncodeResponse"/></returns>
+    /// <seealso cref="EncodeAsync"/>
     public EncodeResponse Encode(EncodeRequest request)
     {
         return EncodeAsync(request).GetAwaiter().GetResult();
 
     }
 
+    /// <summary>
+    /// Private method which encodes data with async.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns>Returns a task with <see cref="EncodeResponse"/></returns>
+    /// <exception cref="EncodingException">Throws if encoding failed</exception>
     private async Task<EncodeResponse> EncodeAsync(EncodeRequest request)
     {
         ImageEncodeRequest imageRequest = (ImageEncodeRequest)request;

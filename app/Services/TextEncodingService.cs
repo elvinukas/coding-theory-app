@@ -6,10 +6,23 @@ using app.Models.Encode;
 
 namespace app.Services;
 
+/// <summary>
+/// This class is used for text encoding and implements the <see cref="IEncodingService"/>.
+/// </summary>
 public class TextEncodingService : IEncodingService
 {
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(EncodeRequest request) => request is TextEncodeRequest;
 
+    /// <summary>
+    /// Method to encode data.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns><see cref="EncodeResponse"/></returns>
     public EncodeResponse Encode(EncodeRequest request)
     {
         TextEncodeRequest textRequest = (TextEncodeRequest)request;

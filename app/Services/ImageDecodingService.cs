@@ -7,20 +7,39 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace app.Services;
 
+/// <summary>
+/// Class implementing a decoding service for images.
+/// </summary>
 public class ImageDecodingService : IDecodingService
 {
 
     private readonly IWebHostEnvironment _environment;
     private readonly IHubContext<DecodingProgressHub> _hubContext;
     
+    /// <summary>
+    /// Constructor for the image decoding service.
+    /// </summary>
+    /// <param name="environment"><see cref="IWebHostEnvironment"/></param>
+    /// <param name="hubContext">Can be used to link progress of decoding to the front end</param>
     public ImageDecodingService(IWebHostEnvironment environment, IHubContext<DecodingProgressHub> hubContext)
     {
         _environment = environment;
         _hubContext = hubContext;
     }
     
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="DecodeRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(DecodeRequest request) => request is ImageDecodeRequest;
 
+    /// <summary>
+    /// Method to decode data.
+    /// </summary>
+    /// <param name="request"><see cref="DecodeRequest"/></param>
+    /// <returns><see cref="DecodeResponse"/></returns>
+    /// <exception cref="DecodingException">Throws if decoding fails.</exception>
     public DecodeResponse Decode(DecodeRequest request)
     {
         ImageDecodeRequest imageRequest = (ImageDecodeRequest)request;

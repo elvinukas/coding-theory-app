@@ -6,10 +6,23 @@ using app.Models.Encode;
 
 namespace app.Services;
 
+/// <summary>
+/// Class implementing an encoding service for vectors.
+/// </summary>
 public class VectorEncodingService : IEncodingService
 {
+    /// <summary>
+    /// Checking whether the service can handle the request.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns><c>bool</c></returns>
     public bool CanHandle(EncodeRequest request) => request is VectorEncodeRequest;
 
+    /// <summary>
+    /// Method to encode data.
+    /// </summary>
+    /// <param name="request"><see cref="EncodeRequest"/></param>
+    /// <returns><see cref="EncodeResponse"/></returns>
     public EncodeResponse Encode(EncodeRequest request)
     {
         var vectorRequest = (VectorEncodeRequest)request;
