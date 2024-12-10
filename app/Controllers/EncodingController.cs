@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace app.Controllers;
 
 
+/// <summary>
+/// Controller class which is used to encode matrices through an API.
+/// </summary>
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,11 +15,22 @@ public class EncodingController : ControllerBase
 {
     private readonly EncodingServiceFactory _encodingServiceFactory;
     
+    /// <summary>
+    /// Constructor for the encoding controller. The controller uses the factory design pattern to determine which
+    /// service to use for encoding.
+    /// </summary>
+    /// <param name="encodingServiceFactory"><see cref="EncodingServiceFactory"/></param>
     public EncodingController(EncodingServiceFactory encodingServiceFactory)
     {
         _encodingServiceFactory = encodingServiceFactory;
     }
     
+    /// <summary>
+    /// HTTP-POST request to encode matrices or files.
+    /// <para>Can be sent a json file, or in the case of image encoding -
+    /// image files through <c>Request.Form</c>.</para>
+    /// </summary>
+    /// <returns></returns>
     [HttpPost]
     public IActionResult Encode()
     {
