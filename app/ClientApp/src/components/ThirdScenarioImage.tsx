@@ -26,6 +26,7 @@ export function ThirdScenarioImage() {
     const [isDecodingSuccessful, setIsDecodingSuccessful] = useState(false);
     const [isOgChannelingSuccessful, setIsOgChannelingSuccessful] = useState(false);
 
+    const [displayedRandomGenMatrix, setDisplayedRandomGenMatrix] = useState([]);
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(true);
     const [matrixRows, setMatrixRows] = useState(4);
     const [matrixCols, setMatrixCols] = useState(7);
@@ -93,6 +94,7 @@ export function ThirdScenarioImage() {
             let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
 
             // - encoding fetching
+            setDisplayedRandomGenMatrix(generatorMatrixArray);
             
             const FormData = require('form-data');
             const formData = new FormData();
@@ -459,6 +461,22 @@ export function ThirdScenarioImage() {
                             </div>
                         </div>
                     )}
+
+                    {!useCustomGeneratorMatrix && displayedRandomGenMatrix.length > 0 && (
+                        <div>
+                            <h3>Random Generator Matrix:</h3>
+                            {displayedRandomGenMatrix.map((row, rowIndex) => (
+                                <div key={rowIndex} className="matrix-row">
+                                    {row.map((value, colIndex) => (
+                                        <span key={colIndex} className="matrix-cell">
+                                        {value}
+                                        </span>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
                 </div>
 
             </div>

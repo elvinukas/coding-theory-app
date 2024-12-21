@@ -12,6 +12,7 @@ export function SecondScenarioText() {
     const [encodedTextChanneled, setEncodedTextChanneled] = useState("");
     const [decodedText, setDecodedText] = useState("");
     const [possiblyOriginalText, setPossiblyOriginalText] = useState("");
+    const [displayedRandomGenMatrix, setDisplayedRandomGenMatrix] = useState([]);
 
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [allowManualEdit, setAllowManualEdit] = useState(false);
@@ -89,6 +90,7 @@ export function SecondScenarioText() {
         let generatorMatrixArray = await fetchGeneratorMatrix(useCustomGeneratorMatrix, generatorMatrix, matrixRows, matrixCols);
         
         // - encoding fetching
+        setDisplayedRandomGenMatrix(generatorMatrixArray);
 
         const requestData = {
             Type: "text",
@@ -389,6 +391,22 @@ export function SecondScenarioText() {
                                         </div>
                                     </div>
                                 )}
+
+                    {!useCustomGeneratorMatrix && displayedRandomGenMatrix.length > 0 && (
+                        <div>
+                            <h3>Random Generator Matrix:</h3>
+                            {displayedRandomGenMatrix.map((row, rowIndex) => (
+                                <div key={rowIndex} className="matrix-row">
+                                    {row.map((value, colIndex) => (
+                                        <span key={colIndex} className="matrix-cell">
+                                        {value}
+                                        </span>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
                             </div>
         
                         </div>

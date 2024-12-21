@@ -8,6 +8,7 @@ export function FirstScenarioBinary() {
     const [decodedVector, setDecodedVector] = useState("");
     const [errorProbability, setErrorProbability] = useState(0.1); // default probability for error introduction
     const [allowManualEdit, setAllowManualEdit] = useState(false);
+    const [displayedRandomGenMatrix, setDisplayedRandomGenMatrix] = useState([]);
 
     const [useCustomGeneratorMatrix, setUseCustomGeneratorMatrix] = useState(false);
     const [matrixRows, setMatrixRows] = useState(4);
@@ -116,6 +117,8 @@ export function FirstScenarioBinary() {
                 
             }
         }
+        
+        setDisplayedRandomGenMatrix(generatorMatrixArray);
 
         const messageMatrix = binaryVectorConverter(binaryVector);
         
@@ -401,7 +404,25 @@ export function FirstScenarioBinary() {
                             </div>
                         </div>
                     )}
+
+                    {!useCustomGeneratorMatrix && displayedRandomGenMatrix.length > 0 && (
+                        <div>
+                            <h3>Random Generator Matrix:</h3>
+                            {displayedRandomGenMatrix.map((row, rowIndex) => (
+                                <div key={rowIndex} className="matrix-row">
+                                    {row.map((value, colIndex) => (
+                                        <span key={colIndex} className="matrix-cell">
+                                        {value}
+                                        </span>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+
                 </div>
+                
             </div>
         </div>
     );
