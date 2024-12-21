@@ -18,49 +18,13 @@ public class ImageConverterUnitTests
     {
         _testOutputHelper = testOutputHelper;
     }
-
-    // public void ImageConverter_CheckIfConverterWorksAsExpected()
-     // {
-     //     string imagePath = "../../../test-images/1.bmp";
-     //     string binaryPath = "../../../test-images/1.bin"; 
-     //     string reconvertedBinaryPath = "../../../test-images/1_reconverted.bin"; 
-     //     string savePath = "../../../test-images/1_reconverted.bmp";
-     //     Image image = Image.Load(imagePath);
-     //     Stopwatch stopwatch = Stopwatch.StartNew();
-     //     Matrix convertedImage = ImageConverter.ConvertToBinaryMatrix(image, binaryPath);
-     //     stopwatch.Stop();
-     //     Console.WriteLine($"ConvertToBinaryMatrix took {stopwatch.ElapsedMilliseconds} ms");
-     //     stopwatch.Reset();
-     //     
-     //     stopwatch.Start();
-     //     ImageConverter.SaveImage(convertedImage, reconvertedBinaryPath, savePath);
-     //     stopwatch.Stop();
-     //     Console.WriteLine($"Saving image took {stopwatch.ElapsedMilliseconds} ms");
-     //
-     //     byte[] convertedBinary = File.ReadAllBytes(binaryPath);
-     //     byte[] reconvertedBinary = File.ReadAllBytes(reconvertedBinaryPath);
-     //     Assert.True(convertedBinary.SequenceEqual(reconvertedBinary), "Converted binary file is not the same as the original one." );
-     //     
-     //     if (File.Exists(binaryPath))
-     //     {
-     //         File.Delete(binaryPath);
-     //     }
-     //
-     //     if (File.Exists(reconvertedBinaryPath))
-     //     {
-     //         File.Delete(reconvertedBinaryPath);
-     //     }
-     //     
-     //
-     // }
-
      
      // Error probability: 5%
      // Actual error percentage: 1,9444310335843653%
     [Fact]
      public void ImageConverter_CheckIfTheNewConverterWorksAsExpected()
      {
-         string imagePath = "../../../test-images/1.jpeg";
+         string imagePath = "../../../test-images/1.png";
          string binaryPath = "../../../test-images/1.bin";
          string encodedBinaryPath = "../../../test-images/1_encoded.bin";
          string decodedBinaryPath = "../../../test-images/1_decoded.bin"; 

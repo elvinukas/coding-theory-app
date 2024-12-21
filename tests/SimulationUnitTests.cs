@@ -33,7 +33,7 @@ public class SimulationUnitTests
         Matrix encodedMessage = linearEncodingAlgorithm.EncodedMessage;
         Matrix retrievedGeneratorMatrix = linearEncodingAlgorithm.GeneratorMatrix;
 
-        Channel channel = new Channel(encodedMessage, 0.02);
+        Channel channel = new Channel(encodedMessage, 0.01);
         Matrix encodedMessageWithPossibleErrors = channel.ReceivedMessage;
 
         
@@ -64,7 +64,7 @@ public class SimulationUnitTests
 
         LinearEncodingAlgorithm algorithm = new LinearEncodingAlgorithm(convertedMessage, generatorMatrix, 4, 7);
         Matrix encodedMessage = algorithm.EncodedMessage;
-        Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 2);
+        Matrix errorVector = Channel.GetSpecifiedNumOfErrorVector(algorithm.EncodedMessage, 1);
         Matrix receivedMessage = encodedMessage + errorVector;
 
         StepByStepDecodingAlgorithm decodingAlgorithm =
