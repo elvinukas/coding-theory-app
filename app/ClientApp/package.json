@@ -72,32 +72,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "main": "public/electron.js", 
-  "scripts": {
-    "start": "react-scripts start", 
-    "build": "react-scripts build", 
-    "electron:start": "electron .", 
-    "electron:build": "electron-builder" 
-  },
-  "homepage": "./",
-  "build": {
-    "appId": "com.example.app",
-    "productName": "YourAppName",
-    "files": [
-      "build/**/*",
-      "electron.js",
-      "backend/**/*"
-    ],
-    "win": {
-      "target": "nsis" 
-    },
-    "mac": {
-      "target": "dmg" 
-    },
-    "linux": {
-      "target": "AppImage" 
-    }
   }
 }
 

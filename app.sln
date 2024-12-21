@@ -19,4 +19,7 @@ Global
 		{C0D3839E-C4DD-416D-8D66-083A05A4B8F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0D3839E-C4DD-416D-8D66-083A05A4B8F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(RiderSharedRunConfigurations) = postSolution
+		File = configuration\app.run.xml
+	EndGlobalSection
 EndGlobal
