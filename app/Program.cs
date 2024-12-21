@@ -29,6 +29,11 @@ builder.Services.AddSingleton<EncodingServiceFactory>();
 builder.Services.AddSingleton<ChannelServiceFactory>();
 builder.Services.AddSingleton<DecodingServiceFactory>();
 builder.Services.AddSignalR();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
@@ -41,6 +46,8 @@ builder.WebHost.ConfigureKestrel(options =>
     options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10);
 
 });
+
+
 
 var app = builder.Build();
 

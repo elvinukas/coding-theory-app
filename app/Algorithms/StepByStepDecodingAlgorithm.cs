@@ -146,9 +146,6 @@ public class StepByStepDecodingAlgorithm
         int encodedMessageLength = receivedMessage.Columns;
         int numberOfParts = encodedMessageLength / n;
         Matrix decodedMessage = null;
-        StandardArrayGenerator standardArrayGenerator = new StandardArrayGenerator(GeneratorMatrix);
-        Dictionary<(Matrix, Matrix), Matrix> multiplicationCache = new Dictionary<(Matrix, Matrix), Matrix>();
-
         
         for (int part = 0; part < numberOfParts; ++part)
         {

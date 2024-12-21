@@ -45,10 +45,10 @@ public class GraphCreationUnitTests
         
         Matrix genMatrix = new Matrix(new int[,]
         {
-            {1, 0, 0, 0, 1, 1, 0}, 
-            {0, 1, 0, 0, 1, 0, 1},
-            {0, 0, 1, 0, 1, 1, 1},
-            {0, 0, 0, 1, 0, 1, 1}
+            {1, 0, 0, 0, 0, 1, 0}, 
+            {0, 1, 0, 0, 1, 1, 0},
+            {0, 0, 1, 0, 1, 0, 1},
+            {0, 0, 0, 1, 0, 0, 1}
         });
         
 
@@ -58,7 +58,7 @@ public class GraphCreationUnitTests
             GeneratorMatrix = MatrixConverter.ConvertTo2DList(genMatrix)
         };
 
-        GraphService service = new GraphService(0.01);
+        GraphService service = new GraphService(0.001);
         service.Paint(request);
 
     }
