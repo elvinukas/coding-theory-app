@@ -1,6 +1,6 @@
 # Coding Theory Application
 
-This is a web-based application designed specifically for demonstrating encoding and decoding proceses of the linear encoding and step-by-step decoding algorithms.
+This is a web-based application designed specifically for demonstrating encoding and decoding processes of the linear encoding and step-by-step decoding algorithms.
 The project is written in C# (.NET) for the backend and React for the frontend.
 
 Three scenarios are present to showcase the encoding/decoding features, ranked by difficulty.
